@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import "./Awards.css";
 import bannerImage from "../../assets/images/banner/inner-banner.jpg";
 import api, { baseURL } from "../api";
 import { Link } from "react-router-dom";
-import { useTranslation } from "react-i18next";
+
 const Awards = () => {
-  const { i18n, t } = useTranslation();
   const [awards, setAwards] = useState([]);
   const [awardimages, setAwardImages] = useState([]);
+  const { i18n, t } = useTranslation();
 
   const fetchAwards = async () => {
     try {

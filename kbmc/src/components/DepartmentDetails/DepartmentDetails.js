@@ -42,7 +42,6 @@ const DepartmentDetails = () => {
     try {
      
       const response = await api.get(`/home-videos?lang=${i18n.language}`);
-      console.log("Received videos:", response.data); // Add this
       setVideos(response.data);
     } catch (error) {
       console.error("Error fetching videos data");

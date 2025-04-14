@@ -1,6 +1,6 @@
+import "./i18n"; // Import i18n configuration
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { useTranslation } from "react-i18next"; // ✅ import useTranslation
 import "font-awesome/css/font-awesome.min.css";
 import Header from "./components/Header/Header";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -58,16 +58,13 @@ import DeptData from "./components/DeptData/DeptData";
 import DeptDataYear from "./components/DeptData/DeptDataYear";
 import CookieConsent from "./components/CookieConsent/CookieConsent";
 import TermsAndConditions from "./components/TermsAndConditions/TermsAndConditions";
-import "./i18n"; // Import i18n configuration
+import { useTranslation } from "react-i18next";
 
 function App() {
   
   const [departments, setDepartments] = useState([]);
   const [departmentData, setDepartmentData] = useState([]);
   const [departmentDatas, setDepartmentDatas] = useState([]);
-
-
-
   const { i18n } = useTranslation();
    
   useEffect(() => {
@@ -107,10 +104,10 @@ function App() {
     fetchDepartmentDatas();
 
     // ✅ Optionally set language from browser
-    const lang = navigator.language.split("-")[0]; // 'en', 'mr', 'hi'
+    /* const lang = navigator.language.split("-")[0]; // 'en', 'mr', 'hi'
     if (["en", "mr", "hi"].includes(lang)) {
       i18n.changeLanguage(lang);
-    }
+    } */
   }, []);
 
   return (
