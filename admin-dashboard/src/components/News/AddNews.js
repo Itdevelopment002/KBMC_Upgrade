@@ -2,13 +2,26 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 const AddNews = () => {
-  const [newsDescription, setNewsDescription] = useState("");
+   const [formData, setFormData] = useState({
+    newsDescription: "",
+    
+      language_code: "",
+    });
+
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData({ ...formData, [name]: value });
+      setErrors({ ...errors, [name]: "" });
+    };
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({ newsDescription: "" });
+  const [errors, setErrors] = useState({ newsDescription: "", language_code:"" });
   const validateForm = () => {
     const newErrors = {};
-    if (!newsDescription) {
+    if (!formData.newsDescription) {
       newErrors.newsDescription = "News Description is required.";
+    }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language code is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -24,7 +37,8 @@ const AddNews = () => {
       const response = await api.post(
         "/newsupdate",
         {
-          description: newsDescription,
+          description: formData.newsDescription,
+          language_code: formData.language_code,
         },
         {
           headers: {
@@ -43,7 +57,7 @@ const AddNews = () => {
       console.error("Error while adding news:", error);
     }
 
-    setNewsDescription("");
+   
   };
   return (
     <>
@@ -70,6 +84,30 @@ const AddNews = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-md-2">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                        className={`form-control ${
+                          errors.language_code ? "is-invalid" : ""
+                        }`}
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">
+                          {errors.language_code}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         News Description <span className="text-danger">*</span>
@@ -81,13 +119,9 @@ const AddNews = () => {
                             errors.newsDescription ? "is-invalid" : ""
                           }`}
                           placeholder=""
-                          value={newsDescription}
-                          onChange={(e) => {
-                            setNewsDescription(e.target.value);
-                            if (errors.newsDescription) {
-                              setErrors({ ...errors, newsDescription: "" });
-                            }
-                          }}
+                          value={formData.newsDescription}
+                          onChange={(handleChange)}
+                          name="newsDescription"
                         />
                         {errors.newsDescription && (
                           <small className="text-danger">

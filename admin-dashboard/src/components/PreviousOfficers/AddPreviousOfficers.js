@@ -1,1 +1,210 @@
-import React, { useState } from "react";import { Link, useNavigate } from "react-router-dom";import api from "../api";import Flatpickr from "react-flatpickr";import "flatpickr/dist/themes/material_blue.css";const AddPreviousOfficers = () => {  const [officerName, setOfficerName] = useState("");  const [startDate, setStartDate] = useState("");  const [endDate, setEndDate] = useState("");  const [officerImage, setOfficerImage] = useState("");  const [errors, setErrors] = useState({    officerName: "",    startDate: "",    officerImage: "",  });  const navigate = useNavigate();  // Handle field change  const handleFieldChange = (field, value) => {    if (field === "officerName") {      setOfficerName(value);      setErrors((prevErrors) => ({ ...prevErrors, officerName: "" }));    }    if (field === "startDate") {      setStartDate(value);      setErrors((prevErrors) => ({ ...prevErrors, startDate: "" }));    }    if (field === "endDate") setEndDate(value);    if (field === "officerImage") {      setOfficerImage(value);      setErrors((prevErrors) => ({ ...prevErrors, officerImage: "" }));    }  };  const handleFileChange = (e) => {    const file = e.target.files[0];    setOfficerImage(file);        // Clear the error message if a file is uploaded    setErrors((prevErrors) => ({ ...prevErrors, officerImage: "" }));  };  // Date format function  const formatDate = (date) => {    const d = new Date(date);    const day = String(d.getDate()).padStart(2, "0");    const month = String(d.getMonth() + 1).padStart(2, "0");    const year = d.getFullYear();    return `${day}-${month}-${year}`;  };  // Handle form submit  const handleSubmit = async (e) => {    e.preventDefault();    const newErrors = {};    // Validation logic    if (!officerName) newErrors.officerName = "Officer name is required.";    if (!startDate) newErrors.startDate = "Start date is required.";    if (!officerImage) newErrors.officerImage = "Officer image is required.";       if (Object.keys(newErrors).length > 0) {      setErrors(newErrors);      return;    }    const formattedStartDate = startDate ? formatDate(startDate) : "";    const formattedEndDate = endDate ? formatDate(endDate) : ""; // Will be an empty string if endDate is not selected    const formData = new FormData();    formData.append("officerName", officerName);    formData.append("startDate", formattedStartDate);    formData.append("endDate", formattedEndDate); // Can be empty    formData.append("officerImage", officerImage);    try {      const response = await api.post("/chief-officers", formData, {        headers: {          "Content-Type": "multipart/form-data",        },      });      // Clear form fields after successful submission      setOfficerName("");      setStartDate("");      setEndDate("");      setOfficerImage(null);      document.getElementById("userfile").value = null;      navigate("/previous-officers");    } catch (error) {      console.error("Error adding officer", error);    }  };  return (    <div>      <div className="page-wrapper">        <div className="content">          <ol className="breadcrumb">            <li className="breadcrumb-item">              <Link to="#.">About KBMC</Link>            </li>            <li className="breadcrumb-item">              <Link to="/previous-officers">                Previous Chief officers of the council              </Link>            </li>            <li className="breadcrumb-item active" aria-current="page">              Add Officer            </li>          </ol>          <div className="row">            <div className="col-lg-12">              <div className="card-box">                <div className="card-block">                  <div className="row">                    <div className="col-sm-4 col-3">                      <h4 className="page-title">Add Officer</h4>                    </div>                  </div>                  <form onSubmit={handleSubmit}>                                      <div className="form-group row">                      <label className="col-form-label col-md-2">Officer Name <span className="text-danger">*</span></label>                      <div className="col-md-4">                        <input                          type="text"                          className="form-control form-control-md"                          placeholder="Enter Officer's Name"                          value={officerName}                          onChange={(e) => handleFieldChange("officerName", e.target.value)}                        />                        {errors.officerName && <div className="text-danger">{errors.officerName}</div>}                      </div>                    </div>                                        <div className="form-group row">                      <label className="col-form-label col-md-2">Start Date <span className="text-danger">*</span></label>                      <div className="cal-icon col-md-4">                        <Flatpickr                          id="startDatePicker"                          className="flatpickr-input form-control form-control-md"                          placeholder="Select Start Date"                          value={startDate}                          onChange={(date) => handleFieldChange("startDate", date[0])}                          options={{                            dateFormat: "d-m-Y",                            monthSelectorType: "dropdown",                            prevArrow:                              '<svg><path d="M10 5L5 10L10 15"></path></svg>',                            nextArrow:                              '<svg><path d="M5 5L10 10L5 15"></path></svg>',                          }}                        />                        {errors.startDate && <div className="text-danger">{errors.startDate}</div>}                      </div>                    </div>                                     <div className="form-group row">                      <label className="col-form-label col-md-2">End Date</label>                      <div className="cal-icon col-md-4">                        <Flatpickr                          id="endDatePicker"                          className="flatpickr-input form-control form-control-md"                          placeholder="Select End Date"                          value={endDate}                          onChange={(date) => handleFieldChange("endDate", date[0])}                          options={{                            dateFormat: "d-m-Y",                            monthSelectorType: "dropdown",                            prevArrow:                              '<svg><path d="M10 5L5 10L10 15"></path></svg>',                            nextArrow:                              '<svg><path d="M5 5L10 10L5 15"></path></svg>',                          }}                        />                      </div>                    </div>                                      <div className="form-group row">                      <label className="col-form-label col-lg-2">Upload Officer Image <span className="text-danger">*</span></label>                      <div className="col-md-4">                        <div className="input-group">                          <input                            type="file"                            id="userfile"                            name="userfile"                            className="form-control form-control-md"                            onChange={handleFileChange}                          />                        </div>                        {errors.officerImage && <div className="text-danger">{errors.officerImage}</div>}                      </div>                    </div>                    <input                      type="submit"                      className="btn btn-primary btn-sm"                      value="Submit"                    />                  </form>                </div>              </div>            </div>          </div>        </div>      </div>    </div>  );};export default AddPreviousOfficers;
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../api";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_blue.css";
+
+const AddPreviousOfficers = () => {
+  const [formData, setFormData] = useState({
+    officerName: "",
+    startDate: "",
+    endDate: "",
+    officerImage: "",
+    language_code: "",
+  });
+
+  const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+
+    if (name === "userfile") {
+      setFormData({ ...formData, officerImage: files[0] });
+      setErrors({ ...errors, officerImage: "" });
+    } else {
+      setFormData({ ...formData, [name]: value });
+      setErrors({ ...errors, [name]: "" });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.officerName) newErrors.officerName = "Officer name is required.";
+    if (!formData.startDate) newErrors.startDate = "Start date is required.";
+    if (!formData.officerImage) newErrors.officerImage = "Officer image is required.";
+    if (!formData.language_code) newErrors.language_code = "Language selection is required.";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    const formattedStartDate = formatDate(formData.startDate);
+    const formattedEndDate = formData.endDate ? formatDate(formData.endDate) : "";
+
+    const submissionData = new FormData();
+    submissionData.append("officerName", formData.officerName);
+    submissionData.append("startDate", formattedStartDate);
+    submissionData.append("endDate", formattedEndDate);
+    submissionData.append("officerImage", formData.officerImage);
+    submissionData.append("language_code", formData.language_code);
+
+    try {
+      await api.post("/chief-officers", submissionData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      // Clear form after successful submission
+      setFormData({
+        officerName: "",
+        startDate: "",
+        endDate: "",
+        officerImage: "",
+        language_code: "",
+      });
+
+      document.getElementById("userfile").value = null;
+      navigate("/previous-officers");
+    } catch (error) {
+      console.error("Error adding officer", error);
+    }
+  };
+
+  return (
+    <div className="page-wrapper">
+      <div className="content">
+        <ol className="breadcrumb">
+          <li className="breadcrumb-item">
+            <Link to="#.">About KBMC</Link>
+          </li>
+          <li className="breadcrumb-item">
+            <Link to="/previous-officers">Previous Chief Officers</Link>
+          </li>
+          <li className="breadcrumb-item active">Add Officer</li>
+        </ol>
+
+        <div className="row">
+          <div className="col-lg-12">
+            <div className="card-box">
+              <div className="card-block">
+                <div className="row mb-3">
+                  <div className="col-sm-4 col-3">
+                    <h4 className="page-title">Add Officer</h4>
+                  </div>
+                </div>
+
+                <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && <div className="invalid-feedback">{errors.language_code}</div>}
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Officer Name <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <input
+                        type="text"
+                        className="form-control form-control-md"
+                        placeholder="Enter Officer's Name"
+                        value={formData.officerName}
+                        onChange={handleChange}
+                        name="officerName"
+                      />
+                      {errors.officerName && <div className="text-danger">{errors.officerName}</div>}
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Start Date <span className="text-danger">*</span>
+                    </label>
+                    <div className="cal-icon col-md-4">
+                      <Flatpickr
+                        className="flatpickr-input form-control form-control-md"
+                        placeholder="Select Start Date"
+                        value={formData.startDate}
+                        onChange={(date) => setFormData({ ...formData, startDate: date[0] })}
+                        options={{
+                          dateFormat: "d-m-Y",
+                          monthSelectorType: "dropdown",
+                        }}
+                      />
+                      {errors.startDate && <div className="text-danger">{errors.startDate}</div>}
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">End Date</label>
+                    <div className="cal-icon col-md-4">
+                      <Flatpickr
+                        className="flatpickr-input form-control form-control-md"
+                        placeholder="Select End Date"
+                        value={formData.endDate}
+                        onChange={(date) => setFormData({ ...formData, endDate: date[0] })}
+                        options={{
+                          dateFormat: "d-m-Y",
+                          monthSelectorType: "dropdown",
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
+                    <label className="col-form-label col-lg-2">
+                      Upload Officer Image <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <div className="input-group">
+                        <input
+                          type="file"
+                          id="userfile"
+                          name="userfile"
+                          className="form-control form-control-md"
+                          onChange={handleChange}
+                        />
+                      </div>
+                      {errors.officerImage && <div className="text-danger">{errors.officerImage}</div>}
+                    </div>
+                  </div>
+
+                  <input type="submit" className="btn btn-primary btn-sm" value="Submit" />
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AddPreviousOfficers;

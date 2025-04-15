@@ -21,36 +21,57 @@ const convertToMySQLDate = (dateString) => {
   return `${year}-${month}-${day}`;
 };
 
-router.post("/chief-officers", upload.single("officerImage"), (req, res) => {
-  const { officerName, startDate, endDate } = req.body;
+// router.post("/chief-officers", upload.single("officerImage"), (req, res) => {
+//   const { officerName, startDate, endDate } = req.body;
 
-  // Convert start date
+//   const sql =
+//     "INSERT INTO previous_chief_officer (officer_name, start_date, end_date, image_path) VALUES (?, ?, ?, ?)";
+//   db.query(
+//     sql,
+//     [officerName, formattedStartDate, formattedEndDate, imagePath],
+//     (err, result) => {
+//       if (err) {
+//         console.error("Database Error:", err);
+//         return res.status(500).json({ message: "Database error", error: err });
+//       }
+//       res
+//         .status(200)
+//         .json({
+//           message: "Chief officer added successfully",
+//           officerId: result.insertId,
+//         });
+//     }
+//   );
+// });
+
+router.post("/chief-officers", upload.single("officerImage"), (req, res) => {
+  const {
+    officerName, startDate, endDate, language_code,
+  } = req.body;
+
   const formattedStartDate = convertToMySQLDate(startDate);
-  
-  // If endDate is not provided, set it to null
   const formattedEndDate = endDate ? convertToMySQLDate(endDate) : null;
 
   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-  const sql =
-    "INSERT INTO previous_chief_officer (officer_name, start_date, end_date, image_path) VALUES (?, ?, ?, ?)";
+  if (!officerName || !startDate || !language_code || !imagePath) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const sql = `INSERT INTO previous_chief_officer (officer_name, start_date, end_date, image_path, language_code) VALUES (?, ?, ?, ?, ?)`;
   db.query(
     sql,
-    [officerName, formattedStartDate, formattedEndDate, imagePath],
+    [officerName, formattedStartDate, formattedEndDate, imagePath, language_code],
     (err, result) => {
       if (err) {
-        console.error("Database Error:", err);
         return res.status(500).json({ message: "Database error", error: err });
       }
-      res
-        .status(200)
-        .json({
-          message: "Chief officer added successfully",
-          officerId: result.insertId,
-        });
+      res.status(200).json({ message: "Chief added successfully", id: result.insertId });
     }
   );
 });
+
+
 
 router.get("/chief-officers", (req, res) => {
   const language = req.query.lang;

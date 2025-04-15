@@ -9,9 +9,16 @@ const AddCo = () => {
     designation: "",
     email: "",
     coImage: null,
+    language_code:"",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    coName: "",
+    designation: "",
+    email: "",
+    coImage: "",
+    language_code:"",
+  });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -43,6 +50,9 @@ const AddCo = () => {
     if (!formData.coImage) {
       newErrors.coImage = "CO Image is required.";
     }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
     return newErrors;
   };
 
@@ -59,6 +69,8 @@ const AddCo = () => {
     data.append("coName", formData.coName);
     data.append("designation", formData.designation);
     data.append("email", formData.email);
+    data.append("language_code", formData.language_code);
+
     if (formData.coImage) {
       data.append("coImage", formData.coImage);
     }
@@ -101,6 +113,27 @@ const AddCo = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         CO Name <span className="text-danger">*</span>

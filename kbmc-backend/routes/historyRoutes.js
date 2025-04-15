@@ -2,22 +2,38 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db.js");
 
+// router.post("/history", (req, res) => {
+//   const { description } = req.body;
+//   if (!description) {
+//     return res.status(400).json({ message: "Description is required" });
+//   }
+//   const sql = "INSERT INTO history (description) VALUES (?)";
+//   db.query(sql, [description], (err, result) => {
+//     if (err) {
+//       return res.status(500).json({ message: "Database error", error: err });
+//     }
+//     res
+//       .status(201)
+//       .json({
+//         message: "History added successfully",
+//         historyId: result.insertId,
+//       });
+//   });
+// });
+
 router.post("/history", (req, res) => {
-  const { description } = req.body;
-  if (!description) {
-    return res.status(400).json({ message: "Description is required" });
+  const {  description, language_code } = req.body;
+  if (!description || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
   }
-  const sql = "INSERT INTO history (description) VALUES (?)";
-  db.query(sql, [description], (err, result) => {
+  const sql = `INSERT INTO history (description, language_code) VALUES (?,?)`;
+  db.query(sql, [description, language_code], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
-    res
-      .status(201)
-      .json({
-        message: "History added successfully",
-        historyId: result.insertId,
-      });
+    res.status(200).json({ message: "History description added successfully", id: result.insertId });
   });
 });
 
@@ -87,4 +103,3 @@ router.delete("/history/:id", (req, res) => {
 });
 
 module.exports = router;
-

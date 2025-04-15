@@ -4,33 +4,46 @@ import api from "../api";
 import { Link } from "react-router-dom";
 
 const AddFunctions = () => {
-  const [heading, setHeading] = useState("");
-  const [description, setDescription] = useState("");
-  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState({
+    heading: "",
+    description: "",
+    language_code: "",
+  });
+
+  const [errors, setErrors] = useState({
+    heading: "",
+    description: "",
+    language_code: "",
+  });
+
   const navigate = useNavigate();
 
   const validate = () => {
     const newErrors = {};
-    if (!heading.trim()) {
+    if (!formData.heading.trim()) {
       newErrors.heading = "Heading is required.";
     }
-    if (!description.trim()) {
+    if (!formData.description.trim()) {
       newErrors.description = "Description is required.";
     }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language is required.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) {
       return;
     }
-
-    const formData = {
-      heading,
-      description,
-    };
 
     try {
       const response = await api.post("/functions", formData, {
@@ -39,10 +52,13 @@ const AddFunctions = () => {
         },
       });
 
-      if (response.status === 201) {
-        setHeading("");
-        setDescription("");
-        setErrors({});
+      if (response.status === 200) {
+        setFormData({
+          heading: "",
+          description: "",
+          language_code: "",
+        });
+      
         navigate("/functions");
       }
     } catch (error) {
@@ -76,31 +92,40 @@ const AddFunctions = () => {
                   </div>
                   <form onSubmit={handleSubmit}>
                     <div className="form-group row">
+                      <label className="col-form-label col-md-2">Select Language <span className="text-danger">*</span></label>
+                      <div className="col-md-4">
+                        <select
+                          className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                          name="language_code"
+                          value={formData.language_code}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+                        {errors.language_code && <div className="invalid-feedback">{errors.language_code}</div>}
+                      </div>
+                    </div>
+                    <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         Heading <span className="text-danger">*</span>
                       </label>
                       <div className="col-md-4">
                         <input
                           type="text"
-                          className={`form-control form-control-md ${
-                            errors.heading ? "is-invalid" : ""
-                          }`}
+                          className={`form-control form-control-md ${errors.heading ? "is-invalid" : ""}`}
+                          name="heading"
+                          value={formData.heading}
+                          onChange={handleChange}
                           placeholder="Enter heading"
-                          value={heading}
-                          onChange={(e) => {
-                            setHeading(e.target.value);
-                            if (errors.heading) {
-                              setErrors((prev) => ({ ...prev, heading: "" }));
-                            }
-                          }}
                         />
                         {errors.heading && (
-                          <div className="invalid-feedback">
-                            {errors.heading}
-                          </div>
+                          <div className="invalid-feedback">{errors.heading}</div>
                         )}
                       </div>
                     </div>
+
                     <div className="form-group row">
                       <label className="col-form-label col-lg-2">
                         Description <span className="text-danger">*</span>
@@ -108,21 +133,13 @@ const AddFunctions = () => {
                       <div className="col-md-4">
                         <div className="input-group mb-3">
                           <textarea
-                            className={`form-control form-control-md ${
-                              errors.description ? "is-invalid" : ""
-                            }`}
+                            className={`form-control form-control-md ${errors.description ? "is-invalid" : ""
+                              }`}
                             placeholder="Enter description"
-                            value={description}
-                            onChange={(e) => {
-                              setDescription(e.target.value);
-                              if (errors.description) {
-                                setErrors((prev) => ({
-                                  ...prev,
-                                  description: "",
-                                }));
-                              }
-                            }}
+                            value={formData.description}
+                            onChange={(handleChange)}
                             rows="2"
+                            name="description"
                           />
                           {errors.description && (
                             <div className="invalid-feedback">

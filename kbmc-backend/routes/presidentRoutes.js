@@ -23,24 +23,25 @@ const convertToMySQLDate = (dateString) => {
 };
 
 router.post("/presidents", upload.single("presidentImage"), (req, res) => {
-  const { presidentName, startDate, endDate } = req.body;
+  const { presidentName, startDate, endDate, language_code } = req.body;
 
   const formattedStartDate = convertToMySQLDate(startDate);
-  const formattedEndDate = convertToMySQLDate(endDate);
-
-  if (!presidentName || !startDate) {
-    return res.status(400).json({
-      message: "President name and start date are required",
-    });
-  }
+  const formattedEndDate = endDate ? convertToMySQLDate(endDate) : null;
 
   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
+  // Basic validation
+  if (!presidentName || !startDate || !language_code || !imagePath) {
+    return res.status(400).json({
+      message: "President name, image, start date, and language code are required",
+    });
+  }
+
   const sql =
-    "INSERT INTO presidents (president_name, start_date, end_date, image_path) VALUES (?, ?, ?, ?)";
+    "INSERT INTO presidents (president_name, start_date, end_date, image_path, language_code) VALUES (?, ?, ?, ?, ?)";
   db.query(
     sql,
-    [presidentName, formattedStartDate, formattedEndDate, imagePath],
+    [presidentName, formattedStartDate, formattedEndDate, imagePath, language_code],
     (err, result) => {
       if (err) {
         console.error("Database Error:", err);
@@ -53,6 +54,7 @@ router.post("/presidents", upload.single("presidentImage"), (req, res) => {
     }
   );
 });
+
 
 router.get("/presidents", (req, res) => {
       const language = req.query.lang;

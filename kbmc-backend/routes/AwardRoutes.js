@@ -22,22 +22,24 @@ router.get("/awards", (req, res) => {
 });
 
 router.post("/awards", (req, res) => {
-  const { heading, description } = req.body;
-  if (!heading || !description) {
+  const { heading, description, language_code } = req.body;
+
+  if (!heading || !description || !language_code) {
     return res
       .status(400)
-      .json({ error: "Heading and description are required" });
+      .json({ error: "Heading, description, and language code are required" });
   }
 
-  const sql = "INSERT INTO awards (heading, description) VALUES (?, ?)";
-  db.query(sql, [heading, description], (err, result) => {
+  const sql = "INSERT INTO awards (heading, description, language_code) VALUES (?, ?, ?)";
+  db.query(sql, [heading, description, language_code], (err, result) => {
     if (err) {
       console.error("Error adding awards:", err);
       return res.status(500).json({ error: "Server Error" });
     }
-    res.status(201).json({ id: result.insertId, heading, description });
+    res.status(201).json({ id: result.insertId, heading, description, language_code });
   });
 });
+
 
 router.put("/awards/:id", (req, res) => {
   const { id } = req.params;

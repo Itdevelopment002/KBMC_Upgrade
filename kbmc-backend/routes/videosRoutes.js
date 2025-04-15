@@ -8,11 +8,11 @@ const convertToMySQLDate = (dateString) => {
 };
 
 router.post("/home-videos", (req, res) => {
-  const { description, publishDate, videoUrl } = req.body;
+  const { description, publishDate, videoUrl, language_code } = req.body;
 
   const formattedDate = convertToMySQLDate(publishDate);
 
-  if (!description || !publishDate || !videoUrl) {
+  if (!description || !publishDate || !videoUrl || !language_code) {
     return res
       .status(400)
       .json({
@@ -21,8 +21,8 @@ router.post("/home-videos", (req, res) => {
   }
 
   const sql =
-    "INSERT INTO home_videos (description, publish_date, video_url) VALUES (?, ?, ?)";
-  db.query(sql, [description, formattedDate, videoUrl], (err, result) => {
+    "INSERT INTO home_videos (description, publish_date, video_url, language_code) VALUES (?, ?, ? ,?)";
+  db.query(sql, [description, formattedDate, videoUrl, language_code], (err, result) => {
     if (err) {
       console.error("Database error:", err);
       return res.status(500).json({ message: "Database error", error: err });
