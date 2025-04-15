@@ -160,11 +160,12 @@ router.post(
   "/services",
   upload.fields([{ name: "mainIcon" }, { name: "hoverIcon" }]),
   async (req, res) => {
-    const { serviceHeading, serviceLink } = req.body;
-    if (!serviceHeading || !serviceLink) {
-      return res
-        .status(400)
-        .json({ message: "Service heading and link are required" });
+    const { serviceHeading, serviceLink, language_code } = req.body;
+
+    if (!serviceHeading || !serviceLink || !language_code) {
+      return res.status(400).json({
+        message: "Service heading, link, and language code are required",
+      });
     }
 
     let mainIconPath = null;
@@ -179,24 +180,26 @@ router.post(
     }
 
     const insertSql =
-      "INSERT INTO services (service_heading, service_link, main_icon_path, hover_icon_path) VALUES (?, ?, ?, ?)";
+      "INSERT INTO services (service_heading, service_link, main_icon_path, hover_icon_path, language_code) VALUES (?, ?, ?, ?, ?)";
     const insertParams = [
       serviceHeading,
       serviceLink,
       mainIconPath,
       hoverIconPath,
+      language_code,
     ];
 
     db.query(insertSql, insertParams, (err, result) => {
       if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
+        console.error("Database error:", err);
+        return res
+          .status(500)
+          .json({ message: "Database error", error: err });
       }
-      res
-        .status(201)
-        .json({
-          message: "Service added successfully",
-          serviceId: result.insertId,
-        });
+      res.status(201).json({
+        message: "Service added successfully",
+        serviceId: result.insertId,
+      });
     });
   }
 );

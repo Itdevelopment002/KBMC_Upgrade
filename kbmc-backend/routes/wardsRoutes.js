@@ -21,12 +21,28 @@ router.get("/wards", (req, res) => {
     });
 });
 
+// router.post("/wards", (req, res) => {
+//   const { ward_no, ward_name } = req.body;
+//   const sql = "INSERT INTO wards (ward_no, ward_name) VALUES (?, ?)";
+//   db.query(sql, [ward_no, ward_name], (err, result) => {
+//     if (err) throw err;
+//     res.json({ id: result.insertId, ward_no, ward_name });
+//   });
+// });
+
 router.post("/wards", (req, res) => {
-  const { ward_no, ward_name } = req.body;
-  const sql = "INSERT INTO wards (ward_no, ward_name) VALUES (?, ?)";
-  db.query(sql, [ward_no, ward_name], (err, result) => {
-    if (err) throw err;
-    res.json({ id: result.insertId, ward_no, ward_name });
+  const {  ward_no, ward_name, language_code } = req.body;
+  if (!ward_no || !ward_name || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
+  }
+  const sql = `INSERT INTO wards (ward_no, ward_name, language_code) VALUES (?, ?, ?) `;
+  db.query(sql, [ward_no, ward_name, language_code], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+    res.status(200).json({ message: "Wards added successfully", id: result.insertId });
   });
 });
 

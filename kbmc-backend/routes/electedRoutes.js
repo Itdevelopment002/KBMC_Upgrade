@@ -21,20 +21,71 @@ const convertToMySQLDate = (dateString) => {
   return `${year}-${month}-${day}`;
 };
 
+// router.post("/elected-wings", upload.single("image"), (req, res) => {
+//   const { correspondentName, wardNo, startDate, endDate, mobileNo } = req.body;
+
+//   const formattedStartDate = convertToMySQLDate(startDate);
+//   const formattedEndDate = convertToMySQLDate(endDate);
+
+//   if (!correspondentName || !wardNo || !startDate || !endDate || !mobileNo) {
+//     return res.status(400).json({ message: "All fields are required" });
+//   }
+
+//   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+//   const sql =
+//     "INSERT INTO elected_wings (correspondentName, wardNo, startDate, endDate, mobileNo, image_path) VALUES (?, ?, ?, ?, ?, ?)";
+//   db.query(
+//     sql,
+//     [
+//       correspondentName,
+//       wardNo,
+//       formattedStartDate,
+//       formattedEndDate,
+//       mobileNo,
+//       imagePath,
+//     ],
+//     (err, result) => {
+//       if (err) {
+//         return res.status(500).json({ message: "Database error", error: err });
+//       }
+//       res
+//         .status(200)
+//         .json({
+//           message: "Correspondent added successfully",
+//           correspondentId: result.insertId,
+//         });
+//     }
+//   );
+// });
+
+
 router.post("/elected-wings", upload.single("image"), (req, res) => {
-  const { correspondentName, wardNo, startDate, endDate, mobileNo } = req.body;
+  const {
+    correspondentName,
+    wardNo,
+    startDate,
+    endDate,
+    mobileNo,
+    language_code,
+  } = req.body;
 
-  const formattedStartDate = convertToMySQLDate(startDate);
-  const formattedEndDate = convertToMySQLDate(endDate);
-
-  if (!correspondentName || !wardNo || !startDate || !endDate || !mobileNo) {
+  if (
+    !correspondentName ||
+    !wardNo ||
+    !startDate ||
+    !endDate ||
+    !mobileNo ||
+    !language_code
+  ) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
+  const formattedStartDate = convertToMySQLDate(startDate);
+  const formattedEndDate = convertToMySQLDate(endDate);
   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-  const sql =
-    "INSERT INTO elected_wings (correspondentName, wardNo, startDate, endDate, mobileNo, image_path) VALUES (?, ?, ?, ?, ?, ?)";
+  const sql = `INSERT INTO elected_wings (correspondentName, wardNo, startDate, endDate, mobileNo, image_path, language_code) VALUES (?, ?, ?, ?, ?, ?, ?)`;
   db.query(
     sql,
     [
@@ -44,6 +95,7 @@ router.post("/elected-wings", upload.single("image"), (req, res) => {
       formattedEndDate,
       mobileNo,
       imagePath,
+      language_code,
     ],
     (err, result) => {
       if (err) {
@@ -51,10 +103,7 @@ router.post("/elected-wings", upload.single("image"), (req, res) => {
       }
       res
         .status(200)
-        .json({
-          message: "Correspondent added successfully",
-          correspondentId: result.insertId,
-        });
+        .json({ message: "Elected-Wings added successfully", id: result.insertId });
     }
   );
 });

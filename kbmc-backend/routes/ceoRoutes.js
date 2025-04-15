@@ -19,24 +19,34 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
-router.post("/ceos", upload.single("coImage"), (req, res) => {
-  const { coName, designation, email } = req.body;
 
-  if (!coName || !designation || !email) {
-    return res
-      .status(400)
-      .json({ message: "Name, designation, and email are required" });
+router.post("/ceos",upload.single("coImage"), (req, res) => {
+  const {
+    coName, designation, email,
+    language_code,
+  } = req.body;
+
+  if (
+    !coName || !designation || !email ||  !language_code
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-  const sql =
-    "INSERT INTO ceos (coName, designation, email, image_path) VALUES (?, ?, ?, ?)";
-  db.query(sql, [coName, designation, email, imagePath], (err, result) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err });
-    }
-    res
+  const sql = `INSERT INTO ceos (coName, designation, email, image_path, language_code) VALUES (?, ?, ?, ?, ?)`;
+
+  db.query(
+    sql,
+    [
+      coName, designation, email, imagePath,
+      language_code,
+    ],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      res
       .status(200)
       .json({ message: "CEO added successfully", ceoId: result.insertId });
   });

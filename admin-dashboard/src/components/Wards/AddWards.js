@@ -3,20 +3,41 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 
 const AddWards = () => {
-  const [wardNo, setWardNo] = useState("");
-  const [wardName, setWardName] = useState("");
-  const [errors, setErrors] = useState({});
+
+  const [formData, setFormData] = useState({
+    wardNo: "",
+    wardName: "",
+    language_code: "",
+  });
+
+  const [errors, setErrors] = useState({
+    wardNo: "",
+    wardName: "",
+    language_code: "",
+  });
+
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
+
 
   const validateForm = () => {
     const validationErrors = {};
 
-    if (!wardNo) {
+    if (!formData.wardNo) {
       validationErrors.wardNo = "Ward No. is required.";
     }
 
-    if (!wardName) {
+    if (!formData.wardName) {
       validationErrors.wardName = "Ward Name is required.";
+    }
+
+    if (!formData.language_code) {
+      validationErrors.language_code = "Language selection is required.";
     }
 
     setErrors(validationErrors);
@@ -31,13 +52,13 @@ const AddWards = () => {
     }
 
     try {
-      //eslint-disable-next-line
-      const response = await api.post("/wards", {
-        ward_no: wardNo,
-        ward_name: wardName,
+      await api.post("/wards", {
+        ward_no: formData.wardNo,
+        ward_name: formData.wardName,
+        language_code: formData.language_code,
       });
-      setWardNo("");
-      setWardName("");
+
+      setFormData({ wardNo: "", wardName: "", language_code: "" });
       navigate("/wards");
     } catch (err) {
       console.error("Error adding ward:", err);
@@ -71,23 +92,39 @@ const AddWards = () => {
                   <form onSubmit={handleSubmit}>
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
+                        Select Language <span className="text-danger">*</span>
+                      </label>
+                      <div className="col-md-4">
+                        <select
+                          className={`form-control ${errors.language_code ? "is-invalid" : ""
+                            }`}
+                          name="language_code"
+                          value={formData.language_code}
+                          onChange={handleChange}
+                        >
+                          <option value="" disabled>Select Language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+                        {errors.language_code && (
+                          <div className="invalid-feedback">{errors.language_code}</div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="form-group row">
+                      <label className="col-form-label col-md-2">
                         Ward No. <span className="text-danger">*</span>
                       </label>
                       <div className="col-md-4">
                         <input
                           type="text"
-                          className={`form-control form-control-md ${
-                            errors.wardNo ? "is-invalid" : ""
-                          }`}
+                          className={`form-control form-control-md ${errors.wardNo ? "is-invalid" : ""}`}
                           placeholder="Enter Ward No."
-                          value={wardNo}
-                          onChange={(e) => {
-                            setWardNo(e.target.value);
-                            if (errors.wardNo) {
-                              setErrors({ ...errors, wardNo: "" });
-                            }
-                          }}
+                          name="wardNo"
+                          value={formData.wardNo}
+                          onChange={handleChange}
                         />
+
                         {errors.wardNo && (
                           <div className="invalid-feedback">
                             {errors.wardNo}
@@ -103,18 +140,13 @@ const AddWards = () => {
                       <div className="col-md-4">
                         <input
                           type="text"
-                          className={`form-control form-control-md ${
-                            errors.wardName ? "is-invalid" : ""
-                          }`}
+                          className={`form-control form-control-md ${errors.wardName ? "is-invalid" : ""}`}
                           placeholder="Enter Ward Name"
-                          value={wardName}
-                          onChange={(e) => {
-                            setWardName(e.target.value);
-                            if (errors.wardName) {
-                              setErrors({ ...errors, wardName: "" });
-                            }
-                          }}
+                          name="wardName"
+                          value={formData.wardName}
+                          onChange={handleChange}
                         />
+
                         {errors.wardName && (
                           <div className="invalid-feedback">
                             {errors.wardName}

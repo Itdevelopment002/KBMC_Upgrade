@@ -3,19 +3,30 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 
 const AddDepartments = () => {
-  const [departmentName, setDepartmentName] = useState("");
-  const [departmentHod, setDepartmentHod] = useState("");
-  //eslint-disable-next-line
+    const [formData, setFormData] = useState({
+      departmentName: "",
+      departmentHod: "",
+      language_code: "",
+    });
+  
+    const [errors, setErrors] = useState({
+      departmentName: "",
+      departmentHod: "",
+      language_code: "",
+    });
+
   const [errorMessage, setErrorMessage] = useState("");
-  const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
 
   const validateForm = () => {
     const newErrors = {};
-    if (!departmentName.trim())
+    if (!formData.departmentName.trim())
       newErrors.departmentName = "Department name is required.";
-    if (!departmentHod.trim())
+    if (!formData.departmentHod.trim())
       newErrors.departmentHod = "Name of HOD is required.";
+    if (!formData.language_code) 
+      newErrors.language_code = "Language is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -28,23 +39,26 @@ const AddDepartments = () => {
     try {
       //eslint-disable-next-line
       const response = await api.post("/departments", {
-        name: departmentName,
-        hod: departmentHod,
+        name: formData.departmentName,
+        hod: formData.departmentHod,
+        language_code: formData.language_code,
       });
 
-      setDepartmentName("");
-      setDepartmentHod("");
+     setFormData({ departmentName: "",
+      departmentHod: "",
+      language_code: "",});
       navigate("/departments");
     } catch (error) {
       console.error("Error adding department:", error);
       setErrorMessage("Failed to add department. Please try again.");
     }
   };
-
-  const handleFieldChange = (setter, fieldName) => (e) => {
-    setter(e.target.value);
-    setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: "" }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
+
   return (
     <>
       <div className="page-wrapper">
@@ -70,8 +84,24 @@ const AddDepartments = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                      <label className="col-form-label col-md-2">Select Language <span className="text-danger">*</span></label>
+                      <div className="col-md-4">
+                        <select
+                          className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                          name="language_code"
+                          value={formData.language_code}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+                        {errors.language_code && <div className="invalid-feedback">{errors.language_code}</div>}
+                      </div>
+                    </div>
                     <div className="form-group row">
-                      <label className="col-form-label col-md-3">
+                      <label className="col-form-label col-md-2">
                         Department Name <span className="text-danger">*</span>
                       </label>
                       <div className="col-md-4">
@@ -81,11 +111,9 @@ const AddDepartments = () => {
                             errors.departmentName ? "is-invalid" : ""
                           }`}
                           placeholder="Enter department name"
-                          value={departmentName}
-                          onChange={handleFieldChange(
-                            setDepartmentName,
-                            "departmentName"
-                          )}
+                          value={formData.departmentName}
+                          onChange={(handleChange)}
+                          name="departmentName"
                         />
                         {errors.departmentName && (
                           <div className="invalid-feedback">
@@ -95,7 +123,7 @@ const AddDepartments = () => {
                       </div>
                     </div>
                     <div className="form-group row">
-                      <label className="col-form-label col-md-3">
+                      <label className="col-form-label col-md-2">
                         Name of HOD <span className="text-danger">*</span>
                       </label>
                       <div className="col-md-4">
@@ -105,11 +133,9 @@ const AddDepartments = () => {
                             errors.departmentHod ? "is-invalid" : ""
                           }`}
                           placeholder="Enter HOD name"
-                          value={departmentHod}
-                          onChange={handleFieldChange(
-                            setDepartmentHod,
-                            "departmentHod"
-                          )}
+                          value={formData.departmentHod}
+                          onChange={(handleChange)}
+                          name="departmentHod"
                         />
                         {errors.departmentHod && (
                           <div className="invalid-feedback">

@@ -24,15 +24,45 @@ router.get("/departments", (req, res) => {
     });
 });
 
+// router.post("/departments", (req, res) => {
+//   const { name, hod } = req.body;
+//   const sql = "INSERT INTO departments (name, hod) VALUES (?, ?)";
+//   db.query(sql, [name, hod], (err, result) => {
+//     if (err) throw err;
+//     res.json({ id: result.insertId, name, hod });
+//   });
+// });
 router.post("/departments", (req, res) => {
-  const { name, hod } = req.body;
-  const sql = "INSERT INTO departments (name, hod) VALUES (?, ?)";
-  db.query(sql, [name, hod], (err, result) => {
-    if (err) throw err;
-    res.json({ id: result.insertId, name, hod });
-  });
-});
+  const {
+    name, hod,
+    language_code,
+  } = req.body;
 
+  if (
+    !name ||
+    !hod ||
+    !language_code
+  ) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  const sql = `INSERT INTO departments (name, hod, language_code) VALUES (?, ?,?)`;
+  db.query(
+    sql,
+    [
+      name, hod,
+      language_code,
+    ],
+    (err, result) => {
+      if (err) {
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      res
+        .status(200)
+        .json({ message: "Department added successfully", id: result.insertId });
+    }
+  );
+});
 router.put("/departments/:id", (req, res) => {
   const { name, hod } = req.body;
   const sql = "UPDATE departments SET name = ?, hod = ? WHERE id = ?";

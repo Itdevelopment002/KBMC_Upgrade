@@ -71,8 +71,19 @@ const History = () => {
   const openEditModal = (item, type) => {
     setSelectedItem(item);
     setEditData(
-      type === "history" ? { description: item.description } : { ...item }
+      type === "history"
+        ? {
+            description: item.description,
+            language_code: item.language_code || "en",
+          }
+        : {
+            coName: item.coName,
+            designation: item.designation,
+            email: item.email,
+            language_code: item.language_code || "en",
+          }
     );
+    
     setImagePreview(type === "co" ? `${baseURL}${item.image_path}` : "");
     setModalType(type);
     setShowEditModal(true);
@@ -321,7 +332,8 @@ const History = () => {
                     </h5>
                   </div>
                   <div className="modal-body">
-                    {modalType === "history" ? (
+                    {modalType === "history" ? ( 
+                      
                       <div className="form-group">
                         <label htmlFor="description">Description</label>
                         <textarea

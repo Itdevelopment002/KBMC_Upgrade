@@ -3,14 +3,14 @@ const router = express.Router();
 const db = require("../config/db.js");
 
 router.post("/newsupdate", (req, res) => {
-  const { description } = req.body;
+  const { description, language_code } = req.body;
 
-  if (!description) {
-    return res.status(400).json({ message: "Description is required" });
+  if (!description || !language_code) {
+    return res.status(400).json({ message: "Description and language selection are required" });
   }
 
-  const sql = "INSERT INTO newsupdate (description) VALUES (?)";
-  db.query(sql, [description], (err, result) => {
+  const sql = "INSERT INTO newsupdate (description, language_code) VALUES (?,?)";
+  db.query(sql, [description, language_code], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
