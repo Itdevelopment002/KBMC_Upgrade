@@ -11,7 +11,6 @@ const TreatmentFacility = () => {
   const [capacity, setCapacity] = useState("");
   const [intake, setIntake] = useState("");
   const [output, setOutput] = useState("");
-  const [errors, setErrors] = useState({});
   const [showAddNewModal, setShowAddNewModal] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -23,8 +22,17 @@ const TreatmentFacility = () => {
     capacity: "",
     intake: "",
     output: "",
+    language_code: "",
   });
-
+  const [errors, setErrors] = useState({
+    id: "",
+    name: "",
+    loc: "",
+    capacity: "",
+    intake: "",
+    output: "",
+    language_code: "",
+  });
   useEffect(() => {
     fetchFacilities();
   }, []);
@@ -44,25 +52,28 @@ const TreatmentFacility = () => {
     if (!capacity) newErrors.capacity = "Capacity is required.";
     if (!intake) newErrors.intake = "Intake is required.";
     if (!output) newErrors.output = "Output is required.";
+    if (!editData.language_code) newErrors.language_code = "Language selection is required.";
     return newErrors;
   };
 
   const handleAddFacility = async () => {
     const newErrors = validateForm();
     if (Object.keys(newErrors).length === 0) {
-      const newFacility = { name, loc, capacity, intake, output };
+      const newFacility = { name, loc, capacity, intake, output, language_code: editData.language_code };
+      
       try {
         const response = await api.post("/treatment_facility", newFacility);
         setFacilities([...facilities, response.data]);
         resetForm();
         setShowAddNewModal(false);
       } catch (error) {
-        console.error("Error adding facility.");
+        toast.error("Error adding facility.");
       }
     } else {
       setErrors(newErrors);
     }
   };
+  
 
   const handleDeleteClick = (facility) => {
     setSelectedFacility(facility);
@@ -120,13 +131,17 @@ const TreatmentFacility = () => {
       });
     }
   };
+  
   const resetForm = () => {
     setName("");
     setLoc("");
     setCapacity("");
     setIntake("");
     setOutput("");
+    setEditData((prev) => ({ ...prev, language_code: "" }));
   };
+  
+  
   return (
     <>
       <div className="row">
@@ -205,6 +220,32 @@ const TreatmentFacility = () => {
             </div>
             <div className="modal-body">
               <form>
+                 <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={editData.language_code}
+                        onChange={(e) =>
+                          setEditData((prev) => ({
+                            ...prev,
+                            language_code: e.target.value,
+                          }))
+                        }                        
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                </div>
                 <div className="form-group">
                   <label>Name</label>
                   <input

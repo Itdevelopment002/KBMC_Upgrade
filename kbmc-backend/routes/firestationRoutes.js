@@ -17,26 +17,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/fire-stations", upload.single("image"), (req, res) => {
-  const { heading, address, phoneNo } = req.body;
-
-  if (!heading || !address || !phoneNo) {
-    return res
-      .status(400)
-      .json({ message: "Heading, address, and phone number are required" });
+  const { heading, address, phoneNo, language_code } = req.body;
+  
+  if (!heading || !address || !phoneNo || !req.file || !language_code) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+  const imagePath = `/uploads/${req.file.filename}`; // Get the image path from the uploaded file
 
-  const sql =
-    "INSERT INTO fire_station (heading, address, phoneNo, image_path) VALUES (?, ?, ?, ?)";
-  db.query(sql, [heading, address, phoneNo, imagePath], (err, result) => {
+  const sql = `INSERT INTO fire_station (heading, address, phoneNo, image_path, language_code) VALUES (?, ?, ?, ?, ?)`;
+
+  db.query(sql, [heading, address, phoneNo, imagePath, language_code], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
-    res.status(200).json({
-      message: "Fire station added successfully",
-      fireStationId: result.insertId,
-    });
+    res.status(200).json({ message: "Fire Station added successfully", id: result.insertId });
   });
 });
 

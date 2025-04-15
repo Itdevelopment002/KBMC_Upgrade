@@ -8,6 +8,7 @@ const AddCeoDetails = () => {
   const [ceoName, setCeoName] = useState("");
   const [description, setDescription] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [languageCode, setLanguageCode] = useState("");
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
 
@@ -26,6 +27,11 @@ const AddCeoDetails = () => {
     if (!selectedFile) {
       newErrors.selectedFile = "Please select a CEO image to upload.";
     }
+    if (!languageCode) {
+      newErrors.languageCode = "Language selection is required.";
+
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -39,8 +45,9 @@ const AddCeoDetails = () => {
 
     const formData = new FormData();
     formData.append("image", selectedFile);
-    formData.append("ceoName", ceoName);
+    formData.append("ceo_name", ceoName);
     formData.append("description", description);
+    formData.append("language_code", languageCode);
 
     try {
       await api.post("/ceodetails", formData, {
@@ -86,6 +93,34 @@ const AddCeoDetails = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                        name="language_code"
+                        value={languageCode}
+                        onChange={(e) => {
+                          setLanguageCode(e.target.value);
+                          setErrors((prevErrors) => ({
+                            ...prevErrors,
+                            language_code: "",
+                          }));
+                        }}
+                      >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+
+                    {errors.languageCode && (
+                      <div className="invalid-feedback">{errors.languageCode}</div>
+                    )}
+                    </div>
+                  </div>
+                  
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         CEO Name <span className="text-danger">*</span>

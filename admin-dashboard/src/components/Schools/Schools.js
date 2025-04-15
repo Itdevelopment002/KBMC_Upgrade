@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import api, { baseURL } from "../api";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import GLightbox from "glightbox";
 import "glightbox/dist/css/glightbox.min.css";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import api, { baseURL } from "../api";
 
 const Schools = () => {
-  const [schoolData, setSchoolData] = useState([]);
+  const [formData, setFormData] = useState([]);
   const [schoolImageData, setSchoolImageData] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -22,7 +22,7 @@ const Schools = () => {
   const imagesPerPage = 6;
 
   useEffect(() => {
-    fetchSchoolData();
+    fetchformData();
     fetchSchoolImageData();
   }, []);
 
@@ -35,10 +35,10 @@ const Schools = () => {
     };
   }, [schoolImageData]);
 
-  const fetchSchoolData = async () => {
+  const fetchformData = async () => {
     try {
       const response = await api.get("/schools");
-      setSchoolData(response.data);
+      setFormData(response.data);
     } catch (error) {
       toast.error("Failed to fetch school data.");
     }
@@ -57,7 +57,7 @@ const Schools = () => {
     try {
       if (type === "school") {
         await api.delete(`/schools/${id}`);
-        setSchoolData((prevData) => prevData.filter((item) => item.id !== id));
+        setFormData((prevData) => prevData.filter((item) => item.id !== id));
       } else if (type === "school-image") {
         await api.delete(`/school-images/${id}`);
         setSchoolImageData((prevData) =>
@@ -110,8 +110,8 @@ const Schools = () => {
           address: editData.address,
           medium: editData.medium,
         });
-        setSchoolData(
-          schoolData.map((item) =>
+        setFormData(
+          formData.map((item) =>
             item.id === selectedItem.id
               ? {
                   ...item,
@@ -123,7 +123,7 @@ const Schools = () => {
               : item
           )
         );
-        fetchSchoolData();
+        fetchformData();
       } else if (modalType === "school-image") {
         const formData = new FormData();
         if (editData.imageFile) {
@@ -167,7 +167,7 @@ const Schools = () => {
     }
   };
 
-  const dataCurrentPageData = schoolData.slice(
+  const dataCurrentPageData = formData.slice(
     (dataCurrentPage - 1) * dataPerPage,
     dataCurrentPage * dataPerPage
   );
@@ -273,7 +273,7 @@ const Schools = () => {
                       </button>
                     </li>
                     {Array.from(
-                      { length: Math.ceil(schoolData.length / dataPerPage) },
+                      { length: Math.ceil(formData.length / dataPerPage) },
                       (_, i) => (
                         <li
                           className={`page-item ${
@@ -293,7 +293,7 @@ const Schools = () => {
                     <li
                       className={`page-item ${
                         dataCurrentPage ===
-                        Math.ceil(schoolData.length / dataPerPage)
+                        Math.ceil(formData.length / dataPerPage)
                           ? "disabled"
                           : ""
                       }`}

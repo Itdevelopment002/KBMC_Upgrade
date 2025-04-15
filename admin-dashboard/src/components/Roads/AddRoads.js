@@ -7,24 +7,28 @@ const AddRoads = () => {
     heading: "",
     description: "",
     length: "",
+    language_code: "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    heading: "",
+    description: "",
+    length: "",
+    language_code: "",
+  });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({...formData, [name]: value,});
+    setErrors({ ...errors, [name]: "" });
+    };
 
-    if (errors[name]) {
-      setErrors({
-        ...errors,
-        [name]: "",
-      });
-    }
-  };
+    // if (errors[name]) {
+    //   setErrors({
+    //     ...errors,
+    //     [name]: "",
+    //   });
+    // }
 
   const validateFields = () => {
     const newErrors = {};
@@ -32,29 +36,44 @@ const AddRoads = () => {
     if (!formData.description.trim())
       newErrors.description = "Description is required.";
     if (!formData.length.trim()) newErrors.length = "Length is required.";
-    return newErrors;
+    if (!formData.language_code) newErrors.language_code = "Language selection is required.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+    // return newErrors;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newErrors = validateFields();
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-
+    if (!validateFields()) return;
+    // const newErrors = validateFields();
+    // if (Object.keys(newErrors).length > 0) {
+    //   setErrors(newErrors);
+    //   return;
     try {
-      // eslint-disable-next-line
-      const response = await api.post("/roads", formData);
+      await api.post("/roads", {
+        heading: formData.heading,
+        description: formData.description,
+        length: formData.length,
+        language_code: formData.language_code,
+      });
+      setFormData({
+        heading: "",  description: "",  length: "", language_code: "",
+      });
       navigate("/roads");
-    } catch (error) {
-      console.error(
-        "Error adding road:",
-        error.response ? error.response.data : error.message
-      );
+    } catch (err) {
+      console.error("Error submitting description:", err);
     }
   };
+  //   try {
+  //     const response = await api.post("/roads", formData);
+  //     navigate("/roads");
+  //   } catch (error) {
+  //     console.error(
+  //       "Error adding road:",
+  //       error.response ? error.response.data : error.message
+  //     );
+  //   }
+  // };
 
   return (
     <>
@@ -77,6 +96,27 @@ const AddRoads = () => {
                 <div className="card-block">
                   <h4 className="page-title">Add Roads</h4>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-3">
                         Heading <span className="text-danger">*</span>

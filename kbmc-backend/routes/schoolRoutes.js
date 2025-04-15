@@ -34,28 +34,19 @@ router.get("/schools/:id", (req, res) => {
     res.status(200).json(result[0]);
   });
 });
-
 router.post("/schools", (req, res) => {
-  const { heading, schoolName, address, medium } = req.body;
-
-  if (!schoolName || !address || !medium) {
+  const {  heading, schoolName, address, medium, language_code } = req.body;
+  if (!schoolName || !address || !medium || !language_code) {
     return res
       .status(400)
-      .json({ message: "School Name, Address, and Medium are required" });
+      .json({ message: "All fields are required" });
   }
-
-  const sql =
-    "INSERT INTO schools (heading, schoolName, address, medium) VALUES (?, ?, ?, ?)";
-  db.query(sql, [heading, schoolName, address, medium], (err, result) => {
+  const sql = `INSERT INTO schools (heading,  schoolName, address, medium, language_code) VALUES (?, ?, ? ,?, ?)`;
+  db.query(sql, [heading, schoolName, address, medium, language_code], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
-    res
-      .status(201)
-      .json({
-        message: "School added successfully",
-        schoolId: result.insertId,
-      });
+    res.status(200).json({ message: "School added successfully", id: result.insertId });
   });
 });
 

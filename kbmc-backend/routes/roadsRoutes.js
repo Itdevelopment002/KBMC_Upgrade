@@ -20,25 +20,40 @@ router.get("/roads", (req, res) => {
       res.status(200).json(results);
     });
 });
-
 router.post("/roads", (req, res) => {
-  const { heading, description, length } = req.body;
-  if (!heading || !description || !length) {
+  const {  heading, description, length, language_code } = req.body;
+  if (!heading || !description || !length || !language_code) {
     return res
       .status(400)
-      .json({ error: "Heading, description, and length are required" });
+      .json({ message: "All fields are required" });
   }
-
-  const sql =
-    "INSERT INTO roads (heading, description, length) VALUES (?, ?, ?)";
-  db.query(sql, [heading, description, length], (err, result) => {
+  const sql = `INSERT INTO roads (heading, description, length, language_code) VALUES (?, ?, ? ,?)`;
+  db.query(sql, [heading, description, length, language_code], (err, result) => {
     if (err) {
-      console.error("Error adding road:", err);
-      return res.status(500).json({ error: "Server Error" });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-    res.status(201).json({ id: result.insertId, heading, description, length });
+    res.status(200).json({ message: "Roads added successfully", id: result.insertId });
   });
 });
+
+// router.post("/roads", (req, res) => {
+//   const { heading, description, length } = req.body;
+//   if (!heading || !description || !length) {
+//     return res
+//       .status(400)
+//       .json({ error: "Heading, description, and length are required" });
+//   }
+
+//   const sql =
+//     "INSERT INTO roads (heading, description, length) VALUES (?, ?, ?)";
+//   db.query(sql, [heading, description, length], (err, result) => {
+//     if (err) {
+//       console.error("Error adding road:", err);
+//       return res.status(500).json({ error: "Server Error" });
+//     }
+//     res.status(201).json({ id: result.insertId, heading, description, length });
+//   });
+// });
 
 router.put("/roads/:id", (req, res) => {
   const { id } = req.params;

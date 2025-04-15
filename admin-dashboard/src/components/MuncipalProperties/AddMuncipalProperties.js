@@ -9,41 +9,44 @@ const AddMuncipalProperties = () => {
     name: "",
     propertyType: "",
     address: "",
+    language_code: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    heading: "",
+    name: "",
+    propertyType: "",
+    address: "",
+    language_code: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: "",
-      });
-    }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const newErrors = {};
     // if (!formData.heading) newErrors.heading = "Heading is required.";
     if (!formData.name) newErrors.name = "Name is required.";
-    if (!formData.propertyType)
-      newErrors.propertyType = "Property type is required.";
+    if (!formData.propertyType) newErrors.propertyType = "Property type is required.";
     if (!formData.address) newErrors.address = "Address is required.";
+    if (!formData.language_code) { newErrors.language_code = "Language selection is required.";
+   
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-
     setIsSubmitting(true);
+  }
 
     try {
-      //eslint-disable-next-line
       const response = await api.post("/muncipal", formData);
       navigate("/muncipal-properties");
     } catch (error) {
@@ -81,6 +84,27 @@ const AddMuncipalProperties = () => {
                   </div>
                 </div>
                 <form onSubmit={handleSubmit}>
+                <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                   {/* Heading Field */}
                   <div className="form-group row">
                     <label className="col-form-label col-md-3">

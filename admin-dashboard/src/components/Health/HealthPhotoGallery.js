@@ -8,13 +8,14 @@ import { Link } from "react-router-dom";
 
 const HealthPhotoGallery = () => {
   const [photos, setPhotos] = useState([]);
+  const [languageCode, setLanguageCode] = useState("");
   const [heading, setHeading] = useState("");
   const [img, setImg] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [errors, setErrors] = useState({ heading: "", img: "" });
+  const [errors, setErrors] = useState({ heading: "", img: "", language_code: "" });
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
@@ -53,7 +54,10 @@ const HealthPhotoGallery = () => {
       newErrors.img = "Image is required.";
       valid = false;
     }
-
+    if (!languageCode) {
+      newErrors.language_code = "Language selection is required.";
+      valid = false;
+    }    
     setErrors(newErrors);
     return valid;
   };
@@ -134,6 +138,7 @@ const HealthPhotoGallery = () => {
   const resetForm = () => {
     setHeading("");
     setImg(null);
+    setLanguageCode("");
     setErrors({ heading: "", img: "" });
   };
 
@@ -233,6 +238,29 @@ const HealthPhotoGallery = () => {
               </div>
               <div className="modal-body">
                 <form>
+                <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                        value={languageCode}
+                        onChange={(e) => {
+                          setLanguageCode(e.target.value);
+                          setErrors((prev) => ({ ...prev, language_code: "" }));
+                        }}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                   <div className="mb-3">
                     <label htmlFor="formBasicHeading" className="form-label">
                       Heading

@@ -3,45 +3,35 @@ const router = express.Router();
 const db = require("../config/db.js");
 
 router.post("/private-hospital", (req, res) => {
-  const {
-    hospitalName,
+  const {hospitalName,
+        division,
+        principalDoctor,
+        address,
+        phoneNo,
+        mobileNo,
+        beds,
+        facilities, 
+        language_code } = req.body;
+  if (!hospitalName || !division || !principalDoctor || !address || !phoneNo || !mobileNo || !beds || !facilities || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
+  }
+  const sql = `INSERT INTO prvt_hospital (hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+  db.query(sql, 
+    [ hospitalName,
     division,
     principalDoctor,
     address,
     phoneNo,
     mobileNo,
     beds,
-    facilities,
-  } = req.body;
-
-  const sql = `
-      INSERT INTO prvt_hospital 
-      (hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-  db.query(
-    sql,
-    [
-      hospitalName,
-      division,
-      principalDoctor,
-      address,
-      phoneNo,
-      mobileNo,
-      beds,
-      facilities,
-    ],
-    (err, result) => {
-      if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error" });
-      }
-      res
-        .status(200)
-        .json({ message: "Hospital added successfully", data: result });
+    facilities, language_code], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
     }
-  );
+    res.status(200).json({ message: "Hospital added successfully", id: result.insertId });
+  });
 });
 
 router.get("/private-hospital", (req, res) => {

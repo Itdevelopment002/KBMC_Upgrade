@@ -8,21 +8,24 @@ const AddPropertyHolder = () => {
     heading: "",
     description: "",
     property: "",
+    language_code: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    heading: "",
+    description: "",
+    property: "",
+    language_code: "",
+  });
   const navigate = useNavigate();
-
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
-    if (errors[e.target.name]) {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  
+    if (errors[name]) {
       setErrors({
         ...errors,
-        [e.target.name]: "",
+        [name]: "",
       });
     }
   };
@@ -33,6 +36,9 @@ const AddPropertyHolder = () => {
     if (!formData.description)
       newErrors.description = "Description is required";
     if (!formData.property) newErrors.property = "Property is required";
+    if (!formData.language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -45,23 +51,18 @@ const AddPropertyHolder = () => {
     }
 
     try {
-      //eslint-disable-next-line
-      const response = await api.post("/property_holder", formData);
-
+      await api.post("/property_holder", {
+        heading: formData.heading,
+        description: formData.description,
+        property: formData.property,
+        language_code: formData.language_code,
+      });
       setFormData({
-        heading: "",
-        description: "",
-        property: "",
+        heading: "", description: "", property: "", language_code: "",
       });
       navigate("/property-holder");
-    } catch (error) {
-      if (error.response) {
-        console.error("Error adding property holder:", error.response.data);
-        alert(error.response.data.error || "Error adding property holder");
-      } else {
-        console.error("Error submitting form:", error.message);
-        alert("An error occurred while adding the property holder");
-      }
+    } catch (err) {
+      console.error("Error submitting description:", err);
     }
   };
 
@@ -90,6 +91,26 @@ const AddPropertyHolder = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-3">
                         Heading <span className="text-danger">*</span>

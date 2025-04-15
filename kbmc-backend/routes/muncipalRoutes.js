@@ -21,27 +21,19 @@ router.get("/muncipal", (req, res) => {
     });
 
 });
-
 router.post("/muncipal", (req, res) => {
-  const { heading, name, propertyType, address } = req.body;
-  if (  !name || !propertyType || !address) {
+  const {  heading, name, propertyType, address, language_code } = req.body;
+  if ( !name || !propertyType || !address|| !language_code) {
     return res
       .status(400)
-      .json({
-        error: "Heading, name, property Type, and address are required",
-      });
+      .json({ message: "All fields are required" });
   }
-
-  const sql =
-    "INSERT INTO muncipal (heading, name, propertyType, address) VALUES (?, ?, ?, ?)";
-  db.query(sql, [heading, name, propertyType, address], (err, result) => {
+  const sql = `INSERT INTO  muncipal (heading, name, propertyType, address, language_code) VALUES (?, ?, ? ,?, ?)`;
+  db.query(sql, [heading, name, propertyType, address, language_code], (err, result) => {
     if (err) {
-      console.error("Error adding property holder:", err);
-      return res.status(500).json({ error: "Server Error" });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-    res
-      .status(201)
-      .json({ id: result.insertId, heading, name, propertyType, address });
+    res.status(200).json({ message: "muncipal added successfully", id: result.insertId });
   });
 });
 

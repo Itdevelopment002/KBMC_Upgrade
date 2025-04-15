@@ -17,32 +17,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 router.post("/gardens", upload.array("images"), (req, res) => {
-  const { heading } = req.body;
+  const { heading, language_code } = req.body;
 
-  if (!heading) {
-    return res.status(400).json({ message: "Heading is required" });
-  }
-
-  if (!req.files || req.files.length === 0) {
-    return res.status(400).json({ message: "No images uploaded" });
+  if (!heading || !language_code || !req.files || req.files.length === 0) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
   const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
 
-  const query = "INSERT INTO gardens (heading, images) VALUES (?, ?)";
-  db.query(query, [heading, JSON.stringify(imagePaths)], (err, result) => {
+  const sql = `INSERT INTO gardens (heading, images, language_code) VALUES (?, ?, ?)`;
+  db.query(sql, [heading, JSON.stringify(imagePaths), language_code], (err, result) => {
     if (err) {
-      return res
-        .status(500)
-        .json({ message: "Error adding garden", error: err });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-    res
-      .status(201)
-      .json({
-        message: "Garden added successfully",
-        gardenId: result.insertId,
-        images: imagePaths,
-      });
+    res.status(200).json({ message: "Garden added successfully", id: result.insertId });
   });
 });
 

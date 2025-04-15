@@ -22,25 +22,20 @@ router.get("/electric", (req, res) => {
 });
 
 router.post("/electric", (req, res) => {
-  const { heading, description, mobileNo, vendorName } = req.body;
-  const sql =
-    "INSERT INTO electric (heading, description, mobileNo, vendorName) VALUES (?, ?, ?, ?)";
-
-  db.query(sql, [heading, description, mobileNo, vendorName], (err, result) => {
+  const {  heading, description, mobileNo, vendorName, language_code } = req.body;
+  if (!heading || !description || !mobileNo || !vendorName || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
+  }
+  const sql = `INSERT INTO electric (heading, description, mobileNo, vendorName, language_code) VALUES (?, ?, ? ,?, ?)`;
+  db.query(sql, [heading, description, mobileNo, vendorName, language_code], (err, result) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Failed to add electric data" });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-    res.json({
-      id: result.insertId,
-      heading,
-      description,
-      mobileNo,
-      vendorName,
-    });
+    res.status(200).json({ message: "Electric added successfully", id: result.insertId });
   });
 });
-
 router.put("/electric/:id", (req, res) => {
   const { heading, description, mobileNo, vendorName } = req.body;
   const sql =

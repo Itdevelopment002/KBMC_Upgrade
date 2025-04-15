@@ -35,34 +35,22 @@ router.get("/tenders", (req, res) => {
       res.status(200).json(results);
     });
 });
-
 router.post("/tenders", upload.single("pdf"), (req, res) => {
-  const { description, status } = req.body;
+  const { description, status, language_code } = req.body;
   const pdfPath = req.file ? req.file.path : null;
 
-  const finalStatus = status || "-";
-
-  if (!description || !pdfPath) {
-    return res
-      .status(400)
-      .json({ message: "Description and PDF file are required." });
+  if (!description || !status || !pdfPath || !language_code) {
+    return res.status(400).json({ message: "All fields are required" });
   }
 
-  const newCharter = { description, status: finalStatus, pdf: pdfPath };
-
-  db.query(
-    "INSERT INTO `tenders` (description, status, pdf) VALUES (?, ?, ?)",
-    [description, finalStatus, pdfPath],
-    (err, result) => {
-      if (err) {
-        console.error("Error adding tender:", err);
-        return res.status(500).json({ error: "Internal Server Error" });
-      }
-      res.status(201).json({ id: result.insertId, ...newCharter });
+  const sql = `INSERT INTO tenders (description, status, pdf, language_code) VALUES (?, ?, ?, ?)`;
+  db.query(sql, [description, status, pdfPath, language_code], (err, result) => {
+    if (err) {
+      return res.status(500).json({ message: "Database error", error: err });
     }
-  );
+    res.status(200).json({ message: "Tender added successfully", id: result.insertId });
+  });
 });
-
 router.put("/tenders/:id", upload.single("pdf"), (req, res) => {
   const { id } = req.params;
   const { description, status, retainPdf } = req.body;
