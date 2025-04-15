@@ -6,9 +6,16 @@ const SanitationInspectorForm = ({ onSubmit, initialData }) => {
     names: "",
     mob_no: "",
     ward_no: "",
+    language_code: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    zone_no: "",
+    names: "",
+    mob_no: "",
+    ward_no: "",
+    language_code: "",
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   useEffect(() => {
@@ -20,6 +27,7 @@ const SanitationInspectorForm = ({ onSubmit, initialData }) => {
         names: "",
         mob_no: "",
         ward_no: "",
+        language_code: "",
       });
     }
   }, [initialData]);
@@ -37,7 +45,7 @@ const SanitationInspectorForm = ({ onSubmit, initialData }) => {
 
   const validate = () => {
     const newErrors = {};
-    const { zone_no, names, mob_no, ward_no } = formData;
+    const { zone_no, names, mob_no, ward_no, language_code} = formData;
     if (!zone_no) newErrors.zone_no = "Zone No. is required";
     if (!names) newErrors.names = "Inspector Name is required";
     if (!mob_no) {
@@ -48,21 +56,65 @@ const SanitationInspectorForm = ({ onSubmit, initialData }) => {
       newErrors.mob_no = "Mobile No. must be 10 digits long";
     }
     if (!ward_no) newErrors.ward_no = "Ward No. is required";
+    if (!language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitted(true);
     if (validate()) {
       onSubmit(formData);
     }
+    // if (!validate()) return;
+    // try {
+    //   await api.post("/schools", {
+    //     heading: formData.heading,
+    //     schoolName: formData. schoolName,
+    //     address: formData.address,
+    //     medium: formData.medium,
+    //     language_code: formData.language_code,
+    //   });
+    //   setFormData({
+    //     zone_no: "",
+    //     names: "",
+    //     mob_no: "",
+    //     ward_no: "",
+    //     language_code: "",
+    //   });
+    // } catch (err) {
+    //   console.error("Error", err);
+    // }
+
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      <div className="form-group row">
+        <label className="col-form-label col-md-3">
+          Select Language <span className="text-danger">*</span>
+        </label>
+        <div className="col-md-4">
+          <select
+            className={`form-control ${errors.language_code ? "is-invalid" : ""
+              }`}
+            name="language_code"
+            value={formData.language_code}
+            onChange={handleChange}
+          >
+            <option value="" disabled>Select Language</option>
+            <option value="en">English</option>
+            <option value="mr">Marathi</option>
+          </select>
+          {errors.language_code && (
+            <div className="invalid-feedback">{errors.language_code}</div>
+          )}
+        </div>
+      </div>
       <div className="mb-3">
         <label htmlFor="zone_no" className="form-label">
           Zone No.

@@ -7,11 +7,16 @@ const AddTender = () => {
     description: "",
     status: "",
     pdf: null,
+    language_code: "",
   });
 
   const navigate = useNavigate();
 
-  const [errors, setErrors] = useState({ description: "", pdf: "" });
+  const [errors, setErrors] = useState({ 
+    description: "",
+    status: "",
+    pdf: null,
+    language_code: "",});
 
   const validateForm = () => {
     const newErrors = {};
@@ -20,6 +25,9 @@ const AddTender = () => {
     }
     if (!newTender.pdf) {
       newErrors.pdf = "PDF file is required.";
+    }
+    if (!newTender.language_code) {
+      newErrors.language_code = "Language selection is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -43,6 +51,7 @@ const AddTender = () => {
     const formData = new FormData();
     formData.append("description", updatedTender.description);
     formData.append("status", updatedTender.status);
+    formData.append("language_code", updatedTender.language_code);
     if (updatedTender.pdf) {
       formData.append("pdf", updatedTender.pdf);
     }
@@ -53,9 +62,10 @@ const AddTender = () => {
           "Content-Type": "multipart/form-data",
         },
       });
-      setNewTender({ description: "", status: "", pdf: null });
-      setErrors({ description: "", pdf: "" });
-      navigate("/tenders");
+      setNewTender({ description: "", status: "", pdf: null, language_code: "" });
+      setErrors({ description: "", status: "", pdf: null, language_code: "" });
+      setTimeout(() => navigate("/tenders"), 500);
+
     } catch (error) {
       console.error("Error adding tender:", error);
       setErrors({
@@ -91,6 +101,29 @@ const AddTender = () => {
                   <hr />
                   <div className="card-block">
                     <form onSubmit={handleAddTender}>
+                    <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={newTender.language_code}
+                        onChange={(e) =>
+                          setNewTender({ ...newTender, language_code: e.target.value })
+                        }
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                       <div className="form-group row">
                         <label
                           htmlFor="description"

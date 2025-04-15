@@ -13,6 +13,7 @@ const AddFireStation = () => {
     address: "",
     phoneNo: "",
     image: null,
+    language_code: "",
   });
 
   const [errors, setErrors] = useState({
@@ -20,6 +21,7 @@ const AddFireStation = () => {
     address: "",
     phoneNo: "",
     image: "",
+    language_code: "",
   });
 
   const handleChange = (e) => {
@@ -49,6 +51,9 @@ const AddFireStation = () => {
     if (!formData.image) {
       newErrors.image = "Image is required";
     }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -56,11 +61,10 @@ const AddFireStation = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     const formDataToSend = new FormData();
+    formDataToSend.append("language_code", formData.language_code);
     formDataToSend.append("heading", formData.heading);
     formDataToSend.append("address", formData.address);
     formDataToSend.append("phoneNo", formData.phoneNo);
@@ -82,6 +86,7 @@ const AddFireStation = () => {
           heading: "",
           address: "",
           phoneNo: "",
+          language_code: "",
           image: null,
         });
 
@@ -89,7 +94,9 @@ const AddFireStation = () => {
           fileInputRef.current.value = "";
         }
 
-        navigate("/fire-station");
+        setTimeout(() => {
+          navigate("/fire-station");
+        }, 1500);        
       }
     } catch (error) {
       console.error("Error adding fire station:", error);
@@ -122,6 +129,28 @@ const AddFireStation = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                  
                     <div className="form-group row">
                       <label className="col-form-label col-md-3">
                         Heading <span className="text-danger">*</span>
@@ -222,6 +251,7 @@ const AddFireStation = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../api";
+import { useNavigate } from "react-router-dom";
 //eslint-disable-next-line
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -16,8 +17,17 @@ const Health = () => {
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedWork, setSelectedWork] = useState(null);
-  const [editData, setEditData] = useState({ id: "", description: "" });
-  const [errors, setErrors] = useState({});
+  const [editData, setEditData] = useState({
+    description: "",  language_code: "", });
+  const [errors, setErrors] = useState({
+    description: "",  language_code: "",
+  });
+  const navigate = useNavigate();
+  // const handleChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setEditData({ ...editData, [name]: value });
+  //   setErrors({ ...errors, [name]: "" });
+  // };
 
   const validateAddForm = () => {
     const newErrors = {};
@@ -43,10 +53,18 @@ const Health = () => {
 
   const handleAddWork = async () => {
     if (!validateAddForm()) return;
-    const newWork = { description };
+    
     try {
-      const response = await api.post("/health_dep_sec", newWork);
+      const response = await api.post("/health_dep_sec", {
+        description: editData.description,
+        language_code: editData.language_code,
+      });
+      setEditData({
+        description: "",
+        language_code: "",
+      });
       setWorks([...works, response.data]);
+      navigate("/health_dep_sec");
       setDescription("");
       setShowAddNewModal(false);
       toast.success("Work added successfully!");
@@ -191,26 +209,52 @@ const Health = () => {
                   <div className="modal-header">
                     <h5 className="modal-title">Add New Work</h5>
                   </div>
+                  
                   <div className="modal-body">
                     <form>
-                      <div className="form-group">
-                        <label>Description</label>
-                        <input
-                          type="text"
-                          className={`form-control ${
-                            errors.description ? "is-invalid" : ""
+                    <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
                           }`}
-                          placeholder="Enter Description"
-                          value={description}
-                          onChange={(e) =>
-                            handleDescriptionChange(e.target.value)
-                          }
-                        />
-                        {errors.description && (
-                          <div className="invalid-feedback">
-                            {errors.description}
-                          </div>
-                        )}
+                        name="language_code"
+                        value={editData.language_code}
+                        onChange={(e) =>
+                          setEditData({
+                          ...editData,
+                          language_code: e.target.value,
+                        })}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                      <div className="form-group">
+                          <label>Description</label>
+                          <input
+                            type="text"
+                            className={`form-control ${
+                              errors.description ? "is-invalid" : ""
+                            }`}
+                            placeholder="Enter Description"
+                            value={description}
+                            onChange={(e) =>
+                              handleDescriptionChange(e.target.value)
+                            }
+                          />
+                          {errors.description && (
+                            <div className="invalid-feedback">
+                              {errors.description}
+                            </div>
+                          )}
                       </div>
                     </form>
                   </div>
@@ -288,6 +332,31 @@ const Health = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={editData.language_code}
+                        onChange={(e) =>
+                          setEditData({
+                          ...editData,
+                          language_code: e.target.value,
+                        })}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                       <div className="form-group">
                         <label>Description</label>
                         <input

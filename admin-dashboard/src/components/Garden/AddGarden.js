@@ -4,32 +4,42 @@ import api from "../api";
 
 const AddGarden = () => {
   const [heading, setHeading] = useState("");
+  const [languageCode, setLanguageCode] = useState("");
   const [images, setImages] = useState([]);
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+      language_code: "",
+  });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     const validationErrors = {};
+  
     if (!heading.trim()) {
       validationErrors.heading = "Heading is required.";
     }
+  
+    if (!languageCode) {
+      validationErrors.language_code = "Language is required.";
+    }
+  
     if (images.length === 0) {
       validationErrors.images = "Please upload at least one garden photo.";
     }
-
+  
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
-
+  
     const formData = new FormData();
-    formData.append("heading", heading);
+    formData.append("heading", heading.trim());
+    formData.append("language_code", languageCode);
     images.forEach((image) => {
       formData.append("images", image);
     });
-
+  
     try {
       //eslint-disable-next-line
       const response = await api.post("/gardens", formData, {
@@ -43,10 +53,17 @@ const AddGarden = () => {
       alert("Failed to add garden. Please try again.");
     }
   };
+  
   const handleHeadingChange = (e) => {
     setHeading(e.target.value);
     if (errors.heading) {
       setErrors((prevErrors) => ({ ...prevErrors, heading: "" }));
+    }
+  };
+  const handleLanguageChange = (e) => {
+    setLanguageCode(e.target.value);
+    if (errors.language_code) {
+      setErrors((prevErrors) => ({ ...prevErrors, language_code: "" }));
     }
   };
 
@@ -95,6 +112,29 @@ const AddGarden = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={languageCode}
+                        onChange={handleLanguageChange}
+
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                  
                     <div className="form-group row">
                       <label className="col-form-label col-md-3">
                         Heading <span className="text-danger">*</span>

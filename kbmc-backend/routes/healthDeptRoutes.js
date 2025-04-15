@@ -20,22 +20,19 @@ router.get("/health_dep_sec", (req, res) => {
       res.status(200).json(results);
     });
 });
-
 router.post("/health_dep_sec", (req, res) => {
-  const { description } = req.body;
-
-  if (!description) {
-    return res.status(400).json({ message: "Description is required" });
+  const {description, language_code } = req.body;
+  if (!description || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
   }
-
-  const query = "INSERT INTO health_dep_sec (description) VALUES (?)";
-  db.query(query, [description], (err, result) => {
+  const sql = `INSERT INTO health_dep_sec (description, language_code) VALUES (?, ?)`;
+  db.query(sql, [description, language_code], (err, result) => {
     if (err) {
-      console.error("Error inserting data:", err);
-      return res.status(500).json({ message: "Error adding work" });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-
-    res.status(201).json({ id: result.insertId, description });
+    res.status(200).json({ message: "Health Department added successfully", id: result.insertId });
   });
 });
 

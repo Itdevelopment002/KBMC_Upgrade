@@ -1,21 +1,27 @@
 import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
 
 const AddSchools = () => {
-  const [schoolData, setSchoolData] = useState({
+  const [formData, setFormData] = useState({
     heading: "",
     schoolName: "",
     address: "",
     medium: "",
+    language_code: "",
   });
 
   const [imageData, setImageData] = useState({
     schoolPhoto: null,
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    heading: "",
+    schoolName: "",
+    address: "",
+    medium: "",
+    language_code: "",
+  });
   const [isSubmittingSchool, setIsSubmittingSchool] = useState(false);
   const [isSubmittingImage, setIsSubmittingImage] = useState(false);
 
@@ -23,18 +29,10 @@ const AddSchools = () => {
 
   const handleSchoolChange = (e) => {
     const { name, value } = e.target;
-    setSchoolData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-    if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: "",
-      });
-    }
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
-
+ 
   const [imageError, setImageError] = useState("");
   const handleImageChange = (e) => {
     setImageError("");
@@ -45,11 +43,11 @@ const AddSchools = () => {
 
   const validateSchoolForm = () => {
     const newErrors = {};
-    if (!schoolData.heading) newErrors.heading = "Heading is required.";
-    if (!schoolData.schoolName)
+    if (!formData.heading) newErrors.heading = "Heading is required.";
+    if (!formData.schoolName)
       newErrors.schoolName = "School Name is required.";
-    if (!schoolData.address) newErrors.address = "Address is required.";
-    if (!schoolData.medium || schoolData.medium === "Select Medium")
+    if (!formData.address) newErrors.address = "Address is required.";
+    if (!formData.medium || formData.medium === "Select Medium")
       newErrors.medium = "Please select a medium.";
 
     setErrors(newErrors);
@@ -58,20 +56,22 @@ const AddSchools = () => {
   const handleSchoolSubmit = async (e) => {
     e.preventDefault();
     if (!validateSchoolForm()) return;
-
     setIsSubmittingSchool(true);
 
     try {
-      await api.post("/schools", schoolData);
-      setSchoolData({
-        heading: "",
-        schoolName: "",
-        address: "",
-        medium: "",
+      await api.post("/schools", {
+        heading: formData.heading,
+        schoolName: formData.schoolName,
+        address: formData.address,
+        medium: formData.medium,
+        language_code: formData.language_code,
+      });
+      setFormData({
+        heading: "",  schoolName: "",  address: "", medium: "", language_code: "",
       });
       navigate("/schools");
-    } catch (error) {
-      console.error("Failed to submit school data", error);
+    } catch (err) {
+      console.error("Error submitting description:", err);
     } finally {
       setIsSubmittingSchool(false);
     }
@@ -83,9 +83,7 @@ const AddSchools = () => {
       setImageError("Please upload a valid school photo.");
       return;
     }
-
     setIsSubmittingImage(true);
-
     try {
       const imageFormData = new FormData();
       imageFormData.append("schoolPhoto", imageData.schoolPhoto);
@@ -131,6 +129,27 @@ const AddSchools = () => {
                   </div>
                 </div>
                 <form onSubmit={handleSchoolSubmit}>
+                <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleSchoolChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                   <div className="form-group row">
                     <label className="col-form-label col-md-3">
                       Heading <span className="text-danger">*</span>
@@ -142,7 +161,7 @@ const AddSchools = () => {
                           errors.heading ? "is-invalid" : ""
                         }`}
                         name="heading"
-                        value={schoolData.heading}
+                        value={formData.heading}
                         onChange={handleSchoolChange}
                       />
                       {errors.heading && (
@@ -161,7 +180,7 @@ const AddSchools = () => {
                           errors.schoolName ? "is-invalid" : ""
                         }`}
                         name="schoolName"
-                        value={schoolData.schoolName}
+                        value={formData.schoolName}
                         onChange={handleSchoolChange}
                       />
                       {errors.schoolName && (
@@ -182,7 +201,7 @@ const AddSchools = () => {
                         }`}
                         rows="4"
                         name="address"
-                        value={schoolData.address}
+                        value={formData.address}
                         onChange={handleSchoolChange}
                       ></textarea>
                       {errors.address && (
@@ -200,7 +219,7 @@ const AddSchools = () => {
                           errors.medium ? "is-invalid" : ""
                         }`}
                         name="medium"
-                        value={schoolData.medium}
+                        value={formData.medium}
                         onChange={handleSchoolChange}
                       >
                         <option>Select Medium</option>

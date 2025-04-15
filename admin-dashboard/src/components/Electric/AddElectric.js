@@ -8,24 +8,28 @@ const AddElectric = () => {
     description: "",
     mobileNo: "",
     vendorName: "",
+    language_code: "",
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    heading: "",
+    description: "",
+    mobileNo: "",
+    vendorName: "",
+    language_code: "",
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-
-    if (errors[name]) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [name]: "",
-      }));
-    }
+    setFormData({ ...formData, [name]: value,});
+    setErrors({ ...errors, [name]: "" });
+    // if (errors[name]) {
+    //   setErrors((prevErrors) => ({
+    //     ...prevErrors,
+    //     [name]: "",
+    //   }));
+    // }
   };
 
   const validateForm = () => {
@@ -44,11 +48,16 @@ const AddElectric = () => {
     if (!formData.vendorName.trim()) {
       newErrors.vendorName = "Vendor name is required.";
     }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
     return newErrors;
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) return;
     setErrors({});
     setLoading(true);
 
@@ -60,12 +69,18 @@ const AddElectric = () => {
     }
 
     try {
-      // eslint-disable-next-line
-      const response = await api.post("/electric", formData);
+      await api.post("/electric", {
+        heading: formData.heading,
+        description: formData.description,
+        mobileNo: formData.mobileNo,
+        vendorName: formData.vendorName,
+        language_code: formData.language_code,
+      });
+      setFormData({ heading: "", description: "", mobileNo: "", vendorName: "", language_code: "",
+      });
       navigate("/electric");
     } catch (err) {
-      console.error("Error:", err);
-      setErrors({ global: "Failed to add electric item. Please try again." });
+      console.error("Error submitting description:", err);
     } finally {
       setLoading(false);
     }
@@ -96,6 +111,27 @@ const AddElectric = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-3">
                         Heading <span className="text-danger">*</span>

@@ -29,23 +29,18 @@ router.get("/property_holder", (req, res) => {
 });
 
 router.post("/property_holder", (req, res) => {
-  const { heading, description, property } = req.body;
-  if (!heading || !description || !property) {
+  const {  heading, description, property, language_code } = req.body;
+  if (!heading || !description || !property || !language_code) {
     return res
       .status(400)
-      .json({ error: "Heading, description, and property are required" });
+      .json({ message: "All fields are required" });
   }
-
-  const sql =
-    "INSERT INTO property_holder (heading, description, property) VALUES (?, ?, ?)";
-  db.query(sql, [heading, description, property], (err, result) => {
+  const sql = `INSERT INTO property_holder (heading, description, property, language_code) VALUES (?, ?, ? ,?)`;
+  db.query(sql, [heading, description, property, language_code], (err, result) => {
     if (err) {
-      console.error("Error adding property holder:", err);
-      return res.status(500).json({ error: "Server Error" });
+      return res.status(500).json({ message: "Database error", error: err });
     }
-    res
-      .status(201)
-      .json({ id: result.insertId, heading, description, property });
+    res.status(200).json({ message: "Property holder added successfully", id: result.insertId });
   });
 });
 

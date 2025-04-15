@@ -3,21 +3,18 @@ const router = express.Router();
 const db = require("../config/db.js");
 
 router.post("/ponds-talao", (req, res) => {
-  const { name } = req.body;
-
-  if (!name) {
-    return res.status(400).json({ message: "Name is required" });
+  const { name, language_code } = req.body;
+  if ( !name || !language_code) {
+    return res
+      .status(400)
+      .json({ message: "All fields are required" });
   }
-
-  const sql = "INSERT INTO ponds_table (name) VALUES (?)";
-  db.query(sql, [name], (err, result) => {
+  const sql = `INSERT INTO ponds_table (name, language_code) VALUES (?,?)`;
+  db.query(sql, [name, language_code], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
-    res.status(200).json({
-      message: "Ponds/Talao added successfully",
-      pondsId: result.insertId,
-    });
+    res.status(200).json({ message: "Ponds-Talao added successfully", id: result.insertId });
   });
 });
 
@@ -48,7 +45,7 @@ router.get("/ponds-talao/:id", (req, res) => {
       return res.status(500).json({ message: "Database error", error: err });
     }
     if (result.length === 0) {
-      return res.status(404).json({ message: "Ponds/Talao not found" });
+      return res.status(404).json({ message: "Ponds-Talao not found" });
     }
     res.status(200).json(result[0]);
   });

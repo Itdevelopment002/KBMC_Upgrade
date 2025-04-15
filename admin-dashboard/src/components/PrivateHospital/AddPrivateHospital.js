@@ -12,23 +12,26 @@ const AddPrivateHospital = () => {
     mobileNo: "",
     beds: "",
     facilities: "",
+    language_code: "",
   });
 
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({
+    hospitalName: "",
+    division: "",
+    principalDoctor: "",
+    address: "",
+    phoneNo: "",
+    mobileNo: "",
+    beds: "",
+    facilities: "",
+    language_code: "",
+  });
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
-    if (errors[e.target.name]) {
-      setErrors({
-        ...errors,
-        [e.target.name]: "",
-      });
-    }
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
   };
 
   const validate = () => {
@@ -43,6 +46,7 @@ const AddPrivateHospital = () => {
     if (!formData.mobileNo) newErrors.mobileNo = "Mobile No is required";
     if (!formData.beds) newErrors.beds = "Number of Beds is required";
     if (!formData.facilities) newErrors.facilities = "Facilities are required";
+    if (!formData.language_code) newErrors.language_code = "Language selection is required.";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -71,6 +75,7 @@ const AddPrivateHospital = () => {
           mobileNo: "",
           beds: "",
           facilities: "",
+          language_code: "",
         });
         navigate("/hospital");
       }
@@ -100,6 +105,28 @@ const AddPrivateHospital = () => {
                 <div className="card-block">
                   <h4 className="page-title">Add Hospital</h4>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""
+                          }`}
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                  
                     <div className="row">
                       <div className="col-md-5">
                         <div className="form-group">

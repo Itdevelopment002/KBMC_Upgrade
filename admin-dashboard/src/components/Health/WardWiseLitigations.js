@@ -9,6 +9,7 @@ const WardWiseLitigations = () => {
   const [wardNo, setWardNo] = useState("");
   const [nameLawsuit, setNameLawsuit] = useState("");
   const [mobNo, setMobNo] = useState("");
+  const [languageCode, setLanguageCode] = useState("");
   const [showAddNewModal, setShowAddNewModal] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -18,11 +19,13 @@ const WardWiseLitigations = () => {
     ward_no: "",
     name_lawsuit: "",
     mob_no: "",
+    language_code: "",
   });
   const [errors, setErrors] = useState({
     wardNo: "",
     nameLawsuit: "",
     mobNo: "",
+    languageCode: "",
   });
 
   useEffect(() => {
@@ -48,6 +51,9 @@ const WardWiseLitigations = () => {
     } else if (!/^\d{10}$/.test(mobNo)) {
       newErrors.mobNo = "Mobile No. must be a 10-digit number.";
     }
+    if (!languageCode) {
+      newErrors.languageCode = "Language selection is required.";
+    }    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -58,6 +64,7 @@ const WardWiseLitigations = () => {
         ward_no: wardNo,
         name_lawsuit: nameLawsuit,
         mob_no: mobNo,
+        language_code:languageCode,
       };
       try {
         const response = await api.post("/litigations", newLitigation);
@@ -65,6 +72,7 @@ const WardWiseLitigations = () => {
         setWardNo("");
         setNameLawsuit("");
         setMobNo("");
+        setLanguageCode("");
         setShowAddNewModal(false);
       } catch (error) {
         console.error("Error adding litigation:", error);
@@ -76,6 +84,7 @@ const WardWiseLitigations = () => {
     if (errors[field]) {
       setErrors({ ...errors, [field]: "" });
     }
+    if (field === "languageCode") setLanguageCode(value);
     if (field === "wardNo") setWardNo(value);
     if (field === "nameLawsuit") setNameLawsuit(value);
     if (field === "mobNo") setMobNo(value);
@@ -113,6 +122,7 @@ const WardWiseLitigations = () => {
         ward_no: editData.ward_no,
         name_lawsuit: editData.name_lawsuit,
         mob_no: editData.mob_no,
+        language_code: editData.language_code,
       });
 
       if (response.status === 200) {
@@ -209,6 +219,26 @@ const WardWiseLitigations = () => {
               </div>
               <div className="modal-body">
                 <form>
+                <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.languageCode ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={languageCode}
+                      onChange={(e) => handleFieldChange("languageCode", e.target.value)}
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                      {errors.languageCode && (
+                        <div className="invalid-feedback">{errors.languageCode}</div>
+                      )}
+                    </div>
+                  </div>
                   <div className="mb-3">
                     <label htmlFor="wardNo" className="form-label">
                       Ward No

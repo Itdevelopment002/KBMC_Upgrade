@@ -1,4 +1,3 @@
-
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -10,7 +9,11 @@ const db = require('../config/db.js');
  
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        const dir = 'uploads/';
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        cb(null, dir);
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
@@ -21,32 +24,40 @@ const upload = multer({ storage });
 
 // Create CEO details
 router.post('/ceodetails', upload.single('image'), (req, res) => {
+    // Check if image is uploaded
     if (!req.file) {
-        return res.status(400).json({ message: 'No image uploaded' });
+        return res
+        .status(400)
+        .json({ message: 'No image uploaded' });
     }
 
-    const filePath = `/uploads/${req.file.filename}`;
-    const { ceoName, description, languageCode } = req.body;
+    // Construct file path for image
+    const filePath = `uploads/${req.file.filename}`;
 
-    if (!ceoName || !description || !languageCode) {
+    // Get other required fields
+    const ceo_name = req.body.ceoName;
+    const description = req.body.description;
+    const language_code = req.body.languageCode;    
+
+    if (!ceo_name || !description || !language_code) {
         return res.status(400).json({ message: 'CEO name, description, and language code are required' });
     }
 
-    const sql = 'INSERT INTO ceodetails (ceo_name, description, image_path, language_code) VALUES (?, ?, ?, ?)';
-    db.query(sql, [ceoName, description, filePath, languageCode], (err, result) => {
+    const sql =`INSERT INTO ceodetails (ceo_name, description, image_path, language_code) VALUES (?, ?, ?, ?)`;
+    db.query(sql, [ceo_name, description, filePath, language_code], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'Database error', error: err });
         }
-        res.status(201).json({
+        res.status(200).json({
             message: 'CEO details added successfully',
             imageUrl: filePath,
-            ceoName,
+            ceoName: ceo_name,
             description,
-            languageCode
+            languageCode: language_code
         });
     });
 });
-
+ 
 // Get CEO details by language
 router.get("/ceodetails", (req, res) => {
     const language = req.query.lang;
