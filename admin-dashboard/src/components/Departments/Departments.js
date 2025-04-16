@@ -7,8 +7,11 @@ const Departments = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedDepartment, setSelectedDepartment] = useState(null);
-    const [editedName, setEditedName] = useState('');
-    const [editedHod, setEditedHod] = useState('');
+    const [editData, setEditData] = useState({
+        name: "",
+        hod: "",
+        language_code: "en",
+    });
     const [currentPage, setCurrentPage] = useState(1);
     const [departmentsPerPage] = useState(5);
 
@@ -41,22 +44,44 @@ const Departments = () => {
     };
 
     const handleEdit = (department) => {
-        setSelectedDepartment(department.id);
-        setEditedName(department.name);
-        setEditedHod(department.hod);
+        setSelectedDepartment(department.id);  // Save department ID
+        setEditData({
+            name: department.name,
+            hod: department.hod,
+            language_code: department.language_code || 'en',
+        });
         setShowEditModal(true);
     };
 
+    const handleFormChange = (e) => {
+        const { name, value } = e.target;
+        setEditData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    };
+
     const confirmEdit = async () => {
+        if (!selectedDepartment) {
+            console.error('No department selected for editing');
+            return;
+        }
+
         try {
-            await api.put(`/departments/${selectedDepartment}`, {
-                name: editedName,
-                hod: editedHod,
+            const response = await api.put(`/departments/${selectedDepartment}`, {
+                name: editData.name,
+                hod: editData.hod,
+                language_code: editData.language_code,
             });
-            setShowEditModal(false);
-            fetchDepartments();
+
+            if (response.status === 200) {
+                setShowEditModal(false);
+                fetchDepartments(); // Refresh departments list
+            } else {
+                console.error('Failed to update department:', response.data);
+            }
         } catch (error) {
-            console.error('Error editing department:', error);
+            console.error('Error updating department:', error);
         }
     };
 
@@ -108,7 +133,7 @@ const Departments = () => {
                                                         <td>{department.name}</td>
                                                         <td>{department.hod}</td>
                                                         <td>
-                                                        <button
+                                                            <button
                                                                 className="btn btn-success btn-sm m-t-10"
                                                                 onClick={() => handleEdit(department)}
                                                             >
@@ -120,7 +145,6 @@ const Departments = () => {
                                                             >
                                                                 Delete
                                                             </button>
-                                                            
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -161,23 +185,36 @@ const Departments = () => {
                             </div>
                         </div>
                     )}
+
                     {showEditModal && (
                         <div className="modal show d-block" tabIndex="-1" role="dialog">
                             <div className="modal-dialog modal-dialog-centered" role="document">
                                 <div className="modal-content">
                                     <div className="modal-header">
                                         <h5 className="modal-title">Edit Department</h5>
-
                                     </div>
                                     <div className="modal-body">
                                         <form>
+                                            <div className="mb-3">
+                                                <label className="form-label">Select Language</label>
+                                                <select
+                                                    className="form-control"
+                                                    name="language_code"
+                                                    value={editData.language_code}
+                                                    onChange={handleFormChange}
+                                                >
+                                                    <option value="en">English</option>
+                                                    <option value="mr">Marathi</option>
+                                                </select>
+                                            </div>
                                             <div className="form-group">
                                                 <label>Department Name</label>
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={editedName}
-                                                    onChange={(e) => setEditedName(e.target.value)}
+                                                    name="name"
+                                                    value={editData.name}
+                                                    onChange={handleFormChange}
                                                 />
                                             </div>
                                             <div className="form-group">
@@ -185,8 +222,9 @@ const Departments = () => {
                                                 <input
                                                     type="text"
                                                     className="form-control"
-                                                    value={editedHod}
-                                                    onChange={(e) => setEditedHod(e.target.value)}
+                                                    name="hod"
+                                                    value={editData.hod}
+                                                    onChange={handleFormChange}
                                                 />
                                             </div>
                                         </form>

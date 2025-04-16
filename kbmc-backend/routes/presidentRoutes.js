@@ -91,7 +91,7 @@ router.get("/presidents/:id", (req, res) => {
 
 router.put("/presidents/:id", upload.single("image"), (req, res) => {
   const { id } = req.params;
-  let { president_name, start_date, end_date } = req.body;
+  let { president_name, start_date, end_date, language_code } = req.body;
 
   start_date = convertToMySQLDate(start_date);
   end_date = convertToMySQLDate(end_date);
@@ -103,19 +103,26 @@ router.put("/presidents/:id", upload.single("image"), (req, res) => {
     updateSql += " president_name = ?";
     updateParams.push(president_name);
   }
+
   if (start_date) {
-    updateSql += ", start_date = ?";
+    updateSql += updateParams.length ? ", start_date = ?" : " start_date = ?";
     updateParams.push(start_date);
   }
+
   if (end_date) {
-    updateSql += ", end_date = ?";
+    updateSql += updateParams.length ? ", end_date = ?" : " end_date = ?";
     updateParams.push(end_date);
+  }
+
+  if (language_code) {
+    updateSql += updateParams.length ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
   }
 
   let imagePath;
   if (req.file) {
     imagePath = `/uploads/${req.file.filename}`;
-    updateSql += ", image_path = ?";
+    updateSql += updateParams.length ? ", image_path = ?" : " image_path = ?";
     updateParams.push(imagePath);
   }
 
@@ -155,6 +162,7 @@ router.put("/presidents/:id", upload.single("image"), (req, res) => {
     });
   });
 });
+
 
 router.delete("/presidents/:id", (req, res) => {
   const { id } = req.params;

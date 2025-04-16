@@ -72,12 +72,14 @@ router.get("/history/:id", (req, res) => {
 
 router.put("/history/:id", (req, res) => {
   const { id } = req.params;
-  const { description } = req.body;
-  if (!description) {
-    return res.status(400).json({ message: "Description is required" });
+  const { description, language_code } = req.body;
+
+  if (!description || !language_code) {
+    return res.status(400).json({ message: "Description and language_code are required" });
   }
-  const sql = "UPDATE history SET description = ? WHERE id = ?";
-  db.query(sql, [description, id], (err, result) => {
+
+  const sql = "UPDATE history SET description = ?, language_code = ? WHERE id = ?";
+  db.query(sql, [description, language_code, id], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
@@ -87,6 +89,7 @@ router.put("/history/:id", (req, res) => {
     res.status(200).json({ message: "History updated successfully" });
   });
 });
+
 
 router.delete("/history/:id", (req, res) => {
   const { id } = req.params;
@@ -103,3 +106,7 @@ router.delete("/history/:id", (req, res) => {
 });
 
 module.exports = router;
+
+
+
+

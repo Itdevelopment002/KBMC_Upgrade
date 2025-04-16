@@ -14,6 +14,8 @@ const Tender = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTender, setSelectedTender] = useState(null);
   const [editedDescription, setEditedDescription] = useState("");
+  const [editedLanguage, setEditedLanguage] = useState("en");
+
 
   useEffect(() => {
     fetchTenders();
@@ -59,12 +61,15 @@ const Tender = () => {
     setEditedDescription(tender.description);
     setEditedStatus(tender.status);
     setShowEditModal(true);
+    setEditedLanguage(tender.language_code || "en");
+
   };
 
   const handleSaveEdit = () => {
     const formData = new FormData();
     formData.append("description", editedDescription);
     formData.append("status", editedStatus);
+    formData.append("language_code", editedLanguage);
 
     if (editedPdf) {
       formData.append("pdf", editedPdf);
@@ -190,9 +195,8 @@ const Tender = () => {
                   <nav>
                     <ul className="pagination mt-3">
                       <li
-                        className={`page-item ${
-                          currentPage === 1 ? "disabled" : ""
-                        }`}
+                        className={`page-item ${currentPage === 1 ? "disabled" : ""
+                          }`}
                       >
                         <button onClick={handlePrevPage} className="page-link">
                           Previous
@@ -201,9 +205,8 @@ const Tender = () => {
                       {[...Array(totalPages).keys()].map((page) => (
                         <li
                           key={page + 1}
-                          className={`page-item ${
-                            currentPage === page + 1 ? "active" : ""
-                          }`}
+                          className={`page-item ${currentPage === page + 1 ? "active" : ""
+                            }`}
                         >
                           <button
                             onClick={() => paginate(page + 1)}
@@ -214,9 +217,8 @@ const Tender = () => {
                         </li>
                       ))}
                       <li
-                        className={`page-item ${
-                          currentPage === totalPages ? "disabled" : ""
-                        }`}
+                        className={`page-item ${currentPage === totalPages ? "disabled" : ""
+                          }`}
                       >
                         <button onClick={handleNextPage} className="page-link">
                           Next
@@ -261,6 +263,18 @@ const Tender = () => {
             <div className="modal fade show" style={{ display: "block" }}>
               <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
+                  <div className="mb-3 mt-2">
+                    <label className="form-label">Select Language</label>
+                    <select
+                      className="form-control"
+                      value={editedLanguage}
+                      onChange={(e) => setEditedLanguage(e.target.value)}
+                    >
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                  </div>
+
                   <div className="modal-header">
                     <h5 className="modal-title">Edit Tender</h5>
                   </div>

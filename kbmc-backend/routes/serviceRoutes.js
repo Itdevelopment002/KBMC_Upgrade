@@ -31,7 +31,7 @@ router.put(
   upload.fields([{ name: "mainIcon" }, { name: "hoverIcon" }]),
   async (req, res) => {
     const { id } = req.params;
-    const { serviceHeading, serviceLink } = req.body;
+    const { serviceHeading, serviceLink, language_code } = req.body;
 
     let updateSql = "UPDATE services SET";
     const updateParams = [];
@@ -45,6 +45,14 @@ router.put(
       updateSql +=
         updateParams.length > 0 ? ", service_link = ?" : " service_link = ?";
       updateParams.push(serviceLink);
+    }
+
+    if (language_code) {
+      updateSql +=
+        updateParams.length > 0
+          ? ", language_code = ?"
+          : " language_code = ?";
+      updateParams.push(language_code);
     }
 
     if (req.files["mainIcon"]) {
@@ -120,6 +128,7 @@ router.put(
     });
   }
 );
+
 
 router.get("/services", (req, res) => {
   const language = req.query.lang;

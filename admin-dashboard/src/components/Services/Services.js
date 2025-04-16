@@ -11,7 +11,7 @@ const Services = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-
+const [editData, setEditData] = useState({});
   useEffect(() => {
     fetchServices();
   }, []);
@@ -39,13 +39,14 @@ const Services = () => {
     try {
       const response = await api.get(`/services/${serviceId}`);
       setSelectedService(response.data);
+      setEditData({ language_code: response.data.language_code || "en" }); // Set initial language
       setShowEditModal(true);
     } catch (error) {
       console.error("Error fetching service:", error);
       toast.error("Failed to fetch service details");
     }
   };
-
+  
   const handleDelete = async () => {
     try {
       await api.delete(`/services/${selectedService.id}`);
@@ -59,7 +60,10 @@ const Services = () => {
       toast.error("Failed to delete service");
     }
   };
-
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
   const handleCloseDeleteModal = () => {
     setShowDeleteModal(false);
     setSelectedService(null);
@@ -80,7 +84,9 @@ const Services = () => {
       formData.append("mainIcon", selectedService.mainIcon);
     if (selectedService.hoverIcon)
       formData.append("hoverIcon", selectedService.hoverIcon);
-
+    if (editData.language_code)
+      formData.append("language_code", editData.language_code);
+  
     try {
       await api.put(`/services/${selectedService.id}`, formData);
       fetchServices();
@@ -91,6 +97,7 @@ const Services = () => {
       toast.error("Failed to update service");
     }
   };
+  
 
   const handleFileChange = (e, field) => {
     const file = e.target.files[0];
@@ -231,6 +238,19 @@ const Services = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="mb-3">
+                    <label className="form-label">Select Language</label>
+                    <select
+                     className="form-control"
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={handleFormChange}
+                    >
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                      
+                    </select>
+                  </div>
                       <div className="mb-3">
                         <label className="form-label">Service Heading</label>
                         <input

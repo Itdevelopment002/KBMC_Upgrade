@@ -56,20 +56,37 @@ router.get("/newsupdate/:id", (req, res) => {
 
 router.put("/newsupdate/:id", (req, res) => {
   const { id } = req.params;
-  const { description } = req.body;
+  const { description, language_code } = req.body;
 
-  if (!description) {
-    return res.status(400).json({ message: "Description is required" });
+  if (!description && !language_code) {
+    return res.status(400).json({ message: "Nothing to update" });
   }
 
-  const sql = "UPDATE newsupdate SET description = ? WHERE id = ?";
-  db.query(sql, [description, id], (err, result) => {
+  let updateSql = "UPDATE newsupdate SET";
+  const updateParams = [];
+
+  if (description) {
+    updateSql += " description = ?";
+    updateParams.push(description);
+  }
+
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  }
+
+  updateSql += " WHERE id = ?";
+  updateParams.push(id);
+
+  db.query(updateSql, updateParams, (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ message: "News update not found" });
     }
+
     res.status(200).json({ message: "News update updated successfully" });
   });
 });

@@ -44,6 +44,7 @@ const Functions = () => {
       await api.put(`/functions/${selectedFunction.id}`, {
         heading: selectedFunction.heading,
         description: selectedFunction.description,
+        language_code: selectedFunction.language_code,
       });
 
       const updatedFunctions = functionsData.map((func) =>
@@ -160,11 +161,10 @@ const Functions = () => {
             </div>
           </div>
 
+          {/* Pagination */}
           <div className="mt-4">
             <ul className="pagination">
-              <li
-                className={`page-item ${currentPage === 1 ? "disabled" : ""}`}
-              >
+              <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
                 <button
                   className="page-link"
                   onClick={() => setCurrentPage(currentPage - 1)}
@@ -202,7 +202,8 @@ const Functions = () => {
             </ul>
           </div>
 
-          {showEditModal && (
+          {/* Edit Modal */}
+          {showEditModal && selectedFunction && (
             <div
               className="modal fade show"
               style={{
@@ -220,12 +221,24 @@ const Functions = () => {
                   <div className="modal-body">
                     <form>
                       <div className="mb-3">
+                        <label className="form-label">Select Language</label>
+                        <select
+                          className="form-control"
+                          name="language_code"
+                          value={selectedFunction.language_code || ""}
+                          onChange={handleEditChange}
+                        >
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+                      </div>
+                      <div className="mb-3">
                         <label className="form-label">Heading</label>
                         <input
                           type="text"
                           className="form-control form-control-md"
                           name="heading"
-                          value={selectedFunction?.heading || ""}
+                          value={selectedFunction.heading || ""}
                           onChange={handleEditChange}
                         />
                       </div>
@@ -234,7 +247,7 @@ const Functions = () => {
                         <textarea
                           className="form-control form-control-md"
                           name="description"
-                          value={selectedFunction?.description || ""}
+                          value={selectedFunction.description || ""}
                           onChange={handleEditChange}
                         ></textarea>
                       </div>
@@ -261,7 +274,11 @@ const Functions = () => {
             </div>
           )}
 
-          {showDeleteModal && (
+          {/* Toasts */}
+          <ToastContainer />
+        </div>
+        
+        {showDeleteModal && (
             <div
               className="modal fade show"
               style={{
@@ -296,9 +313,7 @@ const Functions = () => {
               </div>
             </div>
           )}
-        </div>
       </div>
-      <ToastContainer />
     </div>
   );
 };

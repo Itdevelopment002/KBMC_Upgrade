@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api, { baseURL } from "../api";
@@ -73,17 +74,17 @@ const History = () => {
     setEditData(
       type === "history"
         ? {
-            description: item.description,
-            language_code: item.language_code || "en",
-          }
+          description: item.description,
+          language_code: item.language_code || "en",
+        }
         : {
-            coName: item.coName,
-            designation: item.designation,
-            email: item.email,
-            language_code: item.language_code || "en",
-          }
+          coName: item.coName,
+          designation: item.designation,
+          email: item.email,
+          language_code: item.language_code || "en",
+        }
     );
-    
+
     setImagePreview(type === "co" ? `${baseURL}${item.image_path}` : "");
     setModalType(type);
     setShowEditModal(true);
@@ -102,23 +103,25 @@ const History = () => {
       if (modalType === "history") {
         await api.put(`/history/${selectedItem.id}`, {
           description: editData.description,
+          language_code: editData.language_code,
         });
+
         setHistoryData(
           historyData.map((item) =>
             item.id === selectedItem.id
-              ? { ...item, description: editData.description }
+              ? { ...item, description: editData.description, language_code: editData.language_code }
               : item
           )
         );
-        fetchHistoryData();
       } else if (modalType === "co") {
         const formData = new FormData();
         formData.append("coName", editData.coName);
         formData.append("designation", editData.designation);
         formData.append("email", editData.email);
+        formData.append("language_code", editData.language_code);
 
         if (editData.imageFile) {
-          formData.append("coImage", editData.imageFile);
+          formData.append("image", editData.imageFile);
         }
 
         await api.put(`/ceos/${selectedItem.id}`, formData, {
@@ -126,23 +129,18 @@ const History = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-        setCoData(
-          coData.map((item) =>
-            item.id === selectedItem.id ? { ...item, ...editData } : item
-          )
-        );
-        fetchCoData();
+
+        fetchCoData(); // refresh data after save
       }
-      toast.success(
-        `${modalType === "history" ? "History" : "CO"} updated successfully!`
-      );
-      navigate("/history");
+
+      toast.success("Changes saved successfully!");
+      closeModal();
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to update the entry!");
+      console.error("Save error:", error);
+      toast.error("Failed to save changes.");
     }
-    closeModal();
   };
+
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -331,9 +329,27 @@ const History = () => {
                         : "Edit Chief Officer"}
                     </h5>
                   </div>
+                  <div className="form-group">
+                    <label htmlFor="description">Select Language</label>
+                    <select
+                      className="form-control"
+                      id="language"
+                      value={editData.language_code}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          language_code: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+
+                    </select>
+                  </div>
                   <div className="modal-body">
-                    {modalType === "history" ? ( 
-                      
+                    {modalType === "history" ? (
+
                       <div className="form-group">
                         <label htmlFor="description">Description</label>
                         <textarea

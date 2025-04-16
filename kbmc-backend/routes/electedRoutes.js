@@ -143,49 +143,50 @@ router.get("/elected-wings/:id", (req, res) => {
 
 router.put("/elected-wings/:id", upload.single("image"), (req, res) => {
   const { id } = req.params;
-  let { correspondentName, wardNo, startDate, endDate, mobileNo } = req.body;
+  let { correspondentName, wardNo, startDate, endDate, mobileNo, language_code } = req.body;
 
-  // Convert dates to MySQL format if they exist
-  if (startDate) {
-    startDate = convertToMySQLDate(startDate);
-  }
-  if (endDate) {
-    endDate = convertToMySQLDate(endDate);
-  }
+  if (startDate) startDate = convertToMySQLDate(startDate);
+  if (endDate) endDate = convertToMySQLDate(endDate);
 
-  let updateSql = "UPDATE elected_wings SET";
-  const updateParams = [];
+  const fields = [];
+  const values = [];
 
   if (correspondentName) {
-    updateSql += " correspondentName = ?";
-    updateParams.push(correspondentName);
+    fields.push("correspondentName = ?");
+    values.push(correspondentName);
   }
   if (wardNo) {
-    updateSql += ", wardNo = ?";
-    updateParams.push(wardNo);
+    fields.push("wardNo = ?");
+    values.push(wardNo);
   }
   if (startDate) {
-    updateSql += ", startDate = ?";
-    updateParams.push(startDate);
+    fields.push("startDate = ?");
+    values.push(startDate);
   }
   if (endDate) {
-    updateSql += ", endDate = ?";
-    updateParams.push(endDate);
+    fields.push("endDate = ?");
+    values.push(endDate);
   }
   if (mobileNo) {
-    updateSql += ", mobileNo = ?";
-    updateParams.push(mobileNo);
+    fields.push("mobileNo = ?");
+    values.push(mobileNo);
   }
-
-  let imagePath;
   if (req.file) {
-    imagePath = `/uploads/${req.file.filename}`;
-    updateSql += ", image_path = ?";
-    updateParams.push(imagePath);
+    const imagePath = `/uploads/${req.file.filename}`;
+    fields.push("image_path = ?");
+    values.push(imagePath);
+  }if (language_code) {
+    fields.push("language_code = ?");
+    values.push(language_code);
+  }
+  
+
+  if (fields.length === 0) {
+    return res.status(400).json({ message: "No fields provided to update" });
   }
 
-  updateSql += " WHERE id = ?";
-  updateParams.push(id);
+  const updateSql = `UPDATE elected_wings SET ${fields.join(", ")} WHERE id = ?`;
+  values.push(id);
 
   const selectSql = "SELECT image_path FROM elected_wings WHERE id = ?";
   db.query(selectSql, [id], (err, result) => {
@@ -198,17 +199,13 @@ router.put("/elected-wings/:id", upload.single("image"), (req, res) => {
 
     const oldImagePath = result[0].image_path;
 
-    db.query(updateSql, updateParams, (err) => {
+    db.query(updateSql, values, (err) => {
       if (err) {
         return res.status(500).json({ message: "Database error", error: err });
       }
 
       if (req.file && oldImagePath) {
-        const fullPath = path.join(
-          __dirname,
-          "..",
-          oldImagePath.replace(/^\//, "")
-        );
+        const fullPath = path.join(__dirname, "..", oldImagePath.replace(/^\//, ""));
         fs.unlink(fullPath, (fsErr) => {
           if (fsErr) {
             console.error("Error deleting old image:", fsErr);
@@ -220,6 +217,7 @@ router.put("/elected-wings/:id", upload.single("image"), (req, res) => {
     });
   });
 });
+
 
 router.delete("/elected-wings/:id", (req, res) => {
   const { id } = req.params;

@@ -46,14 +46,26 @@ router.post("/wards", (req, res) => {
   });
 });
 
-router.put("/wards/:id", (req, res) => {
-  const { ward_no, ward_name } = req.body;
-  const sql = "UPDATE wards SET ward_no = ?, ward_name = ? WHERE id = ?";
-  db.query(sql, [ward_no, ward_name, req.params.id], (err, result) => {
-    if (err) throw err;
-    res.json({ success: true });
+// PUT /wards/:id - Update ward details
+router.put('/wards/:id', (req, res) => {
+  const { ward_no, ward_name, language_code } = req.body;
+  const { id } = req.params;
+
+  const sql = 'UPDATE wards SET ward_no = ?, ward_name = ?, language_code = ? WHERE id = ?';
+  db.query(sql, [ward_no, ward_name, language_code, id], (err, result) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Database error', error: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Ward not found or no changes made' });
+    }
+
+    res.status(200).json({ success: true, message: 'Ward updated successfully' });
   });
 });
+
 
 router.delete("/wards/:id", (req, res) => {
   const sql = "DELETE FROM wards WHERE id = ?";
