@@ -7,6 +7,7 @@ import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
 
 const HomeVideos = () => {
+
   const [videos, setVideos] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -15,6 +16,10 @@ const HomeVideos = () => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedVideo((prev) => ({ ...prev, [name]: value }));
+  };
 
   useEffect(() => {
     fetchVideos();
@@ -61,7 +66,7 @@ const HomeVideos = () => {
   const handleSaveEdit = async () => {
     try {
       setIsLoading(true);
-      const { description, video_url } = selectedVideo;
+      const { description, video_url, language_code } = selectedVideo;
 
       const formattedPublishDate = selectedVideo.publish_date
         ? formatDate(selectedVideo.publish_date)
@@ -71,7 +76,9 @@ const HomeVideos = () => {
         description,
         publish_date: formattedPublishDate,
         video_url,
+        language_code,
       });
+
       toast.success("Video updated successfully");
       fetchVideos();
     } catch (error) {
@@ -82,6 +89,7 @@ const HomeVideos = () => {
       handleCloseEditModal();
     }
   };
+
 
   const handleDeleteVideo = async () => {
     try {
@@ -245,9 +253,8 @@ const HomeVideos = () => {
               { length: Math.ceil(videos.length / itemsPerPage) },
               (_, i) => (
                 <li
-                  className={`page-item ${
-                    currentPage === i + 1 ? "active" : ""
-                  }`}
+                  className={`page-item ${currentPage === i + 1 ? "active" : ""
+                    }`}
                   key={i}
                 >
                   <button
@@ -260,11 +267,10 @@ const HomeVideos = () => {
               )
             )}
             <li
-              className={`page-item ${
-                currentPage === Math.ceil(videos.length / itemsPerPage)
+              className={`page-item ${currentPage === Math.ceil(videos.length / itemsPerPage)
                   ? "disabled"
                   : ""
-              }`}
+                }`}
             >
               <button
                 className="page-link"
@@ -322,6 +328,19 @@ const HomeVideos = () => {
                 </div>
                 <div className="modal-body">
                   <form>
+                    <div className="mb-3 mt-2">
+                      <label className="form-label">Select Language</label>
+                      <select
+                        className="form-control"
+                        name="language_code"
+                        value={selectedVideo?.language_code || "en"}
+                        onChange={handleInputChange}
+                      >
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                    </div>
+
                     <div className="form-group">
                       <label>Video Description</label>
                       <input

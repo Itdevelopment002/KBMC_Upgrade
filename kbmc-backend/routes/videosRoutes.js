@@ -68,26 +68,40 @@ router.get("/home-videos/:id", (req, res) => {
 
 router.put("/home-videos/:id", (req, res) => {
   const { id } = req.params;
-  const { description, publish_date, video_url } = req.body;
+  const { description, publish_date, video_url, language_code } = req.body;
 
   const formattedDate = publish_date ? convertToMySQLDate(publish_date) : null;
 
   let updateSql = "UPDATE home_videos SET";
   const updateParams = [];
 
+  const updateFields = [];
+
   if (description) {
-    updateSql += " description = ?";
+    updateFields.push("description = ?");
     updateParams.push(description);
   }
+
   if (formattedDate) {
-    updateSql += ", publish_date = ?";
+    updateFields.push("publish_date = ?");
     updateParams.push(formattedDate);
   }
+
   if (video_url) {
-    updateSql += ", video_url = ?";
+    updateFields.push("video_url = ?");
     updateParams.push(video_url);
   }
 
+  if (language_code) {
+    updateFields.push("language_code = ?");
+    updateParams.push(language_code);
+  }
+
+  if (updateFields.length === 0) {
+    return res.status(400).json({ message: "No fields to update" });
+  }
+
+  updateSql += " " + updateFields.join(", ");
   updateSql += " WHERE id = ?";
   updateParams.push(id);
 

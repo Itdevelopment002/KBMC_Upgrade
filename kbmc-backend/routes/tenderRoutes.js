@@ -53,7 +53,7 @@ router.post("/tenders", upload.single("pdf"), (req, res) => {
 });
 router.put("/tenders/:id", upload.single("pdf"), (req, res) => {
   const { id } = req.params;
-  const { description, status, retainPdf } = req.body;
+  const { description, status, retainPdf, language_code } = req.body;
   const newPdfPath = req.file ? req.file.path : null;
 
   db.query("SELECT pdf FROM `tenders` WHERE id = ?", [id], (err, results) => {
@@ -67,19 +67,20 @@ router.put("/tenders/:id", upload.single("pdf"), (req, res) => {
     const updatedTender = {
       description,
       status,
+      language_code,
       pdf: newPdfPath || (retainPdf ? currentPdfPath : null),
     };
 
     db.query(
-      "UPDATE `tenders` SET description = ?, status = ?, pdf = ? WHERE id = ?",
-      [description, status, updatedTender.pdf, id],
+      "UPDATE `tenders` SET description = ?, status = ?, pdf = ?, language_code = ? WHERE id = ?",
+      [description, status, updatedTender.pdf, language_code, id],
       (err) => {
         if (err) {
           console.error("Error updating tender:", err);
           return res.status(500).json({ error: "Internal Server Error" });
         }
 
-        if (newPdfPath && currentPdfPath) {
+        if (newPdfPath && currentPdfPath && currentPdfPath !== newPdfPath) {
           fs.unlink(currentPdfPath, (err) => {
             if (err) {
               console.error("Error deleting old PDF:", err);
@@ -92,6 +93,7 @@ router.put("/tenders/:id", upload.single("pdf"), (req, res) => {
     );
   });
 });
+
 
 router.delete("/tenders/:id", (req, res) => {
   const { id } = req.params;
