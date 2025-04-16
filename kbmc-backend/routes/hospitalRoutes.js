@@ -78,13 +78,14 @@ router.put("/private-hospital/:id", (req, res) => {
     mobileNo,
     beds,
     facilities,
+    language_code,
   } = req.body;
 
   const sql = `
-        UPDATE prvt_hospital
-        SET hospital_name = ?, division = ?, principal_doctor = ?, address = ?, phone_no = ?, mobile_no = ?, beds = ?, facility = ?
-        WHERE id = ?
-      `;
+    UPDATE prvt_hospital
+    SET hospital_name = ?, division = ?, principal_doctor = ?, address = ?, phone_no = ?, mobile_no = ?, beds = ?, facility = ?, language_code = ?
+    WHERE id = ?
+  `;
 
   db.query(
     sql,
@@ -97,16 +98,22 @@ router.put("/private-hospital/:id", (req, res) => {
       mobileNo,
       beds,
       facilities,
-      hospitalId,
+      language_code, 
+      hospitalId,    
     ],
     (err, result) => {
       if (err) {
-        console.error("Database error:", err);
-        return res.status(500).json({ message: "Database error" });
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update hospital data" });
       }
-      res.status(200).json({ message: "Hospital updated successfully" });
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Hospital record not found" });
+      }
+
+      res.json({ message: "Hospital updated successfully" });
     }
   );
 });
+
 
 module.exports = router;

@@ -13,7 +13,12 @@ const PondsAndTalao = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [editData, setEditData] = useState({
+    language_code: "",
+  });
+  const [errors] = useState({
+    language_code: "",
+  });
   const [imagePreview, setImagePreview] = useState("");
   useEffect(() => {
     fetchPondData();
@@ -70,7 +75,11 @@ const PondsAndTalao = () => {
 
   const openEditModal = (item, type) => {
     setSelectedItem(item);
-    setEditData(type === "pond" ? { name: item.name } : { ...item });
+    setEditData(
+      type === "pond"
+        ? { name: item.name, language_code: item.language_code }
+        : { ...item }
+    );
     setImagePreview(type === "pondImage" ? `${baseURL}${item.image_path}` : "");
     setModalType(type);
     setShowEditModal(true);
@@ -89,7 +98,9 @@ const PondsAndTalao = () => {
       if (modalType === "pond") {
         await api.put(`/ponds-talao/${selectedItem.id}`, {
           name: editData.name,
+          language_code: editData.language_code,
         });
+        
         setPondData(
           pondData.map((item) =>
             item.id === selectedItem.id
@@ -105,6 +116,9 @@ const PondsAndTalao = () => {
         const formData = new FormData();
         if (editData.imageFile) {
           formData.append("pondImage", editData.imageFile);
+        }
+        if (editData.language_code) {
+          formData.append("language_code", editData.language_code);
         }
 
         await api.put(`/pond-images/${selectedItem.id}`, formData, {
@@ -249,7 +263,7 @@ const PondsAndTalao = () => {
                                 >
                                   <img
                                     src={`${baseURL}${item.image_path}`}
-                                    alt={item.coName}
+                                    alt={item.name || "pond image"}
                                     style={{
                                       width: "100px",
                                     }}
@@ -313,6 +327,30 @@ const PondsAndTalao = () => {
                   <div className="modal-body">
                     {modalType === "pond" ? (
                       <>
+                       <div className="form-group row">
+                          <label className="col-form-label col-md-3">
+                            Language <span className="text-danger">*</span>
+                          </label>
+                          <div className="col-md-4">
+                          <select
+                            className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                            name="language_code"
+                            value={editData.language_code}
+                            onChange={(e) =>
+                              setEditData({ ...editData, language_code: e.target.value })
+                            } 
+                          >
+                            <option value="" disabled>Select Language</option>
+                            <option value="en">English</option>
+                            <option value="mr">Marathi</option>
+                          </select>
+
+                            {errors.language_code && (
+                              <div className="invalid-feedback">{errors.language_code}</div>
+                            )}
+                          </div>
+                        </div>
+
                         <div className="form-group">
                           <label htmlFor="name">Talao Name</label>
                           <input

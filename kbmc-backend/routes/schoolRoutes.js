@@ -52,7 +52,7 @@ router.post("/schools", (req, res) => {
 
 router.put("/schools/:id", (req, res) => {
   const { id } = req.params;
-  const { heading, schoolName, address, medium } = req.body;
+  const { heading, schoolName, address, medium, language_code } = req.body;
 
   let updateSql = "UPDATE schools SET";
   const updateParams = [];
@@ -74,6 +74,10 @@ router.put("/schools/:id", (req, res) => {
     updateSql += updateParams.length > 0 ? ", medium = ?" : " medium = ?";
     updateParams.push(medium);
   }
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  }  
 
   if (updateParams.length === 0) {
     return res.status(400).json({ message: "No fields to update" });

@@ -37,24 +37,31 @@ router.post("/electric", (req, res) => {
   });
 });
 router.put("/electric/:id", (req, res) => {
-  const { heading, description, mobileNo, vendorName } = req.body;
-  const sql =
-    "UPDATE electric SET heading = ?, description = ?, mobileNo = ?, vendorName = ? WHERE id = ?";
+  const { heading, description, mobileNo, vendorName, language_code } = req.body;
+
+  if (!heading || !description || !mobileNo || !vendorName || !language_code) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  const sql = `
+    UPDATE electric 
+    SET heading = ?, description = ?, mobileNo = ?, vendorName = ?, language_code = ?
+    WHERE id = ?
+  `;
 
   db.query(
     sql,
-    [heading, description, mobileNo, vendorName, req.params.id],
+    [heading.trim(), description.trim(), mobileNo.trim(), vendorName.trim(), language_code.trim(), req.params.id],
     (err, result) => {
       if (err) {
         console.error(err);
-        return res
-          .status(500)
-          .json({ error: "Failed to update electric data" });
+        return res.status(500).json({ error: "Failed to update electric data" });
       }
       if (result.affectedRows === 0) {
         return res.status(404).json({ error: "Electric record not found" });
       }
-      res.json({ success: true });
+
+      res.json({ message: "Electric updated successfully"});
     }
   );
 });

@@ -112,7 +112,7 @@ router.delete("/gardens/:id", (req, res) => {
 
 router.put("/gardens/:id", upload.array("images"), (req, res) => {
   const { id } = req.params;
-  const { heading } = req.body;
+  const { heading, language_code } = req.body;
 
   let updateSql = "UPDATE gardens SET";
   const updateParams = [];
@@ -121,13 +121,16 @@ router.put("/gardens/:id", upload.array("images"), (req, res) => {
     updateSql += " heading = ?";
     updateParams.push(heading);
   }
-
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  }
   if (req.files && req.files.length > 0) {
     const newImagePaths = req.files.map((file) => `/uploads/${file.filename}`);
     updateSql += updateParams.length > 0 ? ", images = ?" : " images = ?";
     updateParams.push(JSON.stringify(newImagePaths));
   }
-
+  
   if (updateParams.length === 0) {
     return res.status(400).json({ message: "No fields to update" });
   }

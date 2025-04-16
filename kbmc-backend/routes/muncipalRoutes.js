@@ -39,11 +39,13 @@ router.post("/muncipal", (req, res) => {
 
 router.put("/muncipal/:id", (req, res) => {
   const { id } = req.params;
-  const { heading, name, propertyType, address } = req.body;
-
+  const { heading, name, propertyType, address, language_code } = req.body;
+  if (!name || !propertyType || !address || !language_code) {
+    return res.status(400).json({ message: "All fields are required" });
+  }  
   const sql =
-    "UPDATE muncipal SET heading = ?, name = ?, propertyType = ?, address = ? WHERE id = ?";
-  db.query(sql, [heading, name, propertyType, address, id], (err, result) => {
+    "UPDATE muncipal SET heading = ?, name = ?, propertyType = ?, address = ?, language_code = ? WHERE id = ?";
+  db.query(sql, [heading, name, propertyType, address, language_code, id], (err, result) => {
     if (err) {
       console.error("Error updating property holder:", err);
       return res.status(500).json({ error: "Server Error" });

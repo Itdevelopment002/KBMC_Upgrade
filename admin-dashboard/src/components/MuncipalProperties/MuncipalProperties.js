@@ -9,6 +9,14 @@ const MuncipalProperties = () => {
     name: "",
     propertyType: "",
     address: "",
+    language_code: "",
+  });
+  const [errors, setErrors] = useState({
+    id: "",
+    name: "",
+    propertyType: "",
+    address: "",
+    language_code: "",
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -54,6 +62,21 @@ const MuncipalProperties = () => {
   };
 
   const handleEditSubmit = async () => {
+    if (
+      !editData.name ||
+      !editData.propertyType ||
+      !editData.address ||
+      !editData.language_code
+    ) {
+      setErrors({
+        name: !editData.name ? "Name is required" : "",
+        propertyType: !editData.propertyType ? "Type is required" : "",
+        address: !editData.address ? "Address is required" : "",
+        language_code: !editData.language_code ? "Language is required" : "",
+      });
+      return;
+    }
+  
     try {
       await api.put(`/muncipal/${editData.id}`, editData);
       setProperties(
@@ -66,6 +89,7 @@ const MuncipalProperties = () => {
       console.error("Error updating property:", error);
     }
   };
+  
 
   const currentPageData = properties.slice(
     (currentPage - 1) * itemsPerPage,
@@ -219,6 +243,30 @@ const MuncipalProperties = () => {
                 <div className="modal-header">
                   <h5 className="modal-title">Edit Property</h5>
                 </div>
+                <div className="modal-body row">
+                    <label className="col-form-label col-md-3">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={(e) =>
+                        setEditData({ ...editData, language_code: e.target.value })
+                      }
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                  
                 <div className="modal-body">
                   <label>Name</label>
                   <input
