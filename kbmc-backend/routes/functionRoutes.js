@@ -78,9 +78,34 @@ router.delete("/functions/:id", (req, res) => {
 
 router.put("/functions/:id", (req, res) => {
   const { id } = req.params;
-  const { heading, description } = req.body;
-  const sql = "UPDATE functions SET heading = ?, description = ? WHERE id = ?";
-  db.query(sql, [heading, description, id], (err, result) => {
+  const { heading, description, language_code } = req.body;
+
+  const fields = [];
+  const values = [];
+
+  if (heading) {
+    fields.push("heading = ?");
+    values.push(heading);
+  }
+
+  if (description) {
+    fields.push("description = ?");
+    values.push(description);
+  }
+
+  if (language_code) {
+    fields.push("language_code = ?");
+    values.push(language_code);
+  }
+
+  if (fields.length === 0) {
+    return res.status(400).json({ message: "No fields provided to update" });
+  }
+
+  const updateSql = `UPDATE functions SET ${fields.join(", ")} WHERE id = ?`;
+  values.push(id);
+
+  db.query(updateSql, values, (err, result) => {
     if (err) {
       console.error("Error updating data:", err);
       return res.status(500).json({ error: "Failed to update function" });
@@ -88,5 +113,6 @@ router.put("/functions/:id", (req, res) => {
     res.json({ message: "Function updated successfully" });
   });
 });
+
 
 module.exports = router;

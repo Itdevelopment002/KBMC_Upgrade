@@ -65,12 +65,30 @@ router.post("/departments", (req, res) => {
 });
 router.put("/departments/:id", (req, res) => {
   const { name, hod } = req.body;
+  const departmentId = req.params.id;
+
+  // Check if name and hod are provided in the request body
+  if (!name || !hod) {
+    return res.status(400).json({ success: false, message: "Missing required fields (name or hod)." });
+  }
+
   const sql = "UPDATE departments SET name = ?, hod = ? WHERE id = ?";
-  db.query(sql, [name, hod, req.params.id], (err, result) => {
-    if (err) throw err;
+
+  db.query(sql, [name, hod, departmentId], (err, result) => {
+    if (err) {
+      console.error("Error updating department:", err);
+      return res.status(500).json({ success: false, message: "Database error." });
+    }
+
+    // If no rows were affected, it means the department with the provided ID doesn't exist
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Department not found." });
+    }
+
     res.json({ success: true });
   });
 });
+
 
 router.delete("/departments/:id", (req, res) => {
   const sql = "DELETE FROM departments WHERE id = ?";

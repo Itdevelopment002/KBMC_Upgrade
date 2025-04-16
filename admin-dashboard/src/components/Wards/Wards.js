@@ -37,12 +37,12 @@ const Wards = () => {
       toast.error("Failed to delete the ward!");
     }
   };
-
   const handleEditSave = async () => {
     try {
       await api.put(`/wards/${selectedWard.id}`, {
         ward_no: selectedWard.ward_no,
         ward_name: selectedWard.ward_name,
+        language_code: selectedWard.language_code, // <-- add this line
       });
       const updatedWards = wards.map((ward) =>
         ward.id === selectedWard.id ? selectedWard : ward
@@ -55,6 +55,7 @@ const Wards = () => {
       toast.error("Failed to update the ward!");
     }
   };
+
 
   const handleEditClick = (ward) => {
     setSelectedWard({ ...ward });
@@ -164,9 +165,8 @@ const Wards = () => {
                 { length: Math.ceil(wards.length / wardsPerPage) },
                 (_, i) => (
                   <li
-                    className={`page-item ${
-                      currentPage === i + 1 ? "active" : ""
-                    }`}
+                    className={`page-item ${currentPage === i + 1 ? "active" : ""
+                      }`}
                     key={i}
                   >
                     <button
@@ -179,11 +179,10 @@ const Wards = () => {
                 )
               )}
               <li
-                className={`page-item ${
-                  currentPage === Math.ceil(wards.length / wardsPerPage)
+                className={`page-item ${currentPage === Math.ceil(wards.length / wardsPerPage)
                     ? "disabled"
                     : ""
-                }`}
+                  }`}
               >
                 <button
                   className="page-link"
@@ -210,8 +209,23 @@ const Wards = () => {
                   <div className="modal-header">
                     <h5 className="modal-title">Edit Ward</h5>
                   </div>
+
                   <div className="modal-body">
                     <form>
+                      <div className="form-group">
+                        <label htmlFor="description">Select Language</label>
+                        <select
+                          className="form-control"
+                          id="language"
+                          name="language_code"
+                          value={selectedWard?.language_code || ""}
+                          onChange={handleEditChange}
+                        >
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+
+                      </div>
                       <div className="mb-3">
                         <label className="form-label">Ward No.</label>
                         <input
@@ -298,3 +312,4 @@ const Wards = () => {
 };
 
 export default Wards;
+

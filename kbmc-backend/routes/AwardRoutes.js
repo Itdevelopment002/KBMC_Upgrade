@@ -43,20 +43,43 @@ router.post("/awards", (req, res) => {
 
 router.put("/awards/:id", (req, res) => {
   const { id } = req.params;
-  const { heading, description } = req.body;
+  const { heading, description, language_code } = req.body;
 
-  const sql = "UPDATE awards SET heading = ?, description = ? WHERE id = ?";
-  db.query(sql, [heading, description, id], (err, result) => {
+  let updateSql = "UPDATE awards SET";
+  const updateParams = [];
+
+  if (heading) {
+    updateSql += " heading = ?";
+    updateParams.push(heading);
+  }
+
+  if (description) {
+    updateSql += updateParams.length ? ", description = ?" : " description = ?";
+    updateParams.push(description);
+  }
+
+  if (language_code) {
+    updateSql += updateParams.length ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  }
+
+  updateSql += " WHERE id = ?";
+  updateParams.push(id);
+
+  db.query(updateSql, updateParams, (err, result) => {
     if (err) {
       console.error("Error updating awards:", err);
       return res.status(500).json({ error: "Server Error" });
     }
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Awards not found" });
+      return res.status(404).json({ error: "Award not found" });
     }
-    res.json({ message: "Awards updated successfully" });
+
+    res.json({ message: "Award updated successfully" });
   });
 });
+
 
 router.delete("/awards/:id", (req, res) => {
   const { id } = req.params;

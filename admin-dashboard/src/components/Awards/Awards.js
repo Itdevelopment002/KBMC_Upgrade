@@ -68,7 +68,10 @@ const Awards = () => {
     }
     closeModal();
   };
-
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
   const openEditModal = (item, type) => {
     setSelectedItem(item);
     setEditData(
@@ -97,7 +100,9 @@ const Awards = () => {
         await api.put(`/awards/${selectedItem.id}`, {
           heading: editData.heading,
           description: editData.description,
+          language_code: editData.language_code || "en", // default to English
         });
+        
         setAwardData(
           awardData.map((item) =>
             item.id === selectedItem.id
@@ -326,6 +331,19 @@ const Awards = () => {
                   <div className="modal-body">
                     {modalType === "award" ? (
                       <>
+                       <div className="mb-3">
+                    <label className="form-label">Select Language</label>
+                    <select
+                     className="form-control"
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={handleFormChange}
+                    >
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                      
+                    </select>
+                  </div>
                         <div className="form-group">
                           <label htmlFor="heading">Heading</label>
                           <input

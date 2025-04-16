@@ -87,7 +87,7 @@ router.get("/ceos/:id", (req, res) => {
 
 router.put("/ceos/:id", upload.single("coImage"), (req, res) => {
   const { id } = req.params;
-  const { coName, designation, email } = req.body;
+  const { coName, designation, email, language_code } = req.body;
 
   let updateSql = "UPDATE ceos SET";
   const updateParams = [];
@@ -97,20 +97,21 @@ router.put("/ceos/:id", upload.single("coImage"), (req, res) => {
     updateParams.push(coName);
   }
   if (designation) {
-    updateSql +=
-      updateParams.length > 0 ? ", designation = ?" : " designation = ?";
+    updateSql += updateParams.length > 0 ? ", designation = ?" : " designation = ?";
     updateParams.push(designation);
   }
   if (email) {
     updateSql += updateParams.length > 0 ? ", email = ?" : " email = ?";
     updateParams.push(email);
   }
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  }
 
-  let imagePath;
   if (req.file) {
-    imagePath = `/uploads/${req.file.filename}`;
-    updateSql +=
-      updateParams.length > 0 ? ", image_path = ?" : " image_path = ?";
+    const imagePath = `/uploads/${req.file.filename}`;
+    updateSql += updateParams.length > 0 ? ", image_path = ?" : " image_path = ?";
     updateParams.push(imagePath);
   }
 
@@ -121,37 +122,20 @@ router.put("/ceos/:id", upload.single("coImage"), (req, res) => {
   updateSql += " WHERE id = ?";
   updateParams.push(id);
 
-  const selectSql = "SELECT image_path FROM ceos WHERE id = ?";
-  db.query(selectSql, [id], (err, result) => {
+  console.log("Executing SQL:", updateSql);
+  console.log("With parameters:", updateParams);
+
+  db.query(updateSql, updateParams, (err, result) => {
     if (err) {
+      console.error("Database error:", err);
       return res.status(500).json({ message: "Database error", error: err });
     }
-    if (result.length === 0) {
-      return res.status(404).json({ message: "CEO not found" });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "CEO not found or no changes made" });
     }
 
-    const oldImagePath = result[0].image_path;
-
-    db.query(updateSql, updateParams, (err, updateResult) => {
-      if (err) {
-        return res.status(500).json({ message: "Database error", error: err });
-      }
-
-      if (req.file && oldImagePath) {
-        const fullPath = path.join(
-          __dirname,
-          "..",
-          oldImagePath.replace(/^\//, "")
-        );
-        fs.unlink(fullPath, (fsErr) => {
-          if (fsErr) {
-            console.error("Error deleting old image:", fsErr);
-          }
-        });
-      }
-
-      res.status(200).json({ message: "CEO updated successfully" });
-    });
+    res.status(200).json({ message: "CEO updated successfully" });
   });
 });
 
@@ -189,3 +173,5 @@ router.delete("/ceos/:id", (req, res) => {
 });
 
 module.exports = router;
+
+

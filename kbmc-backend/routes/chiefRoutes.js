@@ -108,7 +108,7 @@ router.get("/chief-officers/:id", (req, res) => {
 
 router.put("/chief-officers/:id", upload.single("image"), (req, res) => {
   const { id } = req.params;
-  let { officer_name, start_date, end_date } = req.body;
+  let { officer_name, start_date, end_date, language_code } = req.body;
 
   if (start_date) {
     start_date = convertToMySQLDate(start_date);
@@ -116,37 +116,46 @@ router.put("/chief-officers/:id", upload.single("image"), (req, res) => {
   if (end_date) {
     end_date = convertToMySQLDate(end_date);
   } else {
-    end_date = null; // If no end date is provided, set it to null
+    end_date = null;
   }
 
-  let updateSql = "UPDATE previous_chief_officer SET";
+  const updateFields = [];
   const updateParams = [];
 
   if (officer_name) {
-    updateSql += " officer_name = ?";
+    updateFields.push("officer_name = ?");
     updateParams.push(officer_name);
   }
   if (start_date) {
-    updateSql += ", start_date = ?";
+    updateFields.push("start_date = ?");
     updateParams.push(start_date);
   }
-  if (end_date) {
-    updateSql += ", end_date = ?";
+  if (end_date !== undefined) {
+    updateFields.push("end_date = ?");
     updateParams.push(end_date);
   }
-
-  let imagePath;
+  if (language_code) {
+    updateFields.push("language_code = ?");
+    updateParams.push(language_code);
+  }
   if (req.file) {
-    imagePath = `/uploads/${req.file.filename}`;
-    updateSql += ", image_path = ?";
+    const imagePath = `/uploads/${req.file.filename}`;
+    updateFields.push("image_path = ?");
     updateParams.push(imagePath);
   }
 
-  updateSql += " WHERE id = ?";
+  if (updateFields.length === 0) {
+    return res.status(400).json({ message: "No fields to update" });
+  }
+
+  const updateSql = `UPDATE previous_chief_officer SET ${updateFields.join(
+    ", "
+  )} WHERE id = ?`;
   updateParams.push(id);
 
   const selectSql =
     "SELECT image_path FROM previous_chief_officer WHERE id = ?";
+
   db.query(selectSql, [id], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
@@ -162,6 +171,7 @@ router.put("/chief-officers/:id", upload.single("image"), (req, res) => {
         return res.status(500).json({ message: "Database error", error: err });
       }
 
+      // Delete old image if new one uploaded
       if (req.file && oldImagePath) {
         const fullPath = path.join(
           __dirname,
@@ -179,6 +189,7 @@ router.put("/chief-officers/:id", upload.single("image"), (req, res) => {
     });
   });
 });
+
 
 router.delete("/chief-officers/:id", (req, res) => {
   const { id } = req.params;

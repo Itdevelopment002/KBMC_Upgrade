@@ -22,7 +22,9 @@ const ElectedWings = () => {
     endDate: "",
     mobileNo: "",
     image_path: "",
+    language_code: "en",
   });
+  
   const [imageFile, setImageFile] = useState(null);
 
   useEffect(() => {
@@ -95,6 +97,8 @@ const ElectedWings = () => {
     formData.append("startDate", formattedStartDate);
     formData.append("endDate", formattedEndDate);
     formData.append("mobileNo", editData.mobileNo);
+    formData.append("language_code", editData.language_code);
+
     if (imageFile) {
       formData.append("image", imageFile);
     }
@@ -116,11 +120,12 @@ const ElectedWings = () => {
 
   const formatDate = (date) => {
     const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
     const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
   };
+  
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -352,6 +357,21 @@ const ElectedWings = () => {
                   </div>
                   <div className="modal-body">
                     <form onSubmit={handleEditSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="description">Select Language</label>
+                        <select
+  className="form-control"
+  id="language"
+  name="language_code"
+  value={editData.language_code}
+  onChange={handleFormChange}
+>
+  <option value="en">English</option>
+  <option value="mr">Marathi</option>
+</select>
+
+
+                      </div>
                       <div className="mb-3">
                         <label
                           htmlFor="correspondentName"
