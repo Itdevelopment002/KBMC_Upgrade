@@ -133,7 +133,7 @@ router.delete("/health_photo_gallery/:id", (req, res) => {
 
 router.put("/health_photo_gallery/:id", upload.single("image"), (req, res) => {
   const { id } = req.params;
-  const { heading } = req.body;
+  const { heading, language_code } = req.body;
 
   let updateSql = "UPDATE health_photo_gallery SET";
   const updateParams = [];
@@ -142,6 +142,10 @@ router.put("/health_photo_gallery/:id", upload.single("image"), (req, res) => {
     updateSql += " heading = ?";
     updateParams.push(heading);
   }
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
+  } 
 
   if (req.file) {
     const newFilePath = `/uploads/${req.file.filename}`;

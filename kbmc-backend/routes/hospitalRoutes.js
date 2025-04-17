@@ -3,30 +3,15 @@ const router = express.Router();
 const db = require("../config/db.js");
 
 router.post("/private-hospital", (req, res) => {
-  const {hospitalName,
-        division,
-        principalDoctor,
-        address,
-        phoneNo,
-        mobileNo,
-        beds,
-        facilities, 
-        language_code } = req.body;
-  if (!hospitalName || !division || !principalDoctor || !address || !phoneNo || !mobileNo || !beds || !facilities || !language_code) {
+  const { hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code,} = req.body;
+  if (!hospital_name || !division || !principal_doctor || !address || !phone_no || !mobile_no || !beds || !facility || !language_code) {
     return res
       .status(400)
       .json({ message: "All fields are required" });
   }
   const sql = `INSERT INTO prvt_hospital (hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
   db.query(sql, 
-    [ hospitalName,
-    division,
-    principalDoctor,
-    address,
-    phoneNo,
-    mobileNo,
-    beds,
-    facilities, language_code], (err, result) => {
+    [hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code,], (err, result) => {
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }
@@ -70,16 +55,9 @@ router.delete("/private-hospital/:id", (req, res) => {
 router.put("/private-hospital/:id", (req, res) => {
   const hospitalId = req.params.id;
   const {
-    hospitalName,
-    division,
-    principalDoctor,
-    address,
-    phoneNo,
-    mobileNo,
-    beds,
-    facilities,
-    language_code,
+    hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code,
   } = req.body;
+  
 
   const sql = `
     UPDATE prvt_hospital
@@ -89,18 +67,7 @@ router.put("/private-hospital/:id", (req, res) => {
 
   db.query(
     sql,
-    [
-      hospitalName,
-      division,
-      principalDoctor,
-      address,
-      phoneNo,
-      mobileNo,
-      beds,
-      facilities,
-      language_code, 
-      hospitalId,    
-    ],
+    [hospital_name, division, principal_doctor, address, phone_no, mobile_no, beds, facility, language_code, hospitalId],
     (err, result) => {
       if (err) {
         console.error(err);

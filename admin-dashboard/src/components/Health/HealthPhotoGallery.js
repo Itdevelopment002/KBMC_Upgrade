@@ -7,6 +7,12 @@ import "glightbox/dist/css/glightbox.min.css";
 import { Link } from "react-router-dom";
 
 const HealthPhotoGallery = () => {
+  const [editData, setEditData] = useState({
+    heading: "",
+    language_code: "",
+  });  
+  const [errors, setErrors] = useState({ 
+    heading: "", img: "", language_code: "" });
   const [photos, setPhotos] = useState([]);
   const [languageCode, setLanguageCode] = useState("");
   const [heading, setHeading] = useState("");
@@ -15,7 +21,6 @@ const HealthPhotoGallery = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [errors, setErrors] = useState({ heading: "", img: "", language_code: "" });
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
@@ -43,31 +48,69 @@ const HealthPhotoGallery = () => {
 
   const validateForm = () => {
     let valid = true;
-    const newErrors = { heading: "", img: "" };
-
+    const newErrors = { heading: "", img: "", language_code: "" };
+  
     if (!heading.trim()) {
       newErrors.heading = "Heading is required.";
       valid = false;
     }
-
+  
     if (!img) {
       newErrors.img = "Image is required.";
       valid = false;
     }
-    if (!languageCode) {
+  
+    if (!editData.language_code) {  // Use editData.language_code for validation
       newErrors.language_code = "Language selection is required.";
       valid = false;
-    }    
+    }
+  
     setErrors(newErrors);
     return valid;
   };
-
+  
+  const handleEditPhoto = async () => {
+    if (validateForm()) {
+      const formData = new FormData();
+      formData.append("heading", selectedPhoto.heading);
+  
+      if (img) {
+        formData.append("image", img);
+      }
+  
+      try {
+        const response = await api.put(
+          `/health_photo_gallery/${selectedPhoto.id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+  
+        setPhotos(
+          photos.map((photo) =>
+            photo.id === selectedPhoto.id ? response.data : photo
+          )
+        );
+        fetchPhotos();
+        toast.success("Photo updated successfully!");
+      } catch (error) {
+        toast.error("Error updating photo.");
+      } finally {
+        setShowEditModal(false);
+      }
+      setErrors({ heading: "", img: "", language_code: "" });
+    }
+  };
+  
   const handleAddPhoto = async () => {
     if (validateForm()) {
       const formData = new FormData();
       formData.append("heading", heading);
       formData.append("image", img);
-
+      
       try {
         const response = await api.post("/health_photo_gallery", formData, {
           headers: {
@@ -86,41 +129,11 @@ const HealthPhotoGallery = () => {
         );
         toast.error("Error adding photo.");
       }
+      setErrors({ heading: "", img: "", language_code: "" });
     }
   };
 
-  const handleEditPhoto = async () => {
-    const formData = new FormData();
-    formData.append("heading", selectedPhoto.heading);
-
-    if (img) {
-      formData.append("image", img);
-    }
-
-    try {
-      const response = await api.put(
-        `/health_photo_gallery/${selectedPhoto.id}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
-      setPhotos(
-        photos.map((photo) =>
-          photo.id === selectedPhoto.id ? response.data : photo
-        )
-      );
-      fetchPhotos();
-      toast.success("Photo updated successfully!");
-    } catch (error) {
-      toast.error("Error updating photo.");
-    } finally {
-      setShowEditModal(false);
-    }
-  };
+  
 
   const handleDeletePhoto = async (id) => {
     try {
@@ -134,12 +147,11 @@ const HealthPhotoGallery = () => {
       setShowDeleteModal(false);
     }
   };
-
   const resetForm = () => {
     setHeading("");
     setImg(null);
     setLanguageCode("");
-    setErrors({ heading: "", img: "" });
+    setErrors({ heading: "", img: "", language_code: "" });
   };
 
   return (
@@ -244,21 +256,18 @@ const HealthPhotoGallery = () => {
                     </label>
                     <div className="col-md-4">
                     <select
-                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
-                        value={languageCode}
-                        onChange={(e) => {
-                          setLanguageCode(e.target.value);
-                          setErrors((prev) => ({ ...prev, language_code: "" }));
-                        }}
-                      >
-                        <option value="" disabled>Select Language</option>
-                        <option value="en">English</option>
-                        <option value="mr">Marathi</option>
-                      </select>
-
-                      {errors.language_code && (
-                        <div className="invalid-feedback">{errors.language_code}</div>
-                      )}
+  className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+  name="language_code"
+  value={editData.language_code}
+  onChange={(e) => setEditData({ ...editData, language_code: e.target.value })}
+>
+  <option value="" disabled>Select Language</option>
+  <option value="en">English</option>
+  <option value="mr">Marathi</option>
+</select>
+{errors.language_code && (
+  <div className="invalid-feedback">{errors.language_code}</div>
+)}
                     </div>
                   </div>
                   <div className="mb-3">
@@ -341,6 +350,29 @@ const HealthPhotoGallery = () => {
               </div>
               <div className="modal-body">
                 <form>
+                <div className="form-group row">
+                  <label className="col-form-label col-md-3">
+                    Select Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""
+                        }`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={(e) =>
+                        setEditData({ ...editData, language_code: e.target.value })
+                      } 
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <div className="invalid-feedback">{errors.language_code}</div>
+                    )}
+                  </div>
+                </div>
                   {/* Heading Field */}
                   <div className="mb-3">
                     <label htmlFor="editPhotoHeading" className="form-label">

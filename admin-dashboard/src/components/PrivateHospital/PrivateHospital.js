@@ -7,15 +7,28 @@ import { Link } from "react-router-dom";
 const PrivateHospital = () => {
   const [selectedHospital, setSelectedHospital] = useState(null);
   const [editData, setEditData] = useState({
-    id: "",
-    name: "",
-    division: "",
-    specialty: "",
-    address: "",
-    phone: "",
-    mobile: "",
-    beds: "",
-    facilities: "",
+    id: null,
+    hospital_name: '',
+    division: '',
+    principal_doctor: '',
+    address: '',
+    phone_no: '',
+    mobile_no: '',
+    beds: '',
+    facility: '',
+    language_code: 'en',
+  });  
+  const [errors, setErrors] = useState({
+    id: null,
+    hospital_name: '',
+    division: '',
+    principal_doctor: '',
+    address: '',
+    phone_no: '',
+    mobile_no: '',
+    beds: '',
+    facility: '',
+    language_code: 'en',
   });
   const [hospitals, setHospitals] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,14 +56,15 @@ const PrivateHospital = () => {
   const handleEditModalOpen = (hospital) => {
     setEditData({
       id: hospital.id,
-      name: hospital.hospital_name,
-      division: hospital.division,
-      specialty: hospital.principal_doctor,
-      address: hospital.address,
-      phone: hospital.phone_no,
-      mobile: hospital.mobile_no,
-      beds: hospital.beds,
-      facilities: hospital.facility,
+      hospital_name: hospital.hospital_name || '',
+      division: hospital.division || '',
+      principal_doctor: hospital.principal_doctor || '',
+      address: hospital.address || '',
+      phone_no: hospital.phone_no || '',
+      mobile_no: hospital.mobile_no || '',
+      beds: hospital.beds || '',
+      facility: hospital.facility || '',
+      language_code: hospital.language_code || '',
     });
     document.getElementById("editModal").classList.add("show");
     document.getElementById("editModal").style.display = "block";
@@ -73,15 +87,16 @@ const PrivateHospital = () => {
   const handleEditSubmit = async () => {
     try {
       await api.put(`/private-hospital/${editData.id}`, {
-        hospitalName: editData.name,
+        hospital_name: editData.hospital_name,
         division: editData.division,
-        principalDoctor: editData.specialty,
+        principal_doctor: editData.principal_doctor,
         address: editData.address,
-        phoneNo: editData.phone,
-        mobileNo: editData.mobile,
+        phone_no: editData.phone_no,
+        mobile_no: editData.mobile_no,
         beds: editData.beds,
-        facilities: editData.facilities,
-      });
+        facility: editData.facility,
+        language_code: editData.language_code,
+      })      
       toast.success(`Hospital updated successfully.`);
       fetchHospitals();
     } catch (error) {
@@ -300,15 +315,36 @@ const PrivateHospital = () => {
                 </div>
                 <div className="modal-body">
                   <form>
+                  <div className="form-group row">
+                  <label className="col-form-label col-md-3">
+                    Select Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""
+                        }`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={(e) =>
+                        setEditData({ ...editData, language_code: e.target.value })
+                      } 
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <div className="invalid-feedback">{errors.language_code}</div>
+                    )}
+                  </div>
+                </div>
                     <div className="form-group">
                       <label>Hospital Name</label>
                       <input
                         type="text"
                         className="form-control"
-                        value={editData.name}
-                        onChange={(e) =>
-                          setEditData({ ...editData, name: e.target.value })
-                        }
+                        value={editData.hospital_name}
+                        onChange={(e) => setEditData({ ...editData, hospital_name: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -316,12 +352,7 @@ const PrivateHospital = () => {
                       <select
                         className="form-control"
                         value={editData.division}
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            division: e.target.value,
-                          })
-                        }
+                        onChange={(e) => setEditData({ ...editData, division: e.target.value })}
                         required
                       >
                         <option value="" disabled>
@@ -337,13 +368,8 @@ const PrivateHospital = () => {
                       <input
                         type="text"
                         className="form-control"
-                        value={editData.specialty}
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            specialty: e.target.value,
-                          })
-                        }
+                        value={editData.principal_doctor}
+                        onChange={(e) => setEditData({ ...editData, principal_doctor: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -352,12 +378,7 @@ const PrivateHospital = () => {
                         type="text"
                         className="form-control"
                         value={editData.address}
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            address: e.target.value,
-                          })
-                        }
+                        onChange={(e) => setEditData({ ...editData, address: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -365,10 +386,8 @@ const PrivateHospital = () => {
                       <input
                         type="text"
                         className="form-control"
-                        value={editData.phone}
-                        onChange={(e) =>
-                          setEditData({ ...editData, phone: e.target.value })
-                        }
+                        value={editData.phone_no}
+                        onChange={(e) => setEditData({ ...editData, phone_no: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -377,9 +396,7 @@ const PrivateHospital = () => {
                         type="text"
                         className="form-control"
                         value={editData.mobile}
-                        onChange={(e) =>
-                          setEditData({ ...editData, mobile: e.target.value })
-                        }
+                        onChange={(e) => setEditData({ ...editData, mobile_no: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -388,9 +405,7 @@ const PrivateHospital = () => {
                         type="number"
                         className="form-control"
                         value={editData.beds}
-                        onChange={(e) =>
-                          setEditData({ ...editData, beds: e.target.value })
-                        }
+                        onChange={(e) => setEditData({ ...editData, beds: e.target.value })}
                       />
                     </div>
                     <div className="form-group">
@@ -398,13 +413,8 @@ const PrivateHospital = () => {
                       <input
                         type="text"
                         className="form-control"
-                        value={editData.facilities}
-                        onChange={(e) =>
-                          setEditData({
-                            ...editData,
-                            facilities: e.target.value,
-                          })
-                        }
+                        value={editData.facility}
+                        onChange={(e) => setEditData({ ...editData, facility: e.target.value })}
                       />
                     </div>
                   </form>
