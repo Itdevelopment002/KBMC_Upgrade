@@ -4,18 +4,32 @@ import api from "../api";
 import { Link } from "react-router-dom";
 
 const AddPrivacyPolicy = () => {
-  const [heading, setHeading] = useState("");
-  const [description, setDescription] = useState("");
-  const [errors, setErrors] = useState({ heading: "", description: "" });
+  const [formData, setFormData] = useState({
+    heading: "",
+    description: "",
+    language_code: "",
+  });
+  const [errors, setErrors] = useState({ heading: "", description: "", language_code: "" });
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!heading) {
+    if (!formData.heading) {
       newErrors.heading = "Heading is required.";
     }
-    if (!description) {
+    if (!formData.description) {
       newErrors.description = "Description is required.";
+    }
+    if (!formData.language_code) {
+      newErrors.language_code = "Language is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -28,22 +42,18 @@ const AddPrivacyPolicy = () => {
       return;
     }
 
-    const formData = {
-      heading,
-      description,
-    };
+    const { heading, description, language_code } = formData;
 
     try {
-      const response = await api.post("/privacy-policy", formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+      const response = await api.post("/privacy-policy", {
+        heading,
+        description,
+        language_code,
       });
 
       if (response.status === 201) {
-        setHeading("");
-        setDescription("");
-        setErrors({ heading: "", description: "" });
+        setFormData({ heading: "", description: "", language_code: "" });
+        setErrors({ heading: "", description: "", language_code: "" });
         navigate("/privacy-policy");
       } else {
         console.error("Failed to add privacy policy");
@@ -79,6 +89,29 @@ const AddPrivacyPolicy = () => {
                   </div>
                   <form onSubmit={handleSubmit}>
                     <div className="form-group row">
+                      <label className="col-form-label col-lg-2">
+                        Language <span className="text-danger">*</span>
+                      </label>
+                      <div className="col-md-4">
+                        <select
+                          name="language_code"
+                          className={`form-control ${
+                            errors.language_code ? "is-invalid" : ""
+                          }`}
+                          value={formData.language_code}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                          {/* add more languages as needed */}
+                        </select>
+                        {errors.language_code && (
+                          <small className="text-danger">{errors.language_code}</small>
+                        )}
+                      </div>
+                    </div>
+                    <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         Heading <span className="text-danger">*</span>
                       </label>
@@ -89,18 +122,12 @@ const AddPrivacyPolicy = () => {
                             errors.heading ? "is-invalid" : ""
                           }`}
                           placeholder="Enter heading"
-                          value={heading}
-                          onChange={(e) => {
-                            setHeading(e.target.value);
-                            if (errors.heading) {
-                              setErrors({ ...errors, heading: "" });
-                            }
-                          }}
+                          name="heading"
+                          value={formData.heading}
+                          onChange={handleChange}
                         />
                         {errors.heading && (
-                          <small className="text-danger">
-                            {errors.heading}
-                          </small>
+                          <small className="text-danger">{errors.heading}</small>
                         )}
                       </div>
                     </div>
@@ -114,19 +141,13 @@ const AddPrivacyPolicy = () => {
                             errors.description ? "is-invalid" : ""
                           }`}
                           placeholder="Enter description"
-                          value={description}
-                          onChange={(e) => {
-                            setDescription(e.target.value);
-                            if (errors.description) {
-                              setErrors({ ...errors, description: "" });
-                            }
-                          }}
+                          name="description"
+                          value={formData.description}
+                          onChange={handleChange}
                           rows="2"
                         />
                         {errors.description && (
-                          <small className="text-danger">
-                            {errors.description}
-                          </small>
+                          <small className="text-danger">{errors.description}</small>
                         )}
                       </div>
                     </div>

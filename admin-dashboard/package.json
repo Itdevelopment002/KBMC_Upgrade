@@ -22,6 +22,7 @@
     "react-flatpickr": "^3.10.13",
     "react-icons": "^5.4.0",
     "react-jquery-plugin": "^1.1.7",
+    "react-modal": "^3.16.3",
     "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "react-scrollbars-custom": "^4.1.1",

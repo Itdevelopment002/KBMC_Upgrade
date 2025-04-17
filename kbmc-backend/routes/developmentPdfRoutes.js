@@ -20,19 +20,19 @@ router.post(
   "/development-plan-pdf",
   upload.fields([{ name: "image" }, { name: "pdf" }]),
   (req, res) => {
-    const { name } = req.body;
+    const { name, language_code } = req.body;  // Capture the language_code
     const imagePath = req.files?.image ? req.files.image[0].path : null;
     const pdfPath = req.files?.pdf ? req.files.pdf[0].path : null;
 
-    if (!name || !imagePath || !pdfPath) {
+    if (!name || !language_code || !imagePath || !pdfPath) {
       return res
         .status(400)
-        .json({ message: "Name, image, and PDF files are required." });
+        .json({ message: "Name, language_code, image, and PDF files are required." });
     }
 
     const sql =
-      "INSERT INTO development_plan_pdf (name, image_path, pdf_path) VALUES (?, ?, ?)";
-    db.query(sql, [name, imagePath, pdfPath], (err, result) => {
+      "INSERT INTO development_plan_pdf (name, language_code, image_path, pdf_path) VALUES (?, ?, ?, ?)";
+    db.query(sql, [name, language_code, imagePath, pdfPath], (err, result) => {
       if (err) {
         return res
           .status(500)
@@ -45,14 +45,26 @@ router.post(
   }
 );
 
+
+
 router.get("/development-plan-pdf", (req, res) => {
-  const sql = "SELECT * FROM development_plan_pdf";
-  db.query(sql, (err, results) => {
+  const { language_code } = req.query;
+
+  let sql = "SELECT * FROM development_plan_pdf";
+  let params = [];
+
+  if (language_code) {
+    sql += " WHERE language_code = ?";
+    params.push(language_code);
+  }
+
+  db.query(sql, params, (err, results) => {
     if (err) {
       return res
         .status(500)
         .json({ message: "Database retrieval failed", error: err });
     }
+
     res.json(results);
   });
 });
@@ -62,38 +74,42 @@ router.put(
   upload.fields([{ name: "image" }, { name: "pdf" }]),
   (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, language_code } = req.body;
 
-    let updateSql = "UPDATE development_plan_pdf SET";
-    const updateParams = [];
+    const fieldsToUpdate = [];
+    const values = [];
 
     if (name) {
-      updateSql += " name = ?";
-      updateParams.push(name);
+      fieldsToUpdate.push("name = ?");
+      values.push(name);
     }
 
-    if (req.files && req.files.image) {
+    if (language_code) {
+      fieldsToUpdate.push("language_code = ?");
+      values.push(language_code);
+    }
+
+    if (req.files?.image) {
       const newImagePath = `uploads/${req.files.image[0].filename}`;
-      updateSql +=
-        updateParams.length > 0 ? ", image_path = ?" : " image_path = ?";
-      updateParams.push(newImagePath);
+      fieldsToUpdate.push("image_path = ?");
+      values.push(newImagePath);
     }
 
-    if (req.files && req.files.pdf) {
+    if (req.files?.pdf) {
       const newPdfPath = `uploads/${req.files.pdf[0].filename}`;
-      updateSql += updateParams.length > 0 ? ", pdf_path = ?" : " pdf_path = ?";
-      updateParams.push(newPdfPath);
+      fieldsToUpdate.push("pdf_path = ?");
+      values.push(newPdfPath);
     }
 
-    if (updateParams.length === 0) {
-      return res.status(400).json({ message: "No fields to update" });
+    if (fieldsToUpdate.length === 0) {
+      return res.status(400).json({ message: "No fields to update." });
     }
 
-    updateSql += " WHERE id = ?";
-    updateParams.push(id);
+    const updateSql = `UPDATE development_plan_pdf SET ${fieldsToUpdate.join(", ")} WHERE id = ?`;
+    values.push(id);
 
-    const selectSql =
-      "SELECT image_path, pdf_path FROM development_plan_pdf WHERE id = ?";
+    // First, get old paths for cleanup
+    const selectSql = "SELECT image_path, pdf_path FROM development_plan_pdf WHERE id = ?";
     db.query(selectSql, [id], (err, result) => {
       if (err) {
         return res.status(500).json({ message: "Database error", error: err });
@@ -105,32 +121,26 @@ router.put(
 
       const { image_path: oldFilePath, pdf_path: oldPdfPath } = result[0];
 
-      db.query(updateSql, updateParams, (err) => {
+      db.query(updateSql, values, (err) => {
         if (err) {
-          return res
-            .status(500)
-            .json({ message: "Database error", error: err });
+          return res.status(500).json({ message: "Update failed", error: err });
         }
 
-        if (req.files && req.files.image) {
+        // Delete old image if replaced
+        if (req.files?.image && oldFilePath) {
           fs.unlink(path.join(__dirname, "..", oldFilePath), (fsErr) => {
-            if (fsErr) {
-              console.error("Error deleting old image file:", fsErr);
-            }
+            if (fsErr) console.error("Failed to delete old image:", fsErr);
           });
         }
 
-        if (req.files && req.files.pdf) {
+        // Delete old PDF if replaced
+        if (req.files?.pdf && oldPdfPath) {
           fs.unlink(path.join(__dirname, "..", oldPdfPath), (fsErr) => {
-            if (fsErr) {
-              console.error("Error deleting old PDF file:", fsErr);
-            }
+            if (fsErr) console.error("Failed to delete old PDF:", fsErr);
           });
         }
 
-        res
-          .status(200)
-          .json({ message: "Development Plan updated successfully" });
+        res.status(200).json({ message: "Development Plan updated successfully." });
       });
     });
   }

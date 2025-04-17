@@ -4,6 +4,7 @@ import api from "../api";
 
 const AddRts = () => {
   const [description, setDescription] = useState("");
+  const [languageCode, setLanguageCode] = useState("en"); // default language
   const [errors, setErrors] = useState({ description: "" });
 
   const navigate = useNavigate();
@@ -19,17 +20,12 @@ const AddRts = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      return;
-    }
-
-    if (!description) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       await api.post("/development-plan-desc", {
         description,
+        language_code: languageCode,
       });
       setDescription("");
       setErrors({ description: "" });
@@ -57,12 +53,22 @@ const AddRts = () => {
                 <div className="card-block">
                   <div className="row">
                     <div className="col-sm-4 col-3">
-                      <h4 className="page-title">
-                        Add Development Plan Description
-                      </h4>
+                      <h4 className="page-title">Add Development Plan Description</h4>
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                    <div className="mb-3">
+                      <label className="form-label">Language</label>
+                      <select
+                        className="form-control form-control-md"
+                        value={languageCode}
+                        onChange={(e) => setLanguageCode(e.target.value)}
+                      >
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                    </div>
+
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         Description <span className="text-danger">*</span>
