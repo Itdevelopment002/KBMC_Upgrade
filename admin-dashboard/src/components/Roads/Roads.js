@@ -8,6 +8,13 @@ const Roads = () => {
     id: "",
     description: "",
     length: "",
+    language_code: "",
+  });
+  const [errors] = useState({
+    id: "",
+    description: "",
+    length: "",
+    language_code: "",
   });
   const [roads, setRoads] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -243,6 +250,29 @@ const Roads = () => {
                 </div>
                 <div className="modal-body">
                   <form onSubmit={handleEditSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={(e) =>
+                        setEditData({ ...editData, language_code: e.target.value })
+                      } 
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group">
                       <label>Description</label>
                       <input

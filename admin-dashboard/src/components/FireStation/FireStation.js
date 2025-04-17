@@ -15,6 +15,14 @@ const FireStation = () => {
     heading: "",
     address: "",
     phoneNo: "",
+    language_code: "",
+    image: null,
+  });
+  const [errors] = useState({
+    heading: "",
+    address: "",
+    phoneNo: "",
+    language_code: "",
     image: null,
   });
   const [imagePreview, setImagePreview] = useState(null);
@@ -78,6 +86,7 @@ const FireStation = () => {
     formData.append("heading", editData.heading);
     formData.append("address", editData.address);
     formData.append("phoneNo", editData.phoneNo);
+    formData.append("language_code", editData.language_code);
     if (editData.image) {
       formData.append("image", editData.image);
     }
@@ -99,7 +108,7 @@ const FireStation = () => {
   const handleCloseDeleteModal = () => setShowDeleteModal(false);
   const handleCloseEditModal = () => {
     setShowEditModal(false);
-    setEditData({ heading: "", address: "", phoneNo: "", image: null });
+    setEditData({ heading: "", address: "", phoneNo: "",language_code: "", image: null });
     setImagePreview(null);
   };
 
@@ -286,6 +295,29 @@ const FireStation = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="form-group row">
+                        <label className="col-form-label col-md-3">
+                          Language <span className="text-danger">*</span>
+                        </label>
+                        <div className="col-md-4">
+                        <select
+                          className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                          name="language_code"
+                          value={editData.language_code}
+                          onChange={(e) =>
+                            setEditData({ ...editData, language_code: e.target.value })
+                          } 
+                        >
+                          <option value="" disabled>Select Language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+
+                          {errors.language_code && (
+                            <div className="invalid-feedback">{errors.language_code}</div>
+                          )}
+                        </div>
+                      </div>
                       <div className="form-group">
                         <label>Heading</label>
                         <input

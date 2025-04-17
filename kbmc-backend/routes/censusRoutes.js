@@ -39,21 +39,25 @@ db.query(query, params, (err, results) => {
 
 router.put("/tree-census/:id", (req, res) => {
   const treeCensusId = req.params.id;
-  const { description, total } = req.body;
+  const { description, total, language_code } = req.body;
 
   const sql = `
         UPDATE tree_census
-        SET description = ?, total = ?
+        SET description = ?, total = ?, language_code = ?
         WHERE id = ?
     `;
+      db.query(sql, [description.trim(), total.trim(), language_code.trim(), treeCensusId], (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Failed to update Tree Census data" });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Tree Census record not found" });
+      }
 
-  db.query(sql, [description, total, treeCensusId], (err, result) => {
-    if (err) {
-      console.error("Database error:", err);
-      return res.status(500).json({ message: "Database error" });
+      res.json({ message: "Tree Census updated successfully"});
     }
-    res.status(200).json({ message: "Tree Census updated successfully" });
-  });
+  )
 });
 
 router.delete("/tree-census/:id", (req, res) => {

@@ -53,21 +53,25 @@ router.get("/ponds-talao/:id", (req, res) => {
 
 router.put("/ponds-talao/:id", (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, language_code } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ message: "Name is required" });
+  if (!name || !language_code) {
+    return res.status(400).json({ message: "All fields is required" });
   }
 
-  const sql = "UPDATE ponds_table SET name = ? WHERE id = ?";
-  db.query(sql, [name, id], (err, result) => {
-    if (err) {
-      return res.status(500).json({ message: "Database error", error: err });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Ponds/Talao not found" });
-    }
-    res.status(200).json({ message: "POnds/Talao updated successfully" });
+  const sql = "UPDATE ponds_table SET name = ?, language_code = ? WHERE id = ?";
+  db.query(sql,
+    [name.trim(), language_code.trim(), id],
+    (err, result) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: "Ponds/Talao not found" });
+      }
+
+      res.json({ message: "Ponds/Talao updated successfully" });
   });
 });
 

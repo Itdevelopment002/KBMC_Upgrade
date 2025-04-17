@@ -5,6 +5,8 @@ import "glightbox/dist/css/glightbox.min.css";
 import api, { baseURL } from "../api";
 
 const Garden = () => {
+  const [editData, setEditData] = useState({ language_code: "en" });
+  const [errors] = useState({}); 
   const [gardensData, setGardensData] = useState([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -43,6 +45,10 @@ const Garden = () => {
     setCurrentImages(JSON.parse(garden.images));
     setRemovedImages([]);
     setShowEditModal(true);
+    setEditData({
+      language_code: garden.language_code || "en",
+      heading: garden.heading || ""
+    }); 
   };
 
   const handleCloseDeleteModal = () => {
@@ -83,8 +89,22 @@ const Garden = () => {
   };
 
   const handleFileChange = (e) => {
-    setSelectedFiles([...selectedFiles, ...Array.from(e.target.files)]);
+    const { name, files, type, value } = e.target;
+  
+    if (type === 'file') {
+      setSelectedFiles((prevFiles) => [...prevFiles, ...Array.from(files)]);
+      setEditData((prevData) => ({
+        ...prevData,
+        [name]: files.length > 1 ? Array.from(files).map(f => f.name) : files[0]?.name || ''
+      }));
+    } else {
+      setEditData((prevData) => ({
+        ...prevData,
+        [name]: value
+      }));
+    }
   };
+  
 
   const handleDeleteConfirm = async () => {
     try {
@@ -301,6 +321,27 @@ const Garden = () => {
                 </div>
                 <div className="modal-body">
                   <form>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={handleFileChange}
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group">
                       <label>
                         Garden Name <span className="text-danger">*</span>

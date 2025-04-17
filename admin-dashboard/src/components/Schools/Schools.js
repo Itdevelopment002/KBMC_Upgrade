@@ -13,7 +13,11 @@ const Schools = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [editData, setEditData] = useState({
+    language_code: "",
+  });
+  const [errors, setErrors] = useState("");
+
   const [imagePreview, setImagePreview] = useState("");
   const navigate = useNavigate();
   const [dataCurrentPage, setDataCurrentPage] = useState(1);
@@ -40,8 +44,10 @@ const Schools = () => {
       const response = await api.get("/schools");
       setFormData(response.data);
     } catch (error) {
-      toast.error("Failed to fetch school data.");
+      const errorMessage = error.response?.data?.message || error.message || "Failed to fetch school data.";
+      toast.error(errorMessage);
     }
+    
   };
 
   const fetchSchoolImageData = async () => {
@@ -51,6 +57,7 @@ const Schools = () => {
     } catch (error) {
       toast.error("Failed to fetch school image data.");
     }
+    
   };
 
   const handleDelete = async (id, type) => {
@@ -109,7 +116,9 @@ const Schools = () => {
           schoolName: editData.schoolName,
           address: editData.address,
           medium: editData.medium,
+          language_code: editData.language_code,
         });
+        
         setFormData(
           formData.map((item) =>
             item.id === selectedItem.id
@@ -118,7 +127,8 @@ const Schools = () => {
                   heading: editData.heading,
                   schoolName: editData.schoolName,
                   address: editData.address,
-                  mnedium: editData.medium,
+                  medium: editData.medium,
+                  language_code:editData.language_code,
                 }
               : item
           )
@@ -154,7 +164,9 @@ const Schools = () => {
     }
     closeModal();
   };
-
+  const handleLanguageChange = (e) => {
+    setEditData({ ...editData, language_code: e.target.value });
+  };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -181,6 +193,11 @@ const Schools = () => {
   // eslint-disable-next-line
   const handlePageImagesChange = (pageNumber) =>
     setImageCurrentPage(pageNumber);
+    
+  useEffect(() => {
+    fetchformData(editData.language_code); // Make sure you use the selected language_code here
+  }, [editData.language_code]);
+  
 
   return (
     <>
@@ -265,12 +282,13 @@ const Schools = () => {
                         dataCurrentPage === 1 ? "disabled" : ""
                       }`}
                     >
-                      <button
-                        className="page-link"
-                        onClick={() => setDataCurrentPage(dataCurrentPage - 1)}
-                      >
-                        Previous
-                      </button>
+                     <button
+                      className="page-link"
+                      onClick={() => handlePageDataChange(dataCurrentPage - 1)}
+                    >
+                      Previous
+                    </button>
+
                     </li>
                     {Array.from(
                       { length: Math.ceil(formData.length / dataPerPage) },
@@ -459,6 +477,28 @@ const Schools = () => {
                   <div className="modal-body">
                     {modalType === "school" ? (
                       <div>
+                        <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={handleLanguageChange}
+
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+                  
                         <div className="form-group">
                           <label>Heading</label>
                           <input

@@ -19,13 +19,6 @@ router.get("/property_holder", (req, res) => {
       }
       res.status(200).json(results);
     });
-  // db.query("SELECT * FROM property_holder", (err, results) => {
-  //   if (err) {
-  //     console.error("Error fetching property holders:", err);
-  //     return res.status(500).json({ error: "Server Error" });
-  //   }
-  //   res.json(results);
-  // });
 });
 
 router.post("/property_holder", (req, res) => {
@@ -44,20 +37,52 @@ router.post("/property_holder", (req, res) => {
   });
 });
 
+
 router.put("/property_holder/:id", (req, res) => {
   const { id } = req.params;
-  const { heading, description, property } = req.body;
+  const { heading, description, property, language_code } = req.body;
 
-  const sql =
-    "UPDATE property_holder SET heading = ?, description = ?, property = ? WHERE id = ?";
-  db.query(sql, [heading, description, property, id], (err, result) => {
+  if (!language_code) {
+    return res.status(400).json({ message: "Language code is required" });
+  }
+
+  let updateSql = "UPDATE property_holder SET";
+  const updateParams = [];
+
+  // Update fields if they are present in the request body
+  if (heading) {
+    updateSql += " heading = ?";
+    updateParams.push(heading);
+  }
+
+  if (description) {
+    updateSql += updateParams.length > 0 ? ", description = ?" : " description = ?";
+    updateParams.push(description);
+  }
+
+  if (property) {
+    updateSql += updateParams.length > 0 ? ", property = ?" : " property = ?";
+    updateParams.push(property);
+  }
+
+  // Add language_code to the update query
+  updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+  updateParams.push(language_code);
+
+  updateSql += " WHERE id = ? AND language_code = ?";
+  updateParams.push(id, language_code); // Make sure to update only if the id and language_code match
+
+  // Perform the update query
+  db.query(updateSql, updateParams, (err, result) => {
     if (err) {
       console.error("Error updating property holder:", err);
       return res.status(500).json({ error: "Server Error" });
     }
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Property holder not found" });
+      return res.status(404).json({ error: "Property holder not found or language mismatch" });
     }
+
     res.json({ message: "Property holder updated successfully" });
   });
 });

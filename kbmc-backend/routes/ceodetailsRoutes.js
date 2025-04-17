@@ -32,7 +32,7 @@ router.post('/ceodetails', upload.single('image'), (req, res) => {
     }
 
     // Construct file path for image
-    const filePath = `uploads/${req.file.filename}`;
+    const filePath = path.join('uploads', req.file.filename);
 
     // Get other required fields
     const ceo_name = req.body.ceoName;
@@ -104,11 +104,14 @@ router.get('/ceodetails/:id', (req, res) => {
     });
 });
 
-// Update CEO details
 router.put('/ceodetails/:id', upload.single('image'), (req, res) => {
     const { id } = req.params;
     const { ceoName, description, languageCode } = req.body;
 
+    if (!languageCode) {
+        return res.status(400).json({ message: 'Language code is required for translation update' });
+    }    
+    
     let updateSql = 'UPDATE ceodetails SET';
     const updateParams = [];
 
@@ -128,26 +131,22 @@ router.put('/ceodetails/:id', upload.single('image'), (req, res) => {
     }
 
     if (req.file) {
-        const newFilePath = `/uploads/${req.file.filename}`;
+        const newFilePath = `uploads/${req.file.filename}`;
         updateSql += updateParams.length > 0 ? ', image_path = ?' : ' image_path = ?';
         updateParams.push(newFilePath);
     }
 
-    if (updateParams.length === 0) {
-        return res.status(400).json({ message: 'No fields to update' });
-    }
+    updateSql += ' WHERE id = ? AND language_code = ?';
+    updateParams.push(id, languageCode); // Add condition for language
 
-    updateSql += ' WHERE id = ?';
-    updateParams.push(id);
-
-    const selectSql = 'SELECT image_path FROM ceodetails WHERE id = ?';
-    db.query(selectSql, [id], (err, result) => {
+    const selectSql = 'SELECT image_path FROM ceodetails WHERE id = ? AND language_code = ?';
+    db.query(selectSql, [id, languageCode], (err, result) => {
         if (err) {
             return res.status(500).json({ message: 'Database error', error: err });
         }
 
         if (result.length === 0) {
-            return res.status(404).json({ message: 'CEO details not found' });
+            return res.status(404).json({ message: 'CEO translation not found' });
         }
 
         const oldFilePath = result[0].image_path;
@@ -165,10 +164,75 @@ router.put('/ceodetails/:id', upload.single('image'), (req, res) => {
                 });
             }
 
-            res.status(200).json({ message: 'CEO details updated successfully' });
+            res.status(200).json({ message: 'CEO translation updated successfully' });
         });
     });
 });
+// Update CEO details
+// router.put('/ceodetails/:id', upload.single('image'), (req, res) => {
+//     const { id } = req.params;
+//     const { ceoName, description, languageCode } = req.body;
+
+//     let updateSql = 'UPDATE ceodetails SET';
+//     const updateParams = [];
+
+//     if (ceoName) {
+//         updateSql += ' ceo_name = ?';
+//         updateParams.push(ceoName);
+//     }
+
+//     if (description) {
+//         updateSql += updateParams.length > 0 ? ', description = ?' : ' description = ?';
+//         updateParams.push(description);
+//     }
+
+//     if (languageCode) {
+//         updateSql += updateParams.length > 0 ? ', language_code = ?' : ' language_code = ?';
+//         updateParams.push(languageCode);
+//     }
+
+//     if (req.file) {
+//         const newFilePath = `/uploads/${req.file.filename}`;
+//         updateSql += updateParams.length > 0 ? ', image_path = ?' : ' image_path = ?';
+//         updateParams.push(newFilePath);
+//     }
+
+//     if (updateParams.length === 0) {
+//         return res.status(400).json({ message: 'No fields to update' });
+//     }
+
+//     updateSql += ' WHERE id = ?';
+//     updateParams.push(id);
+
+//     const selectSql = 'SELECT image_path FROM ceodetails WHERE id = ?';
+//     db.query(selectSql, [id], (err, result) => {
+//         if (err) {
+//             return res.status(500).json({ message: 'Database error', error: err });
+//         }
+
+//         if (result.length === 0) {
+//             return res.status(404).json({ message: 'CEO details not found' });
+//         }
+
+//         const oldFilePath = result[0].image_path;
+
+//         db.query(updateSql, updateParams, (err) => {
+//             if (err) {
+//                 return res.status(500).json({ message: 'Database error', error: err });
+//             }
+
+//             if (req.file && oldFilePath) {
+//                 fs.unlink(path.join(__dirname, '..', oldFilePath), (fsErr) => {
+//                     if (fsErr) {
+//                         console.error('Error deleting old file:', fsErr);
+//                     }
+//                 });
+//             }
+
+//             res.status(200).json({ message: 'CEO details updated successfully' });
+//         });
+//     });
+// });
 
 // Delete CEO details
 router.delete('/ceodetails/:id', (req, res) => {

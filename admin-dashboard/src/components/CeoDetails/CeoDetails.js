@@ -5,12 +5,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const CeoDetails = () => {
+    const [errors, setErrors] = useState({});
     const [ceoDetails, setCeoDetails] = useState([]);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedCeo, setSelectedCeo] = useState(null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [language, setLanguage] = useState("");
+
     const [currentPage, setCurrentPage] = useState(1);
+    
     const itemsPerPage = 10;
 
     useEffect(() => {
@@ -58,40 +62,81 @@ const CeoDetails = () => {
 
     const handleEdit = (ceo) => {
         setSelectedCeo(ceo);
+        setLanguage(ceo.language_code || "");
         setShowEditModal(true);
         setSelectedFile(null);
     };
-
+    
     const handleSaveEdit = async () => {
+        if (!selectedCeo.ceo_name?.trim() || !selectedCeo.description?.trim() || !language) {
+            toast.error("All fields including language must be filled.");
+            return;
+        }
+    
         const formData = new FormData();
-
-        if (selectedCeo.ceo_name) {
-            formData.append("ceoName", selectedCeo.ceo_name);
-        }
-
-        if (selectedCeo.description) {
-            formData.append("description", selectedCeo.description);
-        }
-
+        formData.append("ceo_name", selectedCeo.ceo_name);
+        formData.append("description", selectedCeo.description);
+        formData.append("language_code", language);
+    
         if (selectedFile) {
             formData.append("image", selectedFile);
         }
-
+    
         try {
+            // Ensure the API call is awaited
             await api.put(`/ceodetails/${selectedCeo.id}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
             });
+            // Re-fetch after update
             fetchCeoDetails();
             toast.success("CEO details updated successfully!");
             setShowEditModal(false);
         } catch (error) {
-            console.error("Error updating CEO details:", error);
+            console.error("Error updating CEO details:", error.response || error);
             toast.error("Error updating CEO details!");
         }
     };
+    
+    // const handleSaveEdit = async () => {
+    //     const formData = new FormData();
 
+    //     if (selectedCeo.ceo_name) {
+    //         formData.append("ceoName", selectedCeo.ceo_name);
+    //     }
+
+    //     if (selectedCeo.description) {
+    //         formData.append("description", selectedCeo.description);
+    //     }
+
+    //     if (selectedFile) {
+    //         formData.append("image", selectedFile);
+    //     }
+    //     if (language) {
+    //         formData.append("language_code", language);
+    //     }        
+        
+
+    //     try {
+    //         await api.put(`/ceodetails/${selectedCeo.id}`, formData, {
+    //             headers: {
+    //                 "Content-Type": "multipart/form-data",
+    //             },
+    //         });
+    //         fetchCeoDetails();
+    //         toast.success("CEO details updated successfully!");
+    //         setShowEditModal(false);
+    //     } catch (error) {
+    //         console.error("Error updating CEO details:", error);
+    //         toast.error("Error updating CEO details!");
+    //     }
+
+    // };
+    const handleLanguageChange = (e) => {
+        setLanguage(e.target.value);
+    };    
+    
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0]);
         if (e.target.files[0]) {
@@ -248,7 +293,69 @@ const CeoDetails = () => {
                                         </button>
                                     </div>
                                     <div className="modal-body" style={{ maxHeight: "70vh", overflowY: "auto" }}>
+                                    <div className="form-group row">
+                                        <label className="col-form-label col-md-3">Language <span className="text-danger">*</span></label>
+                                        <div className="col-md-9">
+                                            <select className="form-control" value={language} onChange={handleLanguageChange}>
+                                                <option value="">Select Language</option>
+                                                <option value="en">English</option>
+                                                <option value="mr">Marathi</option>
+                                                {/* Add more language codes as needed */}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                        <div className="form-group row">
+                                            <label className="col-form-label col-md-3">CEO Name <span className="text-danger">*</span></label>
+                                            <div className="col-md-9">
+                                                <input
+                                                    type="text"
+                                                    className="form-control"
+                                                    value={selectedCeo?.ceo_name || ""}
+                                                    onChange={(e) => setSelectedCeo({ ...selectedCeo, ceo_name: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group row">
+                                            <label className="col-form-label col-md-3">Description <span className="text-danger">*</span></label>
+                                            <div className="col-md-9">
+                                                <textarea
+                                                    className="form-control"
+                                                    value={selectedCeo?.description || ""}
+                                                    onChange={(e) => setSelectedCeo({ ...selectedCeo, description: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
                                         <div className="form-group">
+                                            <label>Upload Image</label>
+                                            <input
+                                                type="file"
+                                                className="form-control"
+                                                onChange={handleFileChange}
+                                            />
+                                        </div>
+                                        <div className="text-center mt-3">
+                                            {selectedCeo?.image ? (
+                                                <img
+                                                    src={selectedCeo.image}
+                                                    alt="Selected"
+                                                    style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "contain" }}
+                                                    className="img-thumbnail"
+                                                />
+                                            ) : selectedCeo?.image_path ? (
+                                                <img
+                                                    src={`${baseURL}${selectedCeo.image_path}`}
+                                                    alt="Current"
+                                                    style={{ maxWidth: "100%", maxHeight: "200px", objectFit: "contain" }}
+                                                    className="img-thumbnail"
+                                                />
+                                            ) : (
+                                                <p>No image available</p> // Fallback text if neither image nor image_path is available
+                                            )}
+                                        </div>
+
+                                        {/* <div className="form-group">
                                             <label>CEO Name</label>
                                             <input
                                                 type="text"
@@ -275,8 +382,8 @@ const CeoDetails = () => {
                                                     })
                                                 }
                                             />
-                                        </div>
-                                        <div className="form-group">
+                                        </div> */}
+                                        {/* <div className="form-group">
                                             <label>Upload Image</label>
                                             <input
                                                 type="file"
@@ -300,7 +407,7 @@ const CeoDetails = () => {
                                                     className="img-thumbnail"
                                                 />
                                             )}
-                                        </div>
+                                        </div> */}
                                     </div>
                                     <div className="modal-footer sticky-bottom bg-white pt-3">
                                         <button

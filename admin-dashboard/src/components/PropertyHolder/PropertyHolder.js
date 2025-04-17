@@ -10,6 +10,13 @@ const PropertyHolder = () => {
     id: "",
     description: "",
     property: "",
+    language_code: "",
+  });
+  const [errors, setErrors] = useState({
+    id: "",
+    description: "",
+    property: "",
+    language_code: "",
   });
   const [propertyHolders, setPropertyHolders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,6 +33,10 @@ const PropertyHolder = () => {
     };
     fetchPropertyHolders();
   }, []);
+  
+  useEffect(() => {
+    setCurrentPage(1); // Reset to the first page when data changes
+  }, [propertyHolders]);  
 
   const handleDeleteModalOpen = (itemId) => {
     setSelectedItem(itemId);
@@ -36,22 +47,66 @@ const PropertyHolder = () => {
     setEditData(item);
     setShowEditModal(true);
   };
-
+  
+  const handleChange = (e) => {
+    setEditData({
+      ...editData,
+      [e.target.name]: e.target.value,
+    });
+  };
+  
   const handleDelete = async () => {
     try {
       await api.delete(`/property_holder/${selectedItem}`);
-      setPropertyHolders(
-        propertyHolders.filter((holder) => holder.id !== selectedItem)
+      const newPropertyHolders = propertyHolders.filter(
+        (holder) => holder.id !== selectedItem
       );
+      setPropertyHolders(newPropertyHolders);
       setShowDeleteModal(false);
+  
+      // Adjust current page if needed
+      if (newPropertyHolders.length % itemsPerPage === 0 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
     } catch (error) {
       console.error("Error deleting property holder:", error);
     }
   };
-
-  const handleEditSubmit = async () => {
+  
+  const handleEditSubmit = async (event) => {
+    event.preventDefault(); // Prevent form submission
+    let newErrors = { ...errors };
+  
+    if (!editData.language_code) {
+      newErrors.language_code = "Language code is required.";
+    } else {
+      newErrors.language_code = "";
+    }
+    
+    if (!editData.description) {
+      newErrors.description = "Description is required.";
+    } else {
+      newErrors.description = "";
+    }
+    
+    if (!editData.property) {
+      newErrors.property = "Property is required.";
+    } else {
+      newErrors.property = "";
+    }
+  
+    setErrors(newErrors);
+  
+    if (newErrors.language_code || newErrors.description || newErrors.property) {
+      return;  // If there are validation errors, do not submit
+    }
+  
     try {
-      await api.put(`/property_holder/${editData.id}`, editData);
+      await api.put(`/property_holder/${editData.id}`, {
+        description: editData.description,
+        property: editData.property,
+        language_code: editData.language_code,
+      });
       setPropertyHolders(
         propertyHolders.map((holder) =>
           holder.id === editData.id
@@ -67,7 +122,8 @@ const PropertyHolder = () => {
     } catch (error) {
       console.error("Error updating property holder:", error);
     }
-  };
+  };  
+  
 
   const handleCloseDeleteModal = () => setShowDeleteModal(false);
   const handleCloseEditModal = () => setShowEditModal(false);
@@ -248,6 +304,27 @@ const PropertyHolder = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                      name="language_code"
+                      value={editData.language_code}
+                      onChange={handleChange}
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
                       <div className="form-group">
                         <label>Description</label>
                         <input

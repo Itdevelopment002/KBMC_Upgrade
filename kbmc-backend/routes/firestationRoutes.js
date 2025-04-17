@@ -70,7 +70,7 @@ router.get("/fire-stations/:id", (req, res) => {
 
 router.put("/fire-stations/:id", upload.single("image"), (req, res) => {
   const { id } = req.params;
-  const { heading, address, phoneNo } = req.body;
+  const { heading, address, phoneNo, language_code } = req.body;
 
   let updateSql = "UPDATE fire_station SET";
   const updateParams = [];
@@ -86,6 +86,10 @@ router.put("/fire-stations/:id", upload.single("image"), (req, res) => {
   if (phoneNo) {
     updateSql += updateParams.length > 0 ? ", phoneNo = ?" : " phoneNo = ?";
     updateParams.push(phoneNo);
+  }
+  if (language_code) {
+    updateSql += updateParams.length > 0 ? ", language_code = ?" : " language_code = ?";
+    updateParams.push(language_code);
   }
 
   let imagePath;
