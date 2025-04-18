@@ -2,17 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import api, { baseURL } from "../api";
+import { useTranslation } from "react-i18next";
 
 const OfficialPublication = () => {
+  const { i18n, t } = useTranslation();
   const [publications, setPublications] = useState([]);
 
   useEffect(() => {
     fetchPublications();
-  }, []);
+  }, [i18n.language]);
 
   const fetchPublications = async () => {
     try {
-      const response = await api.get("/publications");
+      const response = await api.get(`/publications?language_code=${i18n.language}`);
       setPublications(response.data);
     } catch (error) {
       console.error("Error fetching publications!");
@@ -32,13 +34,13 @@ const OfficialPublication = () => {
         </div>
         <div className="auto-container">
           <div className="content-box">
-            <h1>Official Publications</h1>
+            <h1>{t("officialPublication.title")}</h1>
             <ul className="bread-crumb clearfix">
               <li>
-                <Link to="/">Home</Link>
+                <Link to="/">{t("officialPublication.breadcrumbHome")}</Link>
               </li>
               <li>
-                <span>Official Publications</span>
+                <span>{t("officialPublication.breadcrumbCurrent")}</span>
               </li>
             </ul>
           </div>
@@ -51,7 +53,7 @@ const OfficialPublication = () => {
             <div className="col-lg-12 col-md-12 col-sm-12 content-side">
               <div className="row clearfix">
                 {publications.map((publication, index) => (
-                  <div className="col-md-3">
+                  <div className="col-md-3" key={index}>
                     <Link
                       to={`${baseURL}${publication.pdf_path}`}
                       target="_blank"

@@ -11,10 +11,16 @@ const DevelopmentPlan = () => {
   const [developmentData, setDevelopmentData] = useState([]);
   const [developmentPdfData, setDevelopmentPdfData] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Declare delete modal state
   const [modalType, setModalType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
-  const [editData, setEditData] = useState({});
+  const [editData, setEditData] = useState({
+    description: "",
+    language: "en",
+    imageFile: null,
+    pdfFile: null,
+    name: "",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,74 +84,94 @@ const DevelopmentPlan = () => {
         );
       }
       toast.success(
-        `${
-          type === "desc"
-            ? "Development Plan Description"
-            : "Development Plan Pdf"
+        `${type === "desc"
+          ? "Development Plan Description"
+          : "Development Plan Pdf"
         } deleted successfully!`
       );
     } catch (error) {
       console.error(error);
       toast.error("Error deleting the entry!");
     }
-    closeModal();
+    setShowDeleteModal(false); // Close the delete modal after deletion
   };
 
   const openEditModal = (item, type) => {
     setSelectedItem(item);
-    setEditData(
-      type === "desc" ? { description: item.description } : { ...item }
-    );
     setModalType(type);
+
+    if (type === "desc") {
+      setEditData({
+        description: item.description,
+        language: item.language || "en",
+        imageFile: null,
+        pdfFile: null,
+        name: "",
+      });
+    } else if (type === "pdf") {
+      setEditData({
+        description: "",
+        language: item.language || "en",
+        imageFile: null,
+        pdfFile: null,
+        name: item.name,
+      });
+    }
+
     setShowEditModal(true);
   };
 
   const closeModal = () => {
     setShowEditModal(false);
-    setShowDeleteModal(false);
     setSelectedItem(null);
-    setEditData({});
+    setEditData({
+      description: "",
+      language: "en",
+      imageFile: null,
+      pdfFile: null,
+      name: "",
+    });
   };
 
   const handleSaveChanges = async () => {
-    try {
-      if (modalType === "desc") {
-        await api.put(`/development-plan-desc/${selectedItem.id}`, {
-          description: editData.description,
-        });
+    const formData = new FormData();
+
+    if (modalType === "desc") {
+      formData.append("description", editData.description);
+      formData.append("language", editData.language);
+      try {
+        await api.put(`/development-plan-desc/${selectedItem.id}`, formData);
         fetchDevelopmentData();
-      } else if (modalType === "pdf") {
-        const formData = new FormData();
-        formData.append("name", editData.name);
+        toast.success("Development Plan Description updated successfully!");
+      } catch (error) {
+        console.error(error);
+        toast.error("Error updating Development Plan Description!");
+      }
+    } else if (modalType === "pdf") {
+      formData.append("name", editData.name);
+      formData.append("language", editData.language);
 
-        if (editData.pdfFile) {
-          formData.append("pdf", editData.pdfFile);
-        }
+      if (editData.imageFile) {
+        formData.append("image", editData.imageFile);
+      }
+      if (editData.pdfFile) {
+        formData.append("pdf", editData.pdfFile);
+      }
 
-        if (editData.imageFile) {
-          formData.append("image", editData.imageFile);
-        }
-
+      try {
         await api.put(`/development-plan-pdf/${selectedItem.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
         fetchDevelopmentPdfData();
+        toast.success("Development Plan PDF updated successfully!");
+      } catch (error) {
+        console.error(error);
+        toast.error("Error updating Development Plan PDF!");
       }
-
-      toast.success(
-        `${
-          modalType === "desc"
-            ? "Development plan description"
-            : "Development plan pdf"
-        } updated successfully!`
-      );
-      navigate("/development-plan");
-    } catch (error) {
-      console.error(error);
-      toast.error("Error updating the entry!");
     }
+
     closeModal();
   };
 
@@ -206,7 +232,7 @@ const DevelopmentPlan = () => {
                                   onClick={() => {
                                     setSelectedItem(item);
                                     setModalType("desc");
-                                    setShowDeleteModal(true);
+                                    setShowDeleteModal(true); // Open delete modal
                                   }}
                                   className="btn btn-danger btn-sm m-t-10"
                                 >
@@ -256,17 +282,17 @@ const DevelopmentPlan = () => {
                               <td>{index + 1}</td>
                               <td>{item.name}</td>
                               <td>
-                              <Link
-                                to={`${baseURL}/${item.image_path}`}
-                                className="glightbox"
-                              >
-                                <img
-                                  width="100px"
-                                  src={`${baseURL}/${item.image_path}`}
-                                  alt={`pdf-image${index + 1}`}
-                                />
-                              </Link>
-                            </td>
+                                <Link
+                                  to={`${baseURL}/${item.image_path}`}
+                                  className="glightbox"
+                                >
+                                  <img
+                                    width="100px"
+                                    src={`${baseURL}/${item.image_path}`}
+                                    alt={`pdf-image${index + 1}`}
+                                  />
+                                </Link>
+                              </td>
                               <td>
                                 <Link
                                   to={`${baseURL}/${item.pdf_path}`}
@@ -290,7 +316,7 @@ const DevelopmentPlan = () => {
                                   onClick={() => {
                                     setSelectedItem(item);
                                     setModalType("pdf");
-                                    setShowDeleteModal(true);
+                                    setShowDeleteModal(true); // Open delete modal
                                   }}
                                   className="btn btn-danger btn-sm m-t-10"
                                 >
@@ -314,6 +340,7 @@ const DevelopmentPlan = () => {
             </div>
           </div>
 
+          {/* Edit Modal */}
           {showEditModal && (
             <div
               className="modal fade show"
@@ -330,12 +357,27 @@ const DevelopmentPlan = () => {
                     <h5 className="modal-title">
                       {modalType === "desc"
                         ? "Edit Description"
-                        : "Edit Development plan pdf"}
+                        : "Edit Development Plan PDF"}
                     </h5>
                   </div>
                   <div className="modal-body">
                     {modalType === "desc" ? (
                       <>
+                        <div className="form-group">
+                          <label htmlFor="language">Select Language</label>
+                          <select
+                            className="form-control form-control-md"
+                            id="language"
+                            value={editData.language}
+                            onChange={(e) =>
+                              setEditData({ ...editData, language: e.target.value })
+                            }
+                          >
+                            <option value="en">English</option>
+                            <option value="mr">Marathi</option>
+                          </select>
+                        </div>
+
                         <div className="form-group">
                           <label htmlFor="description">Description</label>
                           <textarea
@@ -354,7 +396,22 @@ const DevelopmentPlan = () => {
                     ) : (
                       <>
                         <div className="form-group">
-                          <label htmlFor="description">Name</label>
+                          <label htmlFor="language">Select Language</label>
+                          <select
+                            className="form-control form-control-md"
+                            id="language"
+                            value={editData.language}
+                            onChange={(e) =>
+                              setEditData({ ...editData, language: e.target.value })
+                            }
+                          >
+                            <option value="en">English</option>
+                            <option value="mr">Marathi</option>
+                          </select>
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="name">Name</label>
                           <input
                             type="text"
                             className="form-control form-control-md"
@@ -368,16 +425,18 @@ const DevelopmentPlan = () => {
                             }
                           />
                         </div>
+
                         <div className="form-group">
-                          <label htmlFor="pdf">Upload Image</label>
+                          <label htmlFor="image">Upload Image</label>
                           <input
                             type="file"
                             className="form-control form-control-md"
                             id="image"
-                            accept="image*/"
+                            accept="image/*"
                             onChange={handleFileChange}
                           />
                         </div>
+
                         <div className="form-group">
                           <label htmlFor="pdf">Upload PDF</label>
                           <input
@@ -412,31 +471,34 @@ const DevelopmentPlan = () => {
             </div>
           )}
 
+          {/* Delete Modal */}
           {showDeleteModal && (
-            <div
-              className="modal fade show"
-              style={{
-                display: "block",
-                backgroundColor: "rgba(0,0,0,0.5)",
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-              }}
-            >
+            <div className="modal fade show" style={{ display: "block" }}>
               <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
-                  <div className="modal-body text-center">
-                    <h5>Are you sure you want to delete this entry?</h5>
+                  <div className="modal-header">
+                    <h5 className="modal-title">Delete Confirmation</h5>
+                  </div>
+                  <div className="modal-body">
+                    <p>
+                      Are you sure you want to delete this{" "}
+                      {modalType === "desc" ? "description" : "pdf"}?
+                    </p>
                   </div>
                   <div className="modal-footer">
                     <button
+                      type="button"
                       className="btn btn-secondary btn-sm"
                       onClick={() => setShowDeleteModal(false)}
                     >
                       Cancel
                     </button>
                     <button
+                      type="button"
                       className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(selectedItem.id, modalType)}
+                      onClick={() =>
+                        handleDelete(selectedItem.id, modalType)
+                      }
                     >
                       Delete
                     </button>
@@ -447,7 +509,6 @@ const DevelopmentPlan = () => {
           )}
         </div>
       </div>
-      <ToastContainer />
     </div>
   );
 };

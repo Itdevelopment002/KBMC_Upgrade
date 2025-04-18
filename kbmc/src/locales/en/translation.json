@@ -318,4 +318,32 @@
     "description":"Description",
     "loading":"Loading...",
     "noDataAvailable":" No data available"
+    ,
+    
+      "pageTitle": "Terms and Conditions",
+      "home": "Home",
+      "termsAndConditions": "Terms and Conditions",
+      "terms": {
+        "heading": "Terms and Conditions",
+        "description": "Read the terms and conditions carefully."
+      }
+    ,
+    
+      "home": "Home",
+      "privacyPolicy": "Privacy Policy"
+    
+    
+    ,
+    "officialPublication": {
+    "title": "Official Publications",
+    "breadcrumbHome": "Home",
+    "breadcrumbCurrent": "Official Publications"
+  }
+  ,
+  "downloads": {
+    "title": "Downloads",
+    "breadcrumbHome": "Home",
+    "breadcrumbCurrent": "Downloads",
+    "viewBtn": "View"
+  }
 }

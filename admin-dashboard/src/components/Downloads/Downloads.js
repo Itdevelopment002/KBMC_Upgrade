@@ -8,7 +8,8 @@ const Downloads = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [downloads, setDownloads] = useState([]);
-  const [newDownload, setNewDownload] = useState({ name: "", pdf: null });
+  const [newDownload, setNewDownload] = useState({ name: "", pdf: null, language_code: "en" });
+
   const [selectedDownloadId, setSelectedDownloadId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const downloadsPerPage = 10;
@@ -84,6 +85,8 @@ const Downloads = () => {
 
     const formData = new FormData();
     formData.append("name", newDownload.name);
+    formData.append("language_code", newDownload.language_code);
+    
     if (newDownload.pdf) {
       formData.append("pdf", newDownload.pdf);
     }
@@ -124,7 +127,12 @@ const Downloads = () => {
 
   const handleOpenEditModal = (download) => {
     setSelectedDownloadId(download.id);
-    setNewDownload({ name: download.name, pdf: null });
+    setNewDownload({
+      name: download.name,
+      pdf: null,
+      language_code: download.language_code || "en",
+    });
+    
     setShowEditModal(true);
   };
 
@@ -132,6 +140,8 @@ const Downloads = () => {
     e.preventDefault();
     const formData = new FormData();
     formData.append("name", newDownload.name);
+    formData.append("language_code", newDownload.language_code);
+    
     if (newDownload.pdf) {
       formData.append("pdf", newDownload.pdf);
     }
@@ -179,6 +189,24 @@ const Downloads = () => {
                   <hr />
                   <div className="card-block">
                     <form onSubmit={handleAddDownload}>
+                    <div className="form-group row">
+  <label className="col-form-label col-md-2">
+    Language <span className="text-danger">*</span>
+  </label>
+  <div className="col-md-4">
+    <select
+      className="form-control form-control-md"
+      value={newDownload.language_code}
+      onChange={(e) =>
+        setNewDownload({ ...newDownload, language_code: e.target.value })
+      }
+    >
+      <option value="en">English</option>
+      <option value="mr">Marathi</option>
+    </select>
+  </div>
+</div>
+
                       <div className="form-group row">
                         <label className="col-form-label col-md-2">
                           File Name <span className="text-danger">*</span>
@@ -392,6 +420,20 @@ const Downloads = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="mb-3">
+  <label className="form-label">Language</label>
+  <select
+    className="form-control form-control-md"
+    value={newDownload.language_code}
+    onChange={(e) =>
+      setNewDownload({ ...newDownload, language_code: e.target.value })
+    }
+  >
+    <option value="en">English</option>
+    <option value="mr">Marathi</option>
+  </select>
+</div>
+
                       <div className="mb-3">
                         <label className="form-label">File Name</label>
                         <input

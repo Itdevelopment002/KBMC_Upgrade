@@ -163,5 +163,31 @@
      "loading": "लोड होत आहे...",
      "mobileNo": "मोबाईल क्रमांक",
      "noDataAvailable": "माहिती उपलब्ध नाही"
+     ,
+     
+      "pageTitle": "अटी आणि शर्ती",
+      "home": "मुखपृष्ठ",
+      "termsAndConditions": "अटी आणि शर्ती",
+      "terms": {
+        "heading": "अटी आणि शर्ती",
+        "description": "कृपया अटी आणि शर्ती काळजीपूर्वक वाचा."
+      
+    }
+    ,
+    
+      "home": "मुखपृष्ठ",
+      "privacyPolicy": "गोपनीयता धोरण"
+    ,
+    "officialPublication": {
+      "title": "अधिकृत प्रकाशन",
+      "breadcrumbHome": "मुख्यपृष्ठ",
+      "breadcrumbCurrent": "अधिकृत प्रकाशन"
+    },
+    "downloads": {
+      "title": "डाउनलोड्स",
+      "breadcrumbHome": "मुख्यपृष्ठ",
+      "breadcrumbCurrent": "डाउनलोड्स",
+      "viewBtn": "पहा"
+    }
   }
   

@@ -16,7 +16,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.get("/downloads", (req, res) => {
-  db.query("SELECT * FROM `downloads`", (err, results) => {
+  const { language_code } = req.query;
+
+  let query = "SELECT * FROM `downloads`";
+  const params = [];
+
+  if (language_code) {
+    query += " WHERE language_code = ?";
+    params.push(language_code);
+  }
+
+  db.query(query, params, (err, results) => {
     if (err) {
       console.error("Error fetching download:", err);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -26,18 +36,18 @@ router.get("/downloads", (req, res) => {
 });
 
 router.post("/downloads", upload.single("pdf"), (req, res) => {
-  const { name } = req.body;
+  const { name, language_code } = req.body;
   const pdfPath = req.file ? req.file.path : null;
 
-  if (!name || !pdfPath) {
-    return res.status(400).json({ message: "Name and PDF file are required." });
+  if (!name || !pdfPath || !language_code) {
+    return res.status(400).json({ message: "Name, PDF file, and language_code are required." });
   }
 
-  const newDownload = { name, pdf: pdfPath };
+  const newDownload = { name, pdf: pdfPath, language_code };
 
   db.query(
-    "INSERT INTO `downloads` (name, pdf) VALUES (?, ?)",
-    [name, pdfPath],
+    "INSERT INTO `downloads` (name, pdf, language_code) VALUES (?, ?, ?)",
+    [name, pdfPath, language_code],
     (err, result) => {
       if (err) {
         console.error("Error adding download:", err);
@@ -50,7 +60,7 @@ router.post("/downloads", upload.single("pdf"), (req, res) => {
 
 router.put("/downloads/:id", upload.single("pdf"), (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, language_code } = req.body;
   const pdfPath = req.file ? req.file.path : null;
 
   let query = "UPDATE `downloads` SET name = ?";
@@ -59,6 +69,11 @@ router.put("/downloads/:id", upload.single("pdf"), (req, res) => {
   if (pdfPath) {
     query += ", pdf = ?";
     params.push(pdfPath);
+  }
+
+  if (language_code) {
+    query += ", language_code = ?";
+    params.push(language_code);
   }
 
   query += " WHERE id = ?";
@@ -70,7 +85,7 @@ router.put("/downloads/:id", upload.single("pdf"), (req, res) => {
       return res.status(500).json({ error: "Internal Server Error" });
     }
 
-    const response = { id, name, ...(pdfPath ? { pdf: pdfPath } : {}) };
+    const response = { id, name, ...(pdfPath ? { pdf: pdfPath } : {}), ...(language_code ? { language_code } : {}) };
     res.json(response);
   });
 });

@@ -6,6 +6,7 @@ const AddDevelopmentPdf = () => {
   const [name, setName] = useState("");
   const [image, setImage] = useState(null);
   const [pdf, setPdf] = useState(null);
+  const [languageCode, setLanguageCode] = useState("en");
   const navigate = useNavigate();
   const [errors, setErrors] = useState({ name: "", image: "", pdf: "" });
 
@@ -23,7 +24,7 @@ const AddDevelopmentPdf = () => {
   const validateForm = () => {
     const newErrors = {};
     if (!name) {
-      newErrors.description = "Name is required";
+      newErrors.name = "Name is required";
     }
     if (!image) {
       newErrors.image = "Image file is required";
@@ -43,6 +44,7 @@ const AddDevelopmentPdf = () => {
     formData.append("name", name);
     formData.append("image", image);
     formData.append("pdf", pdf);
+    formData.append("language_code", languageCode);
 
     try {
       //eslint-disable-next-line
@@ -53,6 +55,7 @@ const AddDevelopmentPdf = () => {
       setName("");
       setImage(null);
       setPdf(null);
+      setLanguageCode("en");
       setErrors({ name: "", image: "", pdf: "" });
 
       document.getElementById("imageInput").value = null;
@@ -85,6 +88,22 @@ const AddDevelopmentPdf = () => {
                 <form onSubmit={handleSubmit}>
                   <div className="form-group row">
                     <label className="col-form-label col-md-2">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className="form-control"
+                        value={languageCode}
+                        onChange={(e) => setLanguageCode(e.target.value)}
+                      >
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
                       Name <span className="text-danger">*</span>
                     </label>
                     <div className="col-md-4">
@@ -105,6 +124,7 @@ const AddDevelopmentPdf = () => {
                       )}
                     </div>
                   </div>
+
                   <div className="form-group row">
                     <label className="col-form-label col-md-2">
                       Upload Image <span className="text-danger">*</span>
@@ -124,6 +144,7 @@ const AddDevelopmentPdf = () => {
                       )}
                     </div>
                   </div>
+
                   <div className="form-group row">
                     <label className="col-form-label col-md-2">
                       Upload PDF <span className="text-danger">*</span>
@@ -143,6 +164,7 @@ const AddDevelopmentPdf = () => {
                       )}
                     </div>
                   </div>
+
                   <input
                     type="submit"
                     value="Submit"

@@ -4,12 +4,14 @@ import "glightbox/dist/css/glightbox.min.css";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import api, { baseURL } from "../api";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const TownPlanning = () => {
+  
   const [departments, setDepartments] = useState([]);
   const [description, setDescription] = useState([]);
   const [pdf, setPdf] = useState([]);
-
+  const { i18n, t } = useTranslation();
   const fetchDepartments = async () => {
     try {
       const response = await api.get(`/public_disclosure`);
@@ -21,16 +23,27 @@ const TownPlanning = () => {
 
   const fetchTownPlanningDesc = async () => {
     try {
-      const response = await api.get("/development-plan-desc");
+      const response = await api.get(`/development-plan-desc?language_code=${i18n.language}`);
       setDescription(response.data);
     } catch (error) {
       console.error("Error fetching development plan description");
     }
   };
+  const updatePDF = async (id, formData) => {
+    try {
+      await api.put(`/development-plan-pdf/${id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" }
+      });
+      fetchTownPlanningPdf(); // Refresh after update
+    } catch (error) {
+      console.error("Error updating PDF:", error);
+    }
+  };
+  
 
   const fetchTownPlanningPdf = async () => {
     try {
-      const response = await api.get("/development-plan-pdf");
+      const response = await api.get(`/development-plan-pdf?language_code=${i18n.language}`);
       setPdf(response.data);
     } catch (error) {
       console.error("Error fetching development plan pdf");
@@ -41,7 +54,7 @@ const TownPlanning = () => {
     fetchDepartments();
     fetchTownPlanningDesc();
     fetchTownPlanningPdf();
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     const lightbox = GLightbox({

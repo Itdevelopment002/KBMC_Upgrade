@@ -2,17 +2,19 @@ import React, { useState, useEffect } from "react";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import { Link } from "react-router-dom";
 import api from "../api";
+import { useTranslation } from "react-i18next";
 
 const TermsAndConditions = () => {
+  const { i18n, t } = useTranslation();
   const [terms, setTerms] = useState([]);
 
   useEffect(() => {
     fetchTerms();
-  }, []);
+  }, [i18n.language]);
 
   const fetchTerms = async () => {
     try {
-      const response = await api.get("/terms-and-conditions");
+      const response = await api.get(`/terms-and-conditions?lang=${i18n.language}`);
       setTerms(response.data);
     } catch (error) {
       console.error(error);
@@ -32,13 +34,13 @@ const TermsAndConditions = () => {
         </div>
         <div className="auto-container">
           <div className="content-box">
-            <h1>Terms and Conditions</h1>
+            <h1>{t('pageTitle')}</h1>
             <ul className="bread-crumb clearfix">
               <li>
-                <Link to="/">Home</Link>
+                <Link to="/">{t('home')}</Link>
               </li>
               <li>
-                <span>Terms and Conditions</span>
+                <span>{t('termsAndConditions')}</span>
               </li>
             </ul>
           </div>
