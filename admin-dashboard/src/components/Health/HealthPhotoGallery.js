@@ -72,15 +72,16 @@ const HealthPhotoGallery = () => {
   const handleEditPhoto = async () => {
     if (validateForm()) {
       const formData = new FormData();
-      formData.append("heading", selectedPhoto.heading);
-  
+      formData.append("heading", editData.heading); // Use editData here
+      formData.append("language_code", editData.language_code); // Make sure this is included
+      
       if (img) {
-        formData.append("image", img);
+        formData.append("image", img); // Only append if a new image is selected
       }
   
       try {
         const response = await api.put(
-          `/health_photo_gallery/${selectedPhoto.id}`,
+          `/health_photo_gallery/${selectedPhoto.id}`, 
           formData,
           {
             headers: {
@@ -89,21 +90,25 @@ const HealthPhotoGallery = () => {
           }
         );
   
+        // Update photos state after successful update
         setPhotos(
           photos.map((photo) =>
             photo.id === selectedPhoto.id ? response.data : photo
           )
         );
-        fetchPhotos();
+        fetchPhotos(); // Refresh photo list
         toast.success("Photo updated successfully!");
+        setShowEditModal(false); // Close the modal after successful update
       } catch (error) {
+        console.error("Error updating photo:", error);
         toast.error("Error updating photo.");
       } finally {
-        setShowEditModal(false);
+        // Reset errors and close the modal
+        setErrors({ heading: "", img: "", language_code: "" });
       }
-      setErrors({ heading: "", img: "", language_code: "" });
     }
   };
+  
   
   const handleAddPhoto = async () => {
     if (validateForm()) {
@@ -147,6 +152,14 @@ const HealthPhotoGallery = () => {
       setShowDeleteModal(false);
     }
   };
+  const handleLanguageChange = (e) => {
+    const selectedLanguage = e.target.value;
+    setEditData((prevData) => ({
+      ...prevData,
+      language_code: selectedLanguage,
+    }));
+  };
+  
   const resetForm = () => {
     setHeading("");
     setImg(null);
@@ -201,16 +214,20 @@ const HealthPhotoGallery = () => {
                             />
                           </Link>
                         </td>
-                        <td>
-                          <button
-                            onClick={() => {
-                              setSelectedPhoto(photo);
-                              setShowEditModal(true);
-                            }}
-                            className="btn btn-success btn-sm m-t-10"
-                          >
-                            Edit
-                          </button>
+                          <td>
+                            <button
+                              onClick={() => {
+                                setSelectedPhoto(photo);
+                                setEditData({
+                                  heading: photo.heading,
+                                  language_code: photo.language_code,
+                                });
+                                setShowEditModal(true);
+                              }}
+                              className="btn btn-success btn-sm m-t-10"
+                            >
+                              Edit
+                            </button>                          
                           <button
                             onClick={() => {
                               setShowDeleteModal(true);
@@ -255,19 +272,24 @@ const HealthPhotoGallery = () => {
                       Select Language <span className="text-danger">*</span>
                     </label>
                     <div className="col-md-4">
-                    <select
-  className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
-  name="language_code"
-  value={editData.language_code}
-  onChange={(e) => setEditData({ ...editData, language_code: e.target.value })}
->
-  <option value="" disabled>Select Language</option>
-  <option value="en">English</option>
-  <option value="mr">Marathi</option>
-</select>
-{errors.language_code && (
-  <div className="invalid-feedback">{errors.language_code}</div>
-)}
+                        <select
+                          className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                          value={editData.language_code}
+                          onChange={(e) =>
+                            setEditData((prev) => ({
+                              ...prev,
+                              language_code: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="" disabled>Select Language</option>
+                          <option value="en">English</option>
+                          <option value="mr">Marathi</option>
+                        </select>
+
+                        {errors.language_code && (
+                          <div className="invalid-feedback">{errors.language_code}</div>
+                        )}
                     </div>
                   </div>
                   <div className="mb-3">

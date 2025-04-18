@@ -12,7 +12,6 @@ const PrivateHospital = () => {
   const fetchHospitals = async () => {
     try {
       const response = await api.get(`/private-hospital?lang=${i18n.language}`);
-      // const response = await api.get(`/private-hospital`);
       const hospitals = response.data;
       const eastDivisionHospitals = hospitals.filter(
         (hospital) => hospital.division === "East"

@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import api from "../api";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const GenAdminDept = () => {
+  const { i18n } = useTranslation();
   const [genDepartments, setGenDepartments] = useState([]);
   const [error, setError] = useState(null);
   const [departments, setDepartments] = useState([]);
 
   const fetchDeptData = async () => {
     try {
-      const response = await api.get(`/public_disclosure`);
+      const response = await api.get(`/public_disclosure?lang=${i18n.language}`);
       const filteredDepartments = response.data.filter(
         (department) => department.status === 1
       );
@@ -23,12 +25,12 @@ const GenAdminDept = () => {
   useEffect(() => {
     fetchDeptData();
     // eslint-disable-next-line
-  }, []);
+  }, [i18n.language]);
 
   useEffect(() => {
     const fetchGenDepartments = async () => {
       try {
-        const response = await api.get("/generaladmindepartment");
+        const response = await api.get(`/generaladmindepartment?lang=${i18n.language}`);
         const filteredDepartments = response.data.filter(
           (department) => department.status === 1
         );
@@ -43,7 +45,7 @@ const GenAdminDept = () => {
     };
 
     fetchGenDepartments();
-  }, []);
+  }, [i18n.language]);
 
   return (
     <div>

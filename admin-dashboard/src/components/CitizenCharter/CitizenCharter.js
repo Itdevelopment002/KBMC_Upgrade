@@ -8,38 +8,45 @@ const CitizenCharter = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [departments, setDepartments] = useState([]);
-  const [newDepartment, setNewDepartment] = useState({ name: "", pdf: null });
+  const [languageCode, setLanguageCode] = useState("");
+  const [newDepartment, setNewDepartment] = useState({ name: "", pdf: null, language_code: ""});
   const [selectedDepartmentId, setSelectedDepartmentId] = useState(null);
-  const [errors, setErrors] = useState({ name: "", pdf: "" });
+  const [errors, setErrors] = useState({ name: "", pdf: null, language_code: "" });
   const [currentPage, setCurrentPage] = useState(1);
 
   const departmentsPerPage = 10;
 
-  useEffect(() => {
+ useEffect(() => {
+  setLanguageCode("en");
+}, []);
+useEffect(() => {
+  if (languageCode) {
     fetchDepartments();
-  }, []);
+  }
+}, [languageCode]);
 
   const fetchDepartments = async () => {
     try {
-      const response = await api.get("/citizen-charter");
+      const response = await api.get(`/citizen-charter?language_code=${languageCode}`);
       setDepartments(response.data);
     } catch (error) {
-      console.error("Error fetching departments:", error);
-      toast.error("Error fetching department!");
+      console.error("Error fetching departments:", error.response || error.message || error);
+      toast.error("Error fetching department! Please try again later.");
     }
-  };
+  };  
 
   const validateForm = () => {
     const newErrors = {};
     if (!newDepartment.name) newErrors.name = "Department name is required.";
     if (!newDepartment.pdf) newErrors.pdf = "PDF file is required.";
+    if (!newDepartment.language_code) newErrors.language_code = "Language is required.";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const resetForm = () => {
-    setNewDepartment({ name: "", pdf: null });
-    setErrors({ name: "", pdf: "" });
+    setNewDepartment({ name: "", pdf: null, language_code: "" });
+    setErrors({ name: "", pdf: "",  language_code: "" });
     const pdfInput = document.getElementById("pdf");
     if (pdfInput) pdfInput.value = "";
   };
@@ -57,6 +64,7 @@ const CitizenCharter = () => {
     const formData = new FormData();
     formData.append("name", newDepartment.name);
     formData.append("pdf", newDepartment.pdf);
+    formData.append("language_code", newDepartment.language_code);
 
     try {
       await api.post("/citizen-charter", formData, {
@@ -72,6 +80,7 @@ const CitizenCharter = () => {
   };
 
   const handleOpenDeleteModal = (id) => {
+    setLanguageCode(languageCode || "");
     setSelectedDepartmentId(id);
     setShowDeleteModal(true);
   };
@@ -90,7 +99,8 @@ const CitizenCharter = () => {
 
   const handleOpenEditModal = (dept) => {
     setSelectedDepartmentId(dept.id);
-    setNewDepartment({ name: dept.name, pdf: null });
+    setNewDepartment({ name: dept.name, pdf: null, language_code: dept.language_code });
+    setLanguageCode(dept.language_code || "");
     setShowEditModal(true);
   };
 
@@ -99,6 +109,7 @@ const CitizenCharter = () => {
 
     const formData = new FormData();
     formData.append("name", newDepartment.name);
+    formData.append("language_code", newDepartment.language_code);
     if (newDepartment.pdf) formData.append("pdf", newDepartment.pdf);
 
     try {
@@ -144,6 +155,29 @@ const CitizenCharter = () => {
                 <h4 className="page-title">Citizen Charter</h4>
                 <hr />
                 <form onSubmit={handleAddDepartment}>
+                <div className="form-group row">
+                  <label className="col-form-label col-md-3">
+                    Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">
+                  <select
+                    className={`form-control form-control-md ${
+                      errors.language_code ? "is-invalid" : ""
+                    }`}
+                    value={newDepartment.language_code}
+                    onChange={(e) => {
+                      setNewDepartment((prev) => ({ ...prev, language_code: e.target.value }));
+                      setErrors((prev) => ({ ...prev, language_code: "" }));
+                    }}
+                  >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div></div>
                   <div className="form-group row">
                     <label className="col-form-label col-md-2">
                       Department Name <span className="text-danger">*</span>
@@ -309,6 +343,30 @@ const CitizenCharter = () => {
               </div>
               <form onSubmit={handleEditDepartment}>
                 <div className="modal-body">
+                <div className="form-group row">
+                    <label className="col-form-label col-md-3">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                    <select
+                      value={newDepartment.language_code}
+                      onChange={(e) =>
+                        setNewDepartment((prev) => ({
+                          ...prev,
+                          language_code: e.target.value
+                        }))
+                      }
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">{errors.language_code}</div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="form-group">
                     <label>
                       Department Name <span className="text-danger">*</span>
