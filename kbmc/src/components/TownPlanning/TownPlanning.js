@@ -82,13 +82,13 @@ const TownPlanning = () => {
         </div>
         <div className="auto-container">
           <div className="content-box">
-            <h1>Town Planning Department</h1>
+          <h1>{t("townPlanning.title")}</h1>
             <ul className="bread-crumb clearfix">
               <li>
-                <Link to="/departments">Departments</Link>
+              <Link to="/departments">{t("townPlanning.departments")}</Link>
               </li>
               <li>
-                <span>Town Planning Department</span>
+              <span>{t("townPlanning.title")}</span>
               </li>
             </ul>
           </div>
@@ -102,7 +102,7 @@ const TownPlanning = () => {
               <div className="department-details-content">
                 <div className="content-one">
                   <div className="title-box">
-                    <h3>Town Planning Department</h3>
+                  <h3>{t("townPlanning.title")}</h3>
                   </div>
                   <div className="text-box">
                     {description.map((desc) => (

@@ -136,21 +136,25 @@ const DevelopmentPlan = () => {
   const handleSaveChanges = async () => {
     const formData = new FormData();
 
-    if (modalType === "desc") {
-      formData.append("description", editData.description);
-      formData.append("language", editData.language);
-      try {
-        await api.put(`/development-plan-desc/${selectedItem.id}`, formData);
-        fetchDevelopmentData();
-        toast.success("Development Plan Description updated successfully!");
-      } catch (error) {
-        console.error(error);
-        toast.error("Error updating Development Plan Description!");
-      }
-    } else if (modalType === "pdf") {
-      formData.append("name", editData.name);
-      formData.append("language", editData.language);
+    // In handleSaveChanges
+if (modalType === "desc") {
+  try {
+    await api.put(`/development-plan-desc/${selectedItem.id}`, {
+      description: editData.description,
+      language_code: editData.language,
+    });
 
+    toast.success("Development Plan Description updated successfully!");
+    fetchDevelopmentData(); // To refresh the data
+  } catch (error) {
+    console.error(error);
+    toast.error("Error updating Development Plan Description!");
+  }
+}
+ else if (modalType === "pdf") {
+      formData.append("name", editData.name);
+      formData.append("language_code", editData.language); 
+      
       if (editData.imageFile) {
         formData.append("image", editData.imageFile);
       }

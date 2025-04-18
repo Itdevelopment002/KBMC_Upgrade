@@ -2,22 +2,29 @@ import React, { useEffect, useState } from "react";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import api from "../api";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
+  const { i18n, t } = useTranslation();
   const location = useLocation();
   const state = location.state || {};
   const { id } = state;
+
   const [headings, setHeadings] = useState([]);
   const [deptData, setDeptData] = useState([]);
   const [departmentName, setDepartmentName] = useState([]);
 
   const fetchDeptData = async () => {
     try {
-      const response = await api.get(`/public_disclosure`);
+      const response = await api.get(`/public_disclosure`, {
+        params: { language_code: i18n.language },
+      });
+
       const filteredDepartments = response.data.filter(
         (department) => department.status === 1
       );
       setDepartmentName(filteredDepartments);
+
       const filteredData = filteredDepartments.filter(
         (item) => String(item?.id) === String(id)
       );
@@ -30,12 +37,18 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
   const fetchHeadings = async () => {
     try {
       if (deptData.length === 0) return;
-      const response = await api.get("/department-datas");
+
+      const response = await api.get("/department-datas", {
+        params: { language_code: i18n.language },
+      });
+
       await fetchDepartmentData();
       await fetchDepartments();
+
       const filteredDepartments = response.data.filter(
         (department) => department.status === 1
       );
+
       const filteredData = filteredDepartments.filter(
         (item) => item.public_disclosure_id === deptData[0]?.id
       );
@@ -47,22 +60,18 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
 
   useEffect(() => {
     fetchDeptData();
-    // eslint-disable-next-line
-  }, [id]);
+  }, [id, i18n.language]); // refetch when ID or language changes
 
   useEffect(() => {
     fetchHeadings();
-    // eslint-disable-next-line
-  }, [deptData]);
+  }, [deptData, i18n.language]); // refetch when data or language changes
 
   return (
     <div>
       <section className="page-title ">
         <div
           className="bg-layer"
-          style={{
-            backgroundImage: `url(${innerBanner})`,
-          }}
+          style={{ backgroundImage: `url(${innerBanner})` }}
         ></div>
         <div className="line-box">
           <div className="line-1"></div>
@@ -73,7 +82,7 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
             <h1>{deptData[0]?.department_name}</h1>
             <ul className="bread-crumb clearfix">
               <li>
-                <Link to="/departments">Departments</Link>
+                <Link to="/departments">{t("departmentsmain")} </Link>
               </li>
               <li>
                 <span>{deptData[0]?.department_name}</span>
@@ -82,7 +91,9 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
           </div>
         </div>
       </section>
+
       <br />
+
       <section className="departments-style-two alternat-2">
         <div className="auto-container">
           <div className="row clearfix">
@@ -105,6 +116,7 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
                 </div>
               </div>
             </div>
+
             <div className="col-lg-3 col-md-12 col-sm-12 sidebar-side">
               <div className="department-sidebar">
                 <div className="category-widget">
@@ -112,7 +124,6 @@ const DeptData = ({ fetchDepartments, fetchDepartmentData }) => {
                     <ul className="category-list clearfix">
                       {departmentName.map((department, index) => (
                         <li key={index}>
-                          {" "}
                           <Link
                             to={
                               department?.department_name ===

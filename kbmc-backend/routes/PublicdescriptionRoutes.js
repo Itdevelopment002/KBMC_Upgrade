@@ -21,14 +21,16 @@ router.post("/public_disclosure", (req, res) => {
 router.get("/public_disclosure", (req, res) => {
   const { language_code } = req.query;
   let sql = "SELECT * FROM public_disclosure";
-  let values = [];
+
+  const params = [];
 
   if (language_code) {
     sql += " WHERE language_code = ?";
-    values.push(language_code);
+    params.push(language_code);
   }
 
-  db.query(sql, values, (err, results) => {
+  db.query(sql, params, (err, results) => {
+
     if (err) {
       return res.status(500).json({ message: "Database error", error: err });
     }

@@ -8,7 +8,7 @@ const NULMDepartment = () => {
 
   const fetchDepartments = async () => {
     try {
-      const response = await api.get("/departments");
+      const response = await api.get("/departments");//
       setDepartments(response.data);
     } catch (error) {
       console.error("Error fetching departments data");

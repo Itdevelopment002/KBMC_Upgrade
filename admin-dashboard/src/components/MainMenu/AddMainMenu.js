@@ -5,6 +5,21 @@ import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 
 const AddMainMenu = () => {
+
+  const [formData, setFormData] = useState({
+      description: "",
+      publishDate: "",
+      videoUrl: "",
+      language_code: "",
+    });
+  
+    const [errors, setErrors] = useState({
+      description: "",
+      publishDate: "",
+      videoUrl: "",
+      language_code: "",
+    });
+  
   const initialMenuItems = [
     { mainMenu: "", mainMenuLink: "", subMenus: [], errors: {} },
   ];
@@ -48,16 +63,24 @@ const AddMainMenu = () => {
     if (!validateForm()) {
       return;
     }
+  
     try {
-      await api.post("/add-main-menu", { menuItems });
-      navigate("/");
-      setMenuItems(initialMenuItems);
+      // Include the language_code in the request body
+      const payload = {
+        menuItems,
+        language_code: formData.language_code, // Add language_code here
+      };
+  
+      await api.post("/add-main-menu", payload); // Send the data along with language_code
+      navigate("/"); // Redirect to home page or another route
+      setMenuItems(initialMenuItems); // Reset menu items state
     } catch (err) {
       console.error(
         err.response ? err.response.data.message : "An error occurred."
       );
     }
   };
+  
 
   const handleAddMoreSubMenu = (index) => {
     const errors = formErrors[index];
@@ -94,6 +117,11 @@ const AddMainMenu = () => {
       setFormErrors(errors);
     }
   };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: "" });
+  };
 
   const handleDeleteSubMenu = (index, subIndex) => {
     const newMenuItems = [...menuItems];
@@ -126,6 +154,30 @@ const AddMainMenu = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-md-2">
+                      Select Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-3">
+                      <select
+                        name="language_code"
+                        value={formData.language_code}
+                        onChange={handleChange}
+                        className={`form-control ${
+                          errors.language_code ? "is-invalid" : ""
+                        }`}
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <div className="invalid-feedback">
+                          {errors.language_code}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                     {menuItems.map((item, index) => (
                       <div key={index}>
                         <div className="form-group row">
