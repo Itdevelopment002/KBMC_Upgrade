@@ -6,7 +6,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const AddGeneralAdminDepartment = ({ fetchDepartmentsData }) => {
   const [headings, setHeadings] = useState([]);
-  const [newHeadings, setNewHeadings] = useState([{ heading: "", link: "" }]);
+  const [newHeadings, setNewHeadings] = useState([{ heading: "", link: "", language_code: "" }]);
   const [editingId, setEditingId] = useState(null);
   const [editingTitle, setEditingTitle] = useState("");
   const [editingLink, setEditingLink] = useState("");
@@ -41,11 +41,11 @@ const AddGeneralAdminDepartment = ({ fetchDepartmentsData }) => {
   };
 
   const handleInputChange = (index, field, value) => {
-    const updatedHeadings = [...newHeadings];
-    updatedHeadings[index][field] = value;
-    setNewHeadings(updatedHeadings);
+    const updated = [...newHeadings];
+    updated[index][field] = value;
+    setNewHeadings(updated);
   };
-
+  
   const validateFields = () => {
     const validationErrors = newHeadings.map((headingData) => {
       const fieldErrors = {};
@@ -216,11 +216,32 @@ const AddGeneralAdminDepartment = ({ fetchDepartmentsData }) => {
                     }}
                   >
                     {newHeadings.map((headingData, index) => (
+                      
                       <div className="form-group row" key={index}>
-                        <label className="col-form-label col-md-2">
+                         <label className="col-form-label col-md-2">
                           Add Heading
                         </label>
-                        <div className="col-md-4">
+                        <div class="col-md-2">
+                  <div class="form-group">
+                    {/* <label>Select Language</label> */}
+                    <select
+                      className={`form-control form-control-md ${
+                        errors.language_code ? "is-invalid" : ""
+                      }`}
+                      value={headingData.language_code}
+                      onChange={(e) => handleInputChange(index, "language_code", e.target.value)}
+                      >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div>
+                </div>
+               
+                        <div className="col-md-3">
                           <input
                             type="text"
                             className={`form-control ${
@@ -247,7 +268,7 @@ const AddGeneralAdminDepartment = ({ fetchDepartmentsData }) => {
                             </small>
                           )}
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                           <input
                             type="text"
                             className={`form-control ${

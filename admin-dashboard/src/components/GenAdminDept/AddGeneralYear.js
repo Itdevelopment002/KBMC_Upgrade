@@ -14,12 +14,14 @@ const AddGeneralYear = () => {
   const [pdfHeading, setPdfHeading] = useState("");
   const [pdfFile, setPdfFile] = useState(null);
   const [deptData, setDeptData] = useState([]);
+  const [language_code, setLanguageCode] = useState("");
   const [data, setData] = useState([]);
   const [editYearData, setEditYearData] = useState({
     year: "",
     meetingtype: "",
     heading: "",
     pdf: null,
+    language_code: "",
   });
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -39,7 +41,9 @@ const AddGeneralYear = () => {
       newErrors.meetingType = "Meeting Type is required.";
     if (!pdfHeading.trim()) newErrors.pdfHeading = "PDF Heading is required.";
     if (!pdfFile) newErrors.pdfFile = "PDF file is required.";
-
+    if (!language_code.trim()) {
+      newErrors.language_code = "Language selection is required.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -223,7 +227,29 @@ const AddGeneralYear = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
-                    <div class="row">
+                  <div class="row">
+                  <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Select Language</label>
+                    <select
+                      className={`form-control form-control-md ${
+                        errors.language_code ? "is-invalid" : ""
+                      }`}
+                      value={language_code}
+                      onChange={(e) => {
+                        setLanguageCode(e.target.value);
+                        setErrors((prev) => ({ ...prev, language_code: "" }));
+                      }}
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div>
+                </div>
                       <div class="col-md-2">
                         <div class="form-group">
                           <label>Year</label>
@@ -483,6 +509,26 @@ const AddGeneralYear = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                  <div class="form-group">
+                  <label className="form-label">Select Language</label>
+                    <select
+                      className={`form-control form-control-md ${
+                        errors.language_code ? "is-invalid" : ""
+                      }`}
+                      value={language_code}
+                      onChange={(e) => {
+                        setLanguageCode(e.target.value);
+                        setErrors((prev) => ({ ...prev, language_code: "" }));
+                      }}
+                    >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div>
                       <div className="mb-3">
                         <label className="form-label">Year</label>
                         <input

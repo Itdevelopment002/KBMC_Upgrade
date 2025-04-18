@@ -5,8 +5,9 @@ import api from "../api";
 const AddRtsPdf = () => {
   const [description, setDescription] = useState("");
   const [file, setFile] = useState(null);
+  const [language_code, setLanguageCode] = useState("");
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({ description: "", file: "" });
+  const [errors, setErrors] = useState({ description: "", file: "", language_code: "",});
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -19,35 +20,66 @@ const AddRtsPdf = () => {
     if (!file) {
       newErrors.file = "A PDF file is required.";
     }
+    if (!language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!validateForm()) {
+  //     return;
+  //   }
+
+    // const formData = new FormData();
+    // formData.append("description", description);
+    // formData.append("userfile", file);
+
+  //   try {
+      //eslint-disable-next-line
+      // const response = await api.post("/rts_table", formData, {
+      //   headers: {
+      //     "Content-Type": "multipart/form-data",
+      //   },
+      // });
+      // setDescription("");
+      // setErrors({ description: "", file: "" });
+      // setFile(null);
+      // navigate("/rts");
+    // } catch (error) {
+    //   console.error("Error uploading Right to Service:", error.response.data);
+    // }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
       return;
     }
-
+  
     const formData = new FormData();
     formData.append("description", description);
     formData.append("userfile", file);
-
+    formData.append("language_code", language_code); 
+  
     try {
-      //eslint-disable-next-line
       const response = await api.post("/rts_table", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       setDescription("");
-      setErrors({ description: "", file: "" });
+      setLanguageCode(""); 
+      setErrors({ description: "", file: "", language_code: "" });
       setFile(null);
+      setLanguageCode("");
       navigate("/rts");
     } catch (error) {
       console.error("Error uploading Right to Service:", error.response.data);
     }
   };
+  
   return (
     <div>
       <div className="page-wrapper">
@@ -70,6 +102,34 @@ const AddRtsPdf = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control form-control-md ${
+                          errors.language_code ? "is-invalid" : ""
+                        }`}
+                        value={language_code}
+                        onChange={(e) => {
+                          setLanguageCode(e.target.value);
+                          if (errors.language_code)
+                            setErrors((prev) => ({
+                              ...prev,
+                              language_code: "",
+                            }));
+                        }}
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <small className="text-danger">{errors.language_code}</small>
+                      )}
+                    </div>
+                  </div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         Description <span className="text-danger">*</span>
@@ -96,6 +156,7 @@ const AddRtsPdf = () => {
                         )}
                       </div>
                     </div>
+
                     <div className="form-group row">
                       <label className="col-form-label col-lg-2">
                         Upload PDF <span className="text-danger">*</span>

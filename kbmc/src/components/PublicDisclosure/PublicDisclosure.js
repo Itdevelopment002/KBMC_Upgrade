@@ -2,13 +2,15 @@ import React, { useEffect, useState } from "react";
 import api from "../api";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
+  const { i18n } = useTranslation();
   const [departments, setDepartments] = useState([]);
 
   const fetchDeptDatas = async () => {
     try {
-      const response = await api.get("/public_disclosure");
+      const response = await api.get(`/public_disclosure?language_code=${i18n.language}`);
       const filteredDepartments = response.data.filter(
         (department) => department.status === 1
       );
@@ -21,8 +23,8 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
 
   useEffect(() => {
     fetchDeptDatas();
-  }, []);
-
+  }, [i18n.language]); 
+  
   return (
     <>
       <section className="page-title">

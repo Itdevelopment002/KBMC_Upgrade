@@ -16,61 +16,81 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.get('/citizen-charter', (req, res) => {
-    db.query('SELECT * FROM `citizen-charter`', (err, results) => {
+router.get("/citizen-charter", (req, res) => {
+    const language_code = req.query.lang;
+       let query;
+       let params = [];
+       if (language_code) {
+         query = "SELECT * FROM `citizen-charter` WHERE language_code = ?";
+         params.push(language_code);
+       } else {
+         query = "SELECT * FROM `citizen-charter`";
+       }
+   
+     db.query(query, params, (err, results) => {
         if (err) {
-            console.error('Error fetching citizen charters:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
+          return res.status(500).json({ message: "Database error", error: err });
         }
-        res.json(results);
-    });
-});
-
-router.post('/citizen-charter', upload.single('pdf'), (req, res) => {
-    const { name } = req.body;
-    const pdfPath = req.file ? req.file.path : null; 
-
-    if (!name || !pdfPath) {
-        return res.status(400).json({ message: 'Name and PDF file are required.' });
+        res.status(200).json(results);
+      });
+  });
+  
+ router.post('/citizen-charter', upload.single('pdf'), (req, res) => {
+    const { name, language_code } = req.body;
+    const pdf = req.file ? `/uploads/${req.file.filename}` : null;
+  
+    console.log('Body:', req.body);
+    console.log('File:', req.file);
+  
+    if (!name || !pdf || !language_code) {
+      return res.status(400).json({ message: "All fields are required" });
     }
-
-    const newCharter = { name, pdf: pdfPath };
-
-    db.query('INSERT INTO `citizen-charter` (name, pdf) VALUES (?, ?)', [name, pdfPath], (err, result) => {
-        if (err) {
-            console.error('Error adding citizen charter:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-        res.status(201).json({ id: result.insertId, ...newCharter });
+  
+    const sql = 'INSERT INTO `citizen-charter` (name, pdf, language_code) VALUES (?, ?, ?)';
+  
+    db.query(sql, [name, pdf, language_code], (err, result) => {
+      if (err) {
+        console.error('Error Inserting data in MySQL:', err);
+        return res.status(500).json({ message: "Database error", error: err });
+      }
+      res.status(200).json({ message: "Citizen Charter added successfully", id: result.insertId });
     });
-});
-
-router.put('/citizen-charter/:id', upload.single('pdf'), (req, res) => {
+  });
+  
+  router.put('/citizen-charter/:id', upload.single('pdf'), (req, res) => {
     const { id } = req.params;
-    const { name } = req.body;
-    const pdfPath = req.file ? req.file.path : null;
-
-    let query = 'UPDATE `citizen-charter` SET name = ?';
-    const params = [name];
-
-    if (pdfPath) {
-        query += ', pdf = ?';
-        params.push(pdfPath);
+    const { name, language_code } = req.body;
+    const pdf = req.file ? `/uploads/${req.file.filename}` : null;
+  
+    const fields = [];
+    const values = [];
+  
+    if (name) {
+      fields.push('name = ?');
+      values.push(name);
     }
-
-    query += ' WHERE id = ?';
-    params.push(id);
-
-    db.query(query, params, (err) => {
-        if (err) {
-            console.error('Error updating citizen charter:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
-        }
-
-        const response = { id, name, ...(pdfPath ? { pdf: pdfPath } : {}) };
-        res.json(response);
+    if (pdf) {
+      fields.push('pdf = ?');
+      values.push(pdf);
+    }
+    if (language_code) {
+      fields.push('language_code = ?');
+      values.push(language_code);
+    }
+  
+    if (fields.length === 0) {
+      return res.status(400).json({ message: "No fields provided to update" });
+    }
+  
+    const query = `UPDATE \`citizen-charter\` SET ${fields.join(', ')} WHERE id = ?`;
+    values.push(id);
+  
+    db.query(query, values, (err) => {
+      if (err) return res.status(500).json({ message: "Database error", error: err });
+      res.status(200).json({ message: "Citizen Charter updated successfully" });
     });
-});
+  });
+  
 
 router.delete('/citizen-charter/:id', (req, res) => {
     const { id } = req.params;

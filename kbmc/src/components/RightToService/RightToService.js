@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api, { baseURL } from "../api";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import pdficon from "../../assets/images/icons/PDF-Icons.png";
 
 const RightToService = () => {
+  const { i18n } = useTranslation();
   const [pdfData, setPdfData] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,18 +14,19 @@ const RightToService = () => {
 
   useEffect(() => {
     api
-      .get("/rts_table")
+      .get(`/rts_table?lang=${i18n.language}`)
       .then((response) => {
         setPdfData(response.data);
       })
       .catch((error) => {
         console.error("Error fetching PDF data:", error);
       });
-  }, []);
+  }, [i18n.language]);
+  
 
   useEffect(() => {
     api
-      .get("/righttoservices")
+      .get(`/righttoservices?lang=${i18n.language}`)
       .then((response) => {
         setServices(response.data);
         setLoading(false);
@@ -33,7 +36,7 @@ const RightToService = () => {
         setError("Failed to fetch services. Please try again later.");
         setLoading(false);
       });
-  }, []);
+  }, [i18n.language]);
 
   const groupedServices = services.reduce((acc, service) => {
     if (!acc[service.heading]) {
