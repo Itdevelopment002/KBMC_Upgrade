@@ -52,13 +52,13 @@ const Departments = () => {
         </div>
         <div className="auto-container">
   <div className="content-box">
-    <h1>{t("departments.pageTitle")}</h1>
+    <h1>{t("departmentsd.pageTitle")}</h1>
     <ul className="bread-crumb clearfix">
       <li>
-        <Link to="/">{t("departments.breadcrumb.home")}</Link>
+        <Link to="/">{t("departmentsd.breadcrumb.home")}</Link>
       </li>
       <li>
-        <span>{t("departments.breadcrumb.departments")}</span>
+        <span>{t("departmentsd.breadcrumb.departments")}</span>
       </li>
     </ul>
   </div>

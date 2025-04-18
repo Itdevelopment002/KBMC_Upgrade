@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import innerBanner from "../../assets/images/banner/inner-banner.jpg";
 import Location from "../../assets/images/icons/Location Icon.png";
 import Quick from "../../assets/images/icons/Quick Contact Icon.png";
@@ -10,6 +11,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Contact = () => {
+  const { t } = useTranslation();
   const {
     register,
     handleSubmit,
@@ -21,21 +23,17 @@ const Contact = () => {
     try {
       await api.post("/contact-us", data);
       reset();
-      toast.success("Feedback sent successfully!");
+      toast.success(t("contact.success"));
       const notificationData = {
         heading: "Feedback Submitted",
         description: `A new feedback was submitted by ${data.name}`,
         role: "Admin",
         readed: 0,
       };
-      // eslint-disable-next-line
-      const notificationResponse = await api.post(
-        "/notification",
-        notificationData
-      );
+      await api.post("/notification", notificationData);
     } catch (error) {
-      console.error("Error sending feedback or posting notification:", error);
-      toast.error("Error sending feedback!");
+      console.error("Error sending feedback:", error);
+      toast.error(t("contact.error"));
     }
   };
 
@@ -52,13 +50,13 @@ const Contact = () => {
         </div>
         <div className="auto-container">
           <div className="content-box">
-            <h1>Contact Us</h1>
+            <h1>{t("contact.pageTitle")}</h1>
             <ul className="bread-crumb clearfix">
               <li>
-                <Link to="/">Home</Link>
+                <Link to="/">{t("contact.breadcrumbHome")}</Link>
               </li>
               <li>
-                <span>Contact Us</span>
+                <span>{t("contact.breadcrumbContact")}</span>
               </li>
             </ul>
           </div>
@@ -77,12 +75,9 @@ const Contact = () => {
                         <div className="icon-box">
                           <img src={Location} alt="Location Icon" />
                         </div>
-                        <h3>Location</h3>
+                        <h3>{t("contact.location")}</h3>
                         <div className="text-box">
-                          <p>
-                            568P+85P, Veer Savarkar Flyover, Katrap, Badlapur,
-                            Maharashtra 421503
-                          </p>
+                          <p>{t("contact.address")}</p>
                         </div>
                       </div>
                     </div>
@@ -93,7 +88,7 @@ const Contact = () => {
                         <div className="icon-box">
                           <img src={Quick} alt="Quick Contact Icon" />
                         </div>
-                        <h3>Quick Contact</h3>
+                        <h3>{t("contact.quickContact")}</h3>
                         <div className="text-box">
                           <p>
                             <Link to="tel:02512690271">0251 269 0271</Link>
@@ -112,12 +107,9 @@ const Contact = () => {
                         <div className="icon-box">
                           <img src={Off} alt="Off hours Icon" />
                         </div>
-                        <h3>Off Hours</h3>
+                        <h3>{t("contact.offHours")}</h3>
                         <div className="text-box">
-                          <p>
-                            Daily 10am to 4:30pm, <br />
-                            Sat & Sun Closed
-                          </p>
+                          <p>{t("contact.hoursText")}</p>
                         </div>
                       </div>
                     </div>
@@ -128,6 +120,7 @@ const Contact = () => {
           </div>
         </div>
       </section>
+
       <section className="contact-style-two mb-5">
         <div className="auto-container">
           <div className="row clearfix">
@@ -148,51 +141,50 @@ const Contact = () => {
                 ></iframe>
               </div>
             </div>
+
             <div className="col-lg-6 col-md-12 col-sm-12 content-column">
               <div className="content-box">
                 <div className="sec-title">
-                  <h2>Send Your Feedback</h2>
-                  <p>
-                    Fill out this form to send your inquiries or complaints.
-                  </p>
+                  <h2>{t("contact.sendFeedback")}</h2>
+                  <p>{t("contact.feedbackDescription")}</p>
                 </div>
                 <div className="form-inner">
                   <form onSubmit={handleSubmit(onSubmit)} id="contact-form">
                     <div className="row clearfix">
-                      <div className="col-lg-12 col-md-12 col-sm-12 form-group">
+                      <div className="col-lg-12 form-group">
                         <input
                           type="text"
-                          placeholder="Your Name"
+                          placeholder={t("contact.name")}
                           {...register("name", { required: true })}
                         />
                         {errors.name && (
-                          <p style={{ color: "red" }}>Name is required</p>
+                          <p style={{ color: "red" }}>{t("contact.nameRequired")}</p>
                         )}
                       </div>
-                      <div className="col-lg-6 col-md-6 col-sm-12 form-group">
+                      <div className="col-lg-6 form-group">
                         <input
                           type="text"
-                          placeholder="Mobile No."
+                          placeholder={t("contact.mobile")}
                           {...register("mobile", { required: true })}
                         />
                         {errors.mobile && (
-                          <p style={{ color: "red" }}>Mobile No. is required</p>
+                          <p style={{ color: "red" }}>{t("contact.mobileRequired")}</p>
                         )}
                       </div>
-                      <div className="col-lg-6 col-md-6 col-sm-12 form-group">
+                      <div className="col-lg-6 form-group">
                         <input
                           type="text"
-                          placeholder="Subject"
+                          placeholder={t("contact.subject")}
                           {...register("subject", { required: true })}
                         />
                         {errors.subject && (
-                          <p style={{ color: "red" }}>Subject is required</p>
+                          <p style={{ color: "red" }}>{t("contact.subjectRequired")}</p>
                         )}
                       </div>
-                      <div className="col-lg-12 col-md-12 col-sm-12 form-group">
+                      <div className="col-lg-12 form-group">
                         <input
                           type="email"
-                          placeholder="Email Address"
+                          placeholder={t("contact.email")}
                           {...register("email", {
                             required: true,
                             pattern: /^[^@ ]+@[^@ ]+\.[^@ .]{2,}$/,
@@ -201,27 +193,27 @@ const Contact = () => {
                         {errors.email && (
                           <p style={{ color: "red" }}>
                             {errors.email.type === "required"
-                              ? "Email is required"
-                              : "Enter a valid email"}
+                              ? t("contact.emailRequired")
+                              : t("contact.emailInvalid")}
                           </p>
                         )}
                       </div>
-                      <div className="col-lg-12 col-md-12 col-sm-12 form-group">
+                      <div className="col-lg-12 form-group">
                         <textarea
-                          placeholder="Your Feedback ..."
+                          placeholder={t("contact.feedbackPlaceholder")}
                           {...register("feedback", { required: true })}
                         ></textarea>
                         {errors.feedback && (
-                          <p style={{ color: "red" }}>Message is required</p>
+                          <p style={{ color: "red" }}>{t("contact.feedbackRequired")}</p>
                         )}
                       </div>
-                      <div className="col-lg-12 col-md-12 col-sm-12 form-group message-btn">
+                      <div className="col-lg-12 form-group message-btn">
                         <button
                           className="theme-btn btn-one"
                           style={{ backgroundColor: "#29aae1" }}
                           type="submit"
                         >
-                          Send a Message
+                          {t("contact.sendMessage")}
                         </button>
                       </div>
                     </div>

@@ -15,16 +15,19 @@ const TermsAndpolicys = () => {
   useEffect(() => {
     fetchPolicy();
   }, []);
-
   const fetchPolicy = async () => {
     try {
-      const response = await api.get("/privacy-policy");
+      const response = await api.get("/privacy-policy", {
+        params: {
+          language_code: "en", // Replace "en" with dynamic value if needed
+        },
+      });
       setPolicyData(response.data);
     } catch (error) {
       toast.error("Failed to fetch privacy policy data!");
     }
   };
-
+  
   const handleDelete = async () => {
     try {
       await api.delete(`/privacy-policy/${selectedPolicy.id}`);
@@ -44,7 +47,9 @@ const TermsAndpolicys = () => {
       await api.put(`/privacy-policy/${selectedPolicy.id}`, {
         heading: selectedPolicy.heading,
         description: selectedPolicy.description,
+        language_code: selectedPolicy.language_code,
       });
+      
 
       const updatedPolicy = policyData.map((policy) =>
         policy.id === selectedPolicy.id ? selectedPolicy : policy
@@ -67,11 +72,12 @@ const TermsAndpolicys = () => {
     setShowDeleteModal(true);
   };
 
+
   const handleEditChange = (e) => {
     const { name, value } = e.target;
     setSelectedPolicy({ ...selectedPolicy, [name]: value });
   };
-
+  
   const currentPageData = policyData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -212,6 +218,7 @@ const TermsAndpolicys = () => {
                 scrollbarWidth: "none",
               }}
             >
+   
               <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                   <div className="modal-header">
@@ -219,6 +226,20 @@ const TermsAndpolicys = () => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="mb-3">
+  <label className="form-label">Language</label>
+  <select
+    className="form-control form-control-md"
+    name="language_code"
+    value={selectedPolicy?.language_code || ""}
+    onChange={handleEditChange}
+  >
+    <option value="">Select Language</option>
+    <option value="en">English</option>
+    <option value="mr">Marathi</option>
+  </select>
+</div>
+
                       <div className="mb-3">
                         <label className="form-label">Heading</label>
                         <input

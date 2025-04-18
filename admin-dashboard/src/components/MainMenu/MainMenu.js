@@ -26,9 +26,14 @@ const MainMenu = () => {
   }, []);
 
   const handleEditClick = (menu) => {
-    setSelectedMenu({ ...menu, subMenus: [...menu.subMenus] });
+    setSelectedMenu({
+      ...menu,
+      subMenus: [...menu.subMenus],
+      language_code: menu.language_code || "en", // default to English if not set
+    });
     setShowEditModal(true);
   };
+
 
   const handleSaveChanges = async () => {
     if (!selectedMenu.mainMenu || !selectedMenu.mainMenuLink) {
@@ -36,18 +41,19 @@ const MainMenu = () => {
       return;
     }
 
+    const payload = {
+      mainMenu: selectedMenu.mainMenu,
+      mainMenuLink: selectedMenu.mainMenuLink,
+      language_code: selectedMenu.language_code,
+      subMenus: selectedMenu.subMenus.map((sub) => ({
+        subMenu: sub.subMenu,
+        subLink: sub.subLink,
+      })),
+    };
+    
+
     try {
-      const payload = {
-        mainMenu: selectedMenu.mainMenu,
-        mainMenuLink: selectedMenu.mainMenuLink,
-        subMenus: selectedMenu.subMenus.map((sub) => ({
-          subMenu: sub.subMenu,
-          subLink: sub.subLink,
-        })),
-      };
-
       await api.put(`/update-main-menu/${selectedMenu.id}`, payload);
-
       setShowEditModal(false);
       fetchMenuData();
       toast.success("Main menu updated successfully!");
@@ -56,6 +62,7 @@ const MainMenu = () => {
       toast.error("Error updating main menu!");
     }
   };
+
 
   const handleAddSubMenu = () => {
     if (newSubMenu && newSubLink) {
@@ -86,10 +93,22 @@ const MainMenu = () => {
       subMenus: prev.subMenus.filter((_, i) => i !== index),
     }));
   };
-
+  const handleMainMenuChange = (e) => {
+    setSelectedMenu((prev) => ({
+      ...prev,
+      mainMenu: e.target.value,
+    }));
+  };
   const handleDeleteClick = (menu) => {
     setSelectedMenu(menu);
     setShowDeleteModal(true);
+  };
+
+  const handleMainMenuLinkChange = (e) => {
+    setSelectedMenu((prev) => ({
+      ...prev,
+      mainMenuLink: e.target.value,
+    }));
   };
 
   const handleConfirmDelete = async () => {
@@ -218,6 +237,7 @@ const MainMenu = () => {
                 scrollbarWidth: "none",
               }}
             >
+
               <div className="modal-dialog modal-dialog-centered">
                 <div className="modal-content">
                   <div className="modal-header">
@@ -225,6 +245,26 @@ const MainMenu = () => {
                   </div>
                   <div className="modal-body">
                     <div className="form-group">
+                      <label>Select Language <span className="text-danger">*</span></label>
+                      <select
+                        name="language_code"
+                        value={selectedMenu?.language_code || ""}
+                        onChange={(e) =>
+                          setSelectedMenu((prev) => ({
+                            ...prev,
+                            language_code: e.target.value,
+                          }))
+                        }
+                        className="form-control"
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group">
+
                       <label style={{ fontWeight: "bold" }}>Main Menu</label>
                       <input
                         className="form-control form-control-md"

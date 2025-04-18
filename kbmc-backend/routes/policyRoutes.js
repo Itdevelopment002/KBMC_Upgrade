@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db.js");
 
-// Create or update privacy policy for a specific language
 router.post("/privacy-policy", (req, res) => {
   const { language_code, heading, description } = req.body;
 
@@ -16,7 +15,6 @@ router.post("/privacy-policy", (req, res) => {
   });
 });
 
-// Get privacy policy based on language code
 router.get("/privacy-policy", (req, res) => {
   const { language_code } = req.query;
 
@@ -34,7 +32,6 @@ router.get("/privacy-policy", (req, res) => {
   });
 });
 
-// Delete privacy policy for a specific language
 router.delete("/privacy-policy/:id", (req, res) => {
   const { id } = req.params;
   const sql = "DELETE FROM policy WHERE id = ?";
@@ -47,18 +44,24 @@ router.delete("/privacy-policy/:id", (req, res) => {
   });
 });
 
-// Update privacy policy for a specific language
-router.put("/privacy-policy/:id", (req, res) => {
+router.put('/privacy-policy/:id', (req, res) => {
+  const { heading, description, language_code } = req.body;
   const { id } = req.params;
-  const { heading, description } = req.body;
-  const sql = "UPDATE policy SET heading = ?, description = ? WHERE id = ?";
-  db.query(sql, [heading, description, id], (err, result) => {
+
+  const sql = `
+    UPDATE policy 
+    SET heading = ?, description = ?, language_code = ?
+    WHERE id = ?
+  `;
+
+  db.query(sql, [heading, description, language_code, id], (err, result) => {
     if (err) {
-      console.error("Error updating data:", err);
-      return res.status(500).json({ error: "Failed to update privacy policy" });
+      console.error("Update error:", err);
+      return res.status(500).json({ error: 'Update failed' });
     }
-    res.json({ message: "Privacy Policy updated successfully" });
+    res.json({ success: true });
   });
 });
+
 
 module.exports = router;

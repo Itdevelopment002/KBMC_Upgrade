@@ -78,23 +78,23 @@ router.delete("/delete-main-menu/:id", (req, res) => {
 });
 
 router.post("/add-main-menu", (req, res) => {
-  const { menuItems } = req.body;
+  const { menuItems, language_code } = req.body;
 
-  if (!menuItems || menuItems.length === 0) {
-    return res.status(400).send({ message: "Menu items are required." });
+  if (!menuItems || menuItems.length === 0 || !language_code) {
+    return res.status(400).send({ message: "Menu items and language code are required." });
   }
 
   const mainMenuQuery =
-    "INSERT INTO main_menu (mainMenu, mainMenuLink) VALUES (?, ?)";
+    "INSERT INTO main_menu (mainMenu, mainMenuLink, language_code) VALUES (?, ?, ?)";
   const submenuQuery =
-    "INSERT INTO sub_menu (mainMenuId, subMenu, subLink) VALUES (?, ?, ?)";
+    "INSERT INTO sub_menu (mainMenuId, subMenu, subLink, language_code) VALUES (?, ?, ?, ?)";
 
   db.beginTransaction((err) => {
     if (err) return res.status(500).send(err);
 
     db.query(
       mainMenuQuery,
-      [menuItems[0].mainMenu, menuItems[0].mainMenuLink],
+      [menuItems[0].mainMenu, menuItems[0].mainMenuLink, language_code],
       (error, mainMenuResult) => {
         if (error) {
           return db.rollback(() => res.status(500).send(error));
@@ -106,10 +106,15 @@ router.post("/add-main-menu", (req, res) => {
           return new Promise((resolve, reject) => {
             db.query(
               submenuQuery,
-              [mainMenuId, subMenu.subMenu, subMenu.subLink],
-              (err) => {
-                if (err) reject(err);
-                else resolve();
+              [mainMenuId, subMenu.subMenu, subMenu.subLink, language_code],
+              (err, result) => {
+                if (err) {
+                  console.error("Error inserting submenu:", err); // Add logging for errors
+                  reject(err);
+                } else {
+                  console.log("Submenu inserted successfully:", result); // Add logging for successful insertion
+                  resolve();
+                }
               }
             );
           });
@@ -121,9 +126,7 @@ router.post("/add-main-menu", (req, res) => {
               if (err) {
                 return db.rollback(() => res.status(500).send(err));
               }
-              res
-                .status(200)
-                .send({ message: "Menu items added successfully" });
+              res.status(200).send({ message: "Menu items added successfully" });
             });
           })
           .catch((error) => {
@@ -134,22 +137,23 @@ router.post("/add-main-menu", (req, res) => {
   });
 });
 
+
 router.put("/update-main-menu/:id", (req, res) => {
   const mainMenuId = req.params.id;
-  const { mainMenu, mainMenuLink, subMenus } = req.body;
+  const { mainMenu, mainMenuLink, subMenus, language_code } = req.body;
 
   const updateMainMenuQuery =
-    "UPDATE main_menu SET mainMenu = ?, mainMenuLink = ? WHERE id = ?";
+    "UPDATE main_menu SET mainMenu = ?, mainMenuLink = ?, language_code = ? WHERE id = ?";
   const deleteOldSubMenusQuery = "DELETE FROM sub_menu WHERE mainMenuId = ?";
   const insertSubMenuQuery =
-    "INSERT INTO sub_menu (mainMenuId, subMenu, subLink) VALUES (?, ?, ?)";
+    "INSERT INTO sub_menu (mainMenuId, subMenu, subLink, language_code) VALUES (?, ?, ?, ?)";
 
   db.beginTransaction((err) => {
     if (err) return res.status(500).send(err);
 
     db.query(
       updateMainMenuQuery,
-      [mainMenu, mainMenuLink, mainMenuId],
+      [mainMenu, mainMenuLink, language_code, mainMenuId],
       (error) => {
         if (error) {
           return db.rollback(() => res.status(500).send(error));
@@ -165,7 +169,7 @@ router.put("/update-main-menu/:id", (req, res) => {
               return new Promise((resolve, reject) => {
                 db.query(
                   insertSubMenuQuery,
-                  [mainMenuId, subMenu.subMenu, subMenu.subLink],
+                  [mainMenuId, subMenu.subMenu, subMenu.subLink, language_code],
                   (err) => {
                     if (err) reject(err);
                     else resolve();
@@ -203,5 +207,6 @@ router.put("/update-main-menu/:id", (req, res) => {
     );
   });
 });
+
 
 module.exports = router;

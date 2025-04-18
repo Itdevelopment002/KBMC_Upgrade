@@ -1,193 +1,231 @@
-{
-   "home": "मुख्यपृष्ठ",
-   "history": {
-      "title": "इतिहास",
-      "welcomeMessage": "कुलगाव बदलापूर नगर परिषदेत आपले स्वागत आहे"
-    },
-    "footer": {
-      "copyright": "कॉपीराइट",
-      "all_rights_reserved": "सर्व हक्क राखीव.",
-      "kbmc": "केबीएमसी",
-      "rights": "सर्व हक्क राखीव.",
-      "privacy": "गोपनीयता धोरण",
-      "terms": "नियम व अटी",
-      "contact": "आमच्याशी संपर्क साधा",
-      "totalVisitors": "एकूण भेटी"
-    },
-    "serviceBlock": {
-      "service_for": "सेवा साठी",
-      "our_city_residents": "आपल्या शहरातील रहिवासी",
-      "helpline": "सहाय्यक्रम - 0251-2690271",
-      "emergency": "आपत्कालीन - 18002129032",
-      "photo_gallery": "फोटो गॅलरी",
-      "achievements": "यशोगाथा"
-    },
-    "wards": {
-      "title": "प्रभाग",
-      "srNo": "अनुक्रमांक",
-      "wardNo": "प्रभाग क्रमांक",
-      "wardName": "प्रभागाचे नाव"
-    },
-    "electedWings": {
-      "title": "निवडून आलेले पंख",
-      "home": "मुख्यपृष्ठ"
-    },
-    "orgStructure": {
-      "title": "संस्थात्मक रचना",
-      "home": "मुख्यपृष्ठ"
-    },
-    "functions": {
-      "pageTitle": "कार्ये",
-      "breadcrumb": {
-        "home": "मुख्यपृष्ठ",
-        "functions": "कार्ये"
-      },
-      "heading": "परिषद व नगर कार्यकारिणीचे कर्तव्ये व कार्ये",
-      "mainClause1": "या कायद्यात अन्यथा तरतूद नसल्यास, नगर क्षेत्रातील स्थानिक शासन परिषदेकडे निहित असेल.",
-      "mainClause2": "या कायद्यान्वये किंवा तत्सम कोणत्याही अस्तित्वात असलेल्या कायद्यान्वये लादलेल्या जबाबदाऱ्या व्यतिरिक्त, प्रत्येक परिषदेस नगर क्षेत्राच्या मर्यादेत खालील बाबींसाठी योग्य तरतूद करणे व प्रभावी उपाययोजना करणे हे कर्तव्य असेल आणि प्रभावी उपाययोजना शक्य नसल्यास क्षेत्राबाहेरही त्या करणे अपेक्षित असेल:"
-    },
-    "departments": {
-      "pageTitle": "विभाग",
-      "breadcrumb": {
-        "home": "मुख्यपृष्ठ",
-        "departments": "विभाग"
-      }
-    },
-    "previousChiefOfficers": {
-      "pageTitle": "मागील मुख्य अधिकारी",
-      "breadcrumb": {
-        "home": "मुख्यपृष्ठ",
-        "title": "मागील मुख्य अधिकारी"
-      }
-    },
-    "previousPresidents": {
-      "pageTitle": "मागील नगराध्यक्ष",
-      "breadcrumb": {
-        "home": "मुख्यपृष्ठ",
-        "title": "मागील नगराध्यक्ष"
-      }
-    },
-    "awards": {
-      "pageTitle": "पुरस्कार",
-      "breadcrumb": {
-        "home": "मुख्यपृष्ठ",
-        "title": "पुरस्कार"
-      },
-      "sectionTitle": "राष्ट्रीय / राज्यस्तरावर प्राप्त पुरस्कार"
-    },
-    "hospital": {
-      "pageTitle": "रुग्णालय",
-      "breadcrumb": {
-        "cityProfile": "शहर प्रोफाइल",
-        "hospital": "रुग्णालय"
-      },
-      "mainHeading": "कुलगाव बदलापूर नगरपरिषद क्षेत्रातील प्रमुख रुग्णालयांची (शासकीय व खासगी) यादी",
-      "srNo": "अनुक्रमांक",
-      "hospitalName": "रुग्णालयाचे नाव",
-      "doctorSpeciality": "प्रमुख डॉक्टरचे नाव व विशेषत्व",
-      "address": "पत्ता",
-      "phone": "फोन क्रमांक",
-      "beds": "खाटांची संख्या",
-      "facilities": "रुग्णालयात उपलब्ध सुविधा",
-      "eastHospitalsTitle": "पूर्व विभागातील रुग्णालयांची नावे",
-      "westHospitalsTitle": "पश्चिम विभागातील रुग्णालयांची नावे"
-    },   
-    "property-contents":{
-      "propertyHolder":"मालमत्ता धारक",
-      "property": "मालमत्ता",
-      "description": "वर्णन"
-    },
-    "muncipal-contents": {
-      "muncipalProperties": "महानगरपालिका मालमत्ता",
-      "muncipalStatement": "कुलगाव बदलापूर नगरपरिषदेच्या निवास आरक्षणाअंतर्गत मिळालेली मालमत्ता जसे की सभागृहे, दुकाने, बाजारपेठा या निविदा प्रक्रियेद्वारे भाड्याने दिल्या जातात. तसेच नागरिकांसाठी विविध भागांमध्ये सामुदायिक सभागृहे उपलब्ध आहेत.",
-      "name": "नाव",
-      "places": "दुकाने / सभागृह / कम्युनिटी हॉल / व्यायामशाळा / ग्रंथालय"
-    },
-    "schools-contents": {
-      "schools": "शाळा",
-      "schoolNames": "शाळांचे नावे",
-      "medium": "माध्यम",
-      "schoolsPhotoGallery": "शाळांची फोटो गॅलरी"
-    },
-    "gardens-contents": {
-      "gardens": "बागा",
-      "noData": "या बागेसाठी कोणतीही चित्रे उपलब्ध नाहीत."
-    },
-    "electric-contents": {
-      "electric": "विद्युत",
-      "electricStatement": "कुलगाव बदलापूर नगरपरिषदेच्या क्षेत्रात पूर्व व पश्चिम विभागात एकूण 15418 दिवे आहेत आणि या दिव्यांचे देखभाल कार्य पूर्व विभागासाठी नगरपरिषदेमार्फत केले जाते. नवी मुंबई आणि पश्चिम विभागासाठी हाय-टेक कन्स्ट्रक्शन ग्रुपमार्फत, तसेच देखभाल व दुरुस्तीचे काम सागर साई कन्स्ट्रक्शनमार्फत केले जाते.",
-      "description": "वर्णन",
-      "vendorName": "ठेकेदाराचे नाव"
-    },
-    "roads-contents": {
-      "roads": "रस्ते",
-      "length": "लांबी"
-    },
-    "tree-contents": {
-      "treeCensus": "झाडांची जनगणना",
-      "treeStatement": "महाराष्ट्र (शहरी क्षेत्र) झाडांचे संरक्षण आणि संवर्धन अधिनियम 1975 मध्ये अस्तित्वात आला. या अधिनियमानुसार, झाड प्राधिकरणास त्यांच्या कार्यक्षेत्रातील सर्व झाडांची गणना करणे बंधनकारक आहे. त्यानुसार, कुलगाव बदलापूर नगरपरिषदेतील झाडांची जनगणना अहवाल पुढीलप्रमाणे आहे."
-    },
-    "health-contents": {
-      "health": "आरोग्य",
-      "worksUnderHealthDepartment": "आरोग्य विभागाच्या अधिपत्याखाली कार्यरत",
-      "namesOfSanitaryInspectors": "साफसफाई निरीक्षकांची नावे",
-      "zoneWiseNamesOfSanitationInspectors": "प्रभागानुसार साफसफाई निरीक्षकांची नावे",
-      "zoneNo": "प्रभाग क्रमांक",
-      "treatmentFacility": "उपचार सुविधा",
-      "nameOfThePlant": "प्रकल्पाचे नाव",
-      "locationOfThePlant": "प्रकल्पाचे स्थान",
-      "designedPlantCapacityMtd": "प्रकल्पाची रचनात्मक क्षमता (MTD)",
-      "presentWasteIntakeMtd": "सद्यस्थितीत कचऱ्याचे प्रमाण (MTD)",
-      "outputOfPlant": "प्रकल्पाचा उत्पादन",
-      "wardNo": "वॉर्ड क्रमांक",
-      "nameOfTheLawsuit": "खटल्याचे नाव",
-      "nameOfWardWiseLitigations": "वॉर्डनिहाय खटल्यांची नावे"
-    },
-    "ponds-contents": {
-      "pondsTalao": "तलाव",
-      "talaoName": "तलावाचे नाव",
-      "noPondsAvailable": "कोणतेही तलाव उपलब्ध नाहीत",
-      "talaoPhotoGallery": "तलाव फोटो गॅलरी"
-    },
-    "fire-contents": {
+{"departmentsmain": "विभाग",
+  "home": "मुख्यपृष्ठ",
+  "history": {
+    "title": "इतिहास",
+    "welcomeMessage": "कुलगाव बदलापूर नगर परिषदेत आपले स्वागत आहे"
+  },
+  "footer": {
+    "copyright": "कॉपीराइट",
+    "all_rights_reserved": "सर्व हक्क राखीव.",
+    "kbmc": "केबीएमसी",
+    "rights": "सर्व हक्क राखीव.",
+    "privacy": "गोपनीयता धोरण",
+    "terms": "नियम व अटी",
+    "contact": "आमच्याशी संपर्क साधा",
+    "totalVisitors": "एकूण भेटी"
+  },
+  "serviceBlock": {
+    "service_for": "सेवा साठी",
+    "our_city_residents": "आपल्या शहरातील रहिवासी",
+    "helpline": "सहाय्यक्रम - 0251-2690271",
+    "emergency": "आपत्कालीन - 18002129032",
+    "photo_gallery": "फोटो गॅलरी",
+    "achievements": "यशोगाथा"
+  },
+  "wards": {
+    "title": "प्रभाग",
+    "srNo": "अनुक्रमांक",
+    "wardNo": "प्रभाग क्रमांक",
+    "wardName": "प्रभागाचे नाव"
+  },
+  "electedWings": {
+    "title": "निवडून आलेले पंख",
+    "home": "मुख्यपृष्ठ"
+  },
+  "orgStructure": {
+    "title": "संस्थात्मक रचना",
+    "home": "मुख्यपृष्ठ"
+  },
+  "functions": {
+    "pageTitle": "कार्ये",
+    "breadcrumb": {
       "home": "मुख्यपृष्ठ",
-      "fireStation": "अग्निशमन केंद्र",
-      "fireStationEast": "पूर्व अग्निशमन केंद्र"
+      "functions": "कार्ये"
     },
-    "error": "त्रुटी:",
-    "total": "एकूण",
-    "description": "वर्णन",
+    "heading": "परिषद व नगर कार्यकारिणीचे कर्तव्ये व कार्ये",
+    "mainClause1": "या कायद्यात अन्यथा तरतूद नसल्यास, नगर क्षेत्रातील स्थानिक शासन परिषदेकडे निहित असेल.",
+    "mainClause2": "या कायद्यान्वये किंवा तत्सम कोणत्याही अस्तित्वात असलेल्या कायद्यान्वये लादलेल्या जबाबदाऱ्या व्यतिरिक्त, प्रत्येक परिषदेस नगर क्षेत्राच्या मर्यादेत खालील बाबींसाठी योग्य तरतूद करणे व प्रभावी उपाययोजना करणे हे कर्तव्य असेल आणि प्रभावी उपाययोजना शक्य नसल्यास क्षेत्राबाहेरही त्या करणे अपेक्षित असेल:"
+  },
+  "departmentsd": {
+    "pageTitle": "विभाग",
+    "breadcrumb": {
+      "home": "मुख्यपृष्ठ",
+      "departments": "विभाग"
+    }
+  },
+  "previousChiefOfficers": {
+    "pageTitle": "मागील मुख्य अधिकारी",
+    "breadcrumb": {
+      "home": "मुख्यपृष्ठ",
+      "title": "मागील मुख्य अधिकारी"
+    }
+  },
+  "previousPresidents": {
+    "pageTitle": "मागील नगराध्यक्ष",
+    "breadcrumb": {
+      "home": "मुख्यपृष्ठ",
+      "title": "मागील नगराध्यक्ष"
+    }
+  },
+  "awards": {
+    "pageTitle": "पुरस्कार",
+    "breadcrumb": {
+      "home": "मुख्यपृष्ठ",
+      "title": "पुरस्कार"
+    },
+    "sectionTitle": "राष्ट्रीय / राज्यस्तरावर प्राप्त पुरस्कार"
+  },
+  "hospital": {
+    "pageTitle": "रुग्णालय",
+    "breadcrumb": {
+      "cityProfile": "शहर प्रोफाइल",
+      "hospital": "रुग्णालय"
+    },
+    "mainHeading": "कुलगाव बदलापूर नगरपरिषद क्षेत्रातील प्रमुख रुग्णालयांची (शासकीय व खासगी) यादी",
+    "srNo": "अनुक्रमांक",
+    "hospitalName": "रुग्णालयाचे नाव",
+    "doctorSpeciality": "प्रमुख डॉक्टरचे नाव व विशेषत्व",
     "address": "पत्ता",
-     "srNo": "अनुक्रमांक",
-     "cityProfile": "शहराची माहिती",
-     "loading": "लोड होत आहे...",
-     "mobileNo": "मोबाईल क्रमांक",
-     "noDataAvailable": "माहिती उपलब्ध नाही"
-     ,
-     
-      "pageTitle": "अटी आणि शर्ती",
-      "home": "मुखपृष्ठ",
-      "termsAndConditions": "अटी आणि शर्ती",
-      "terms": {
-        "heading": "अटी आणि शर्ती",
-        "description": "कृपया अटी आणि शर्ती काळजीपूर्वक वाचा."
-      
-    }
-    ,
-    
-      "home": "मुखपृष्ठ",
-      "privacyPolicy": "गोपनीयता धोरण"
-    ,
-    "officialPublication": {
-      "title": "अधिकृत प्रकाशन",
-      "breadcrumbHome": "मुख्यपृष्ठ",
-      "breadcrumbCurrent": "अधिकृत प्रकाशन"
-    },
-    "downloads": {
-      "title": "डाउनलोड्स",
-      "breadcrumbHome": "मुख्यपृष्ठ",
-      "breadcrumbCurrent": "डाउनलोड्स",
-      "viewBtn": "पहा"
-    }
+    "phone": "फोन क्रमांक",
+    "beds": "खाटांची संख्या",
+    "facilities": "रुग्णालयात उपलब्ध सुविधा",
+    "eastHospitalsTitle": "पूर्व विभागातील रुग्णालयांची नावे",
+    "westHospitalsTitle": "पश्चिम विभागातील रुग्णालयांची नावे"
+  },
+  "property-contents": {
+    "propertyHolder": "मालमत्ता धारक",
+    "property": "मालमत्ता",
+    "description": "वर्णन"
+  },
+  "muncipal-contents": {
+    "muncipalProperties": "महानगरपालिका मालमत्ता",
+    "muncipalStatement": "कुलगाव बदलापूर नगरपरिषदेच्या निवास आरक्षणाअंतर्गत मिळालेली मालमत्ता जसे की सभागृहे, दुकाने, बाजारपेठा या निविदा प्रक्रियेद्वारे भाड्याने दिल्या जातात. तसेच नागरिकांसाठी विविध भागांमध्ये सामुदायिक सभागृहे उपलब्ध आहेत.",
+    "name": "नाव",
+    "places": "दुकाने / सभागृह / कम्युनिटी हॉल / व्यायामशाळा / ग्रंथालय"
+  },
+  "schools-contents": {
+    "schools": "शाळा",
+    "schoolNames": "शाळांचे नावे",
+    "medium": "माध्यम",
+    "schoolsPhotoGallery": "शाळांची फोटो गॅलरी"
+  },
+  "gardens-contents": {
+    "gardens": "बागा",
+    "noData": "या बागेसाठी कोणतीही चित्रे उपलब्ध नाहीत."
+  },
+  "electric-contents": {
+    "electric": "विद्युत",
+    "electricStatement": "कुलगाव बदलापूर नगरपरिषदेच्या क्षेत्रात पूर्व व पश्चिम विभागात एकूण 15418 दिवे आहेत आणि या दिव्यांचे देखभाल कार्य पूर्व विभागासाठी नगरपरिषदेमार्फत केले जाते. नवी मुंबई आणि पश्चिम विभागासाठी हाय-टेक कन्स्ट्रक्शन ग्रुपमार्फत, तसेच देखभाल व दुरुस्तीचे काम सागर साई कन्स्ट्रक्शनमार्फत केले जाते.",
+    "description": "वर्णन",
+    "vendorName": "ठेकेदाराचे नाव"
+  },
+  "roads-contents": {
+    "roads": "रस्ते",
+    "length": "लांबी"
+  },
+  "tree-contents": {
+    "treeCensus": "झाडांची जनगणना",
+    "treeStatement": "महाराष्ट्र (शहरी क्षेत्र) झाडांचे संरक्षण आणि संवर्धन अधिनियम 1975 मध्ये अस्तित्वात आला. या अधिनियमानुसार, झाड प्राधिकरणास त्यांच्या कार्यक्षेत्रातील सर्व झाडांची गणना करणे बंधनकारक आहे. त्यानुसार, कुलगाव बदलापूर नगरपरिषदेतील झाडांची जनगणना अहवाल पुढीलप्रमाणे आहे."
+  },
+  "health-contents": {
+    "health": "आरोग्य",
+    "worksUnderHealthDepartment": "आरोग्य विभागाच्या अधिपत्याखाली कार्यरत",
+    "namesOfSanitaryInspectors": "साफसफाई निरीक्षकांची नावे",
+    "zoneWiseNamesOfSanitationInspectors": "प्रभागानुसार साफसफाई निरीक्षकांची नावे",
+    "zoneNo": "प्रभाग क्रमांक",
+    "treatmentFacility": "उपचार सुविधा",
+    "nameOfThePlant": "प्रकल्पाचे नाव",
+    "locationOfThePlant": "प्रकल्पाचे स्थान",
+    "designedPlantCapacityMtd": "प्रकल्पाची रचनात्मक क्षमता (MTD)",
+    "presentWasteIntakeMtd": "सद्यस्थितीत कचऱ्याचे प्रमाण (MTD)",
+    "outputOfPlant": "प्रकल्पाचा उत्पादन",
+    "wardNo": "वॉर्ड क्रमांक",
+    "nameOfTheLawsuit": "खटल्याचे नाव",
+    "nameOfWardWiseLitigations": "वॉर्डनिहाय खटल्यांची नावे"
+  },
+  "ponds-contents": {
+    "pondsTalao": "तलाव",
+    "talaoName": "तलावाचे नाव",
+    "noPondsAvailable": "कोणतेही तलाव उपलब्ध नाहीत",
+    "talaoPhotoGallery": "तलाव फोटो गॅलरी"
+  },
+  "fire-contents": {
+    "home": "मुख्यपृष्ठ",
+    "fireStation": "अग्निशमन केंद्र",
+    "fireStationEast": "पूर्व अग्निशमन केंद्र"
+  },
+  "error": "त्रुटी:",
+  "total": "एकूण",
+  "description": "वर्णन",
+  "address": "पत्ता",
+  "srNo": "अनुक्रमांक",
+  "cityProfile": "शहराची माहिती",
+  "loading": "लोड होत आहे...",
+  "mobileNo": "मोबाईल क्रमांक",
+  "noDataAvailable": "माहिती उपलब्ध नाही",
+  "pageTitle": "अटी आणि शर्ती",
+  "home": "मुखपृष्ठ",
+  "termsAndConditions": "अटी आणि शर्ती",
+  "terms": {
+    "heading": "अटी आणि शर्ती",
+    "description": "कृपया अटी आणि शर्ती काळजीपूर्वक वाचा."
+  },
+  "home": "मुखपृष्ठ",
+  "privacyPolicy": "गोपनीयता धोरण",
+  "officialPublication": {
+    "title": "अधिकृत प्रकाशन",
+    "breadcrumbHome": "मुख्यपृष्ठ",
+    "breadcrumbCurrent": "अधिकृत प्रकाशन"
+  },
+  "downloads": {
+    "title": "डाउनलोड्स",
+    "breadcrumbHome": "मुख्यपृष्ठ",
+    "breadcrumbCurrent": "डाउनलोड्स",
+    "viewBtn": "पहा"
+  },
+  "townPlanning": {
+    "title": "नगर रचना विभाग",
+    "departments": "विभाग"
+  },
+  "departments": {
+    "General Admin Department": "सामान्य प्रशासन विभाग",
+    "Town Planning": "नगर रचना विभाग"
+  },
+  "contact": {
+    "pageTitle": "Contact Us",
+    "breadcrumbHome": "Home",
+    "breadcrumbContact": "Contact Us",
+    "location": "Location",
+    "address": "568P+85P, Veer Savarkar Flyover, Katrap, Badlapur, Maharashtra 421503",
+    "quickContact": "Quick Contact",
+    "offHours": "Off Hours",
+    "hoursText": "Daily 10am to 4:30pm, Sat & Sun Closed",
+    "sendFeedback": "Send Your Feedback",
+    "feedbackDescription": "Fill out this form to send your inquiries or complaints.",
+    "name": "Your Name",
+    "mobile": "Mobile No.",
+    "subject": "Subject",
+    "email": "Email Address",
+    "feedbackPlaceholder": "Your Feedback ...",
+    "sendMessage": "Send a Message",
+    "nameRequired": "Name is required",
+    "mobileRequired": "Mobile No. is required",
+    "subjectRequired": "Subject is required",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email",
+    "feedbackRequired": "Message is required",
+    "success": "Feedback sent successfully!",
+    "error": "Error sending feedback!"
+  },
+  "adDepartment": {
+    "title": "Advertisement Department",
+    "departments": "Departments",
+    "headings": [
+      "Heading 1",
+      "Heading 2",
+      "Heading 3",
+      "Heading 4",
+      "Heading 5"
+    ]
   }
-  
+}
