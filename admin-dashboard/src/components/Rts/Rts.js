@@ -6,8 +6,10 @@ import "react-toastify/dist/ReactToastify.css";
 import GLightbox from "glightbox";
 import "glightbox/dist/css/glightbox.min.css";
 import { FaFilePdf } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 
 const Rts = () => {
+  const { i18n } = useTranslation();
   const [rtsData, setRtsData] = useState([]);
   const [pdfData, setPdfData] = useState([]);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -15,13 +17,14 @@ const Rts = () => {
   const [modalType, setModalType] = useState("");
   const [selectedItem, setSelectedItem] = useState(null);
   const [editData, setEditData] = useState({});
+  const [errors] = useState({language_code: "",});
   const [pdfPreview, setPdfPreview] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchRtsData();
     fetchPdfData();
-  }, []);
+  }, [i18n.language]);  
 
   useEffect(() => {
     const lightbox = GLightbox({
@@ -34,7 +37,7 @@ const Rts = () => {
 
   const fetchRtsData = async () => {
     try {
-      const response = await api.get("/righttoservices");
+      const response = await api.get(`/righttoservices?lang=${i18n.language}`);
       setRtsData(response.data);
     } catch (error) {
       toast.error("Error fetching RTS!");
@@ -43,7 +46,7 @@ const Rts = () => {
 
   const fetchPdfData = async () => {
     try {
-      const response = await api.get("/rts_table");
+      const response = await api.get(`/rts_table?lang=${i18n.language}`);
       setPdfData(response.data);
     } catch (error) {
       toast.error("Error fetching RTS Pdf!");
@@ -73,9 +76,13 @@ const Rts = () => {
     setSelectedItem(item);
     setEditData(
       type === "rts"
-        ? { heading: item.heading, description: item.description }
+        ? {
+            heading: item.heading,
+            description: item.description,
+            language_code: item.language_code || i18n.language, // set current lang
+          }
         : { ...item }
-    );
+    );    
     setPdfPreview(
       type === "pdf" && item.pdf_path ? `${baseURL}/${item.pdf_path}` : ""
     );
@@ -90,41 +97,96 @@ const Rts = () => {
     setEditData({});
     setPdfPreview("");
   };
-
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = async () => { 
     try {
+      let apiCall, successMessage, fetchData;
+  
       if (modalType === "rts") {
-        await api.put(`/righttoservices/${selectedItem.id}`, {
+        if (!editData.heading || !editData.description) {
+          toast.error("Heading and description are required!");
+          return;
+        }
+  
+        apiCall = api.put(`/righttoservices/${selectedItem.id}`, {
           heading: editData.heading,
           description: editData.description,
+          language_code: editData.language_code || i18n.language || "en", // Fallback to "en" if no language is set
         });
-        fetchRtsData();
+  
+        successMessage = "RTS updated successfully!";
+        fetchData = fetchRtsData;
+  
       } else if (modalType === "pdf") {
+        if (!editData.description) {
+          toast.error("Description is required!");
+          return;
+        }
+  
         const formData = new FormData();
         formData.append("description", editData.description);
-
+  
         if (editData.pdfFile) {
           formData.append("userfile", editData.pdfFile);
         }
-
-        await api.put(`/rts_table/${selectedItem.id}`, formData, {
+  
+        apiCall = api.put(`/rts_table/${selectedItem.id}`, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        fetchPdfData();
+  
+        successMessage = "RTS Pdf updated successfully!";
+        fetchData = fetchPdfData;
       }
-
-      toast.success(
-        `${modalType === "rts" ? "RTS" : "RTS Pdf"} updated successfully!`
-      );
+  
+      // Execute API call
+      await apiCall;
+      fetchData(); // Fetch updated data
+  
+      toast.success(successMessage);
       navigate("/rts");
     } catch (error) {
       console.error(error);
-      toast.error("Error updating the entry!");
+      toast.error("Error updating the entry! Please try again.");
     }
     closeModal();
   };
+  
+  // const handleSaveChanges = async () => {
+  //   try {
+  //     if (modalType === "rts") {
+  //       await api.put(`/righttoservices/${selectedItem.id}`, {
+  //         heading: editData.heading,
+  //         description: editData.description,
+  //         language_code: editData.language_code || i18n.language, // set current lang
+  //       });
+  //       fetchRtsData();
+  //     } else if (modalType === "pdf") {
+  //       const formData = new FormData();
+  //       formData.append("description", editData.description);
+
+  //       if (editData.pdfFile) {
+  //         formData.append("userfile", editData.pdfFile);
+  //       }
+
+  //       await api.put(`/rts_table/${selectedItem.id}`, formData, {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       });
+  //       fetchPdfData();
+  //     }
+
+  //     toast.success(
+  //       `${modalType === "rts" ? "RTS" : "RTS Pdf"} updated successfully!`
+  //     );
+  //     navigate("/rts");
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("Error updating the entry!");
+  //   }
+  //   closeModal();
+  // };
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -303,17 +365,36 @@ const Rts = () => {
                   <div className="modal-body">
                     {modalType === "rts" ? (
                       <>
+                      <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control ${errors.language_code ? "is-invalid" : ""}`}
+                        value={editData.language_code}
+                        onChange={(e) =>
+                          setEditData({ ...editData, language_code: e.target.value })
+                        }
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <small className="text-danger">{errors.language_code}</small>
+                      )}
+                    </div>
+                  </div>
                         <div className="form-group">
                           <label htmlFor="heading">Heading</label>
                           <input
                             className="form-control form-control-md"
                             id="heading"
+                            type="text"
                             value={editData.heading}
                             onChange={(e) =>
-                              setEditData({
-                                ...editData,
-                                heading: e.target.value,
-                              })
+                              setEditData({ ...editData, heading: e.target.value })
                             }
                           />
                         </div>
@@ -334,6 +415,37 @@ const Rts = () => {
                       </>
                     ) : (
                       <>
+                      <div className="form-group row">
+                    <label className="col-form-label col-md-2">
+                      Language <span className="text-danger">*</span>
+                    </label>
+                    <div className="col-md-4">
+                      <select
+                        className={`form-control form-control-md ${
+                          errors.language_code ? "is-invalid" : ""
+                        }`}
+                        value={editData.language_code || ""}
+                        onChange={(e) =>
+                          setEditData({ ...editData, language_code: e.target.value })}
+
+                        // value={editData.language_code}
+                        // onChange={(e) => {
+                        //   setLanguageCode(e.target.value);
+                        //   if (errors.language_code)
+                        //     setErrors((prev) => ({
+                        //       ...prev,
+                        //       language_code: "",
+                        //     }));
+                      >
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="mr">Marathi</option>
+                      </select>
+                      {errors.language_code && (
+                        <small className="text-danger">{errors.language_code}</small>
+                      )}
+                    </div>
+                  </div>
                         <div className="form-group">
                           <label htmlFor="description">Description</label>
                           <input

@@ -5,7 +5,9 @@ import api from "../api";
 const AddRts = () => {
   const [heading, setHeading] = useState("");
   const [description, setDescription] = useState("");
-  const [errors, setErrors] = useState({ heading: "", description: "" });
+  const [language_code, setLanguageCode] = useState("");
+
+  const [errors, setErrors] = useState({ heading: "", description: "", language_code: "",});
 
   const navigate = useNavigate();
 
@@ -17,6 +19,9 @@ const AddRts = () => {
     if (!description) {
       newErrors.description = "Description is required.";
     }
+    if (!language_code) {
+      newErrors.language_code = "Language selection is required.";
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -27,18 +32,16 @@ const AddRts = () => {
       return;
     }
 
-    if (!heading || !description) {
-      return;
-    }
-
     try {
       await api.post("/righttoservices", {
         heading,
         description,
-      });
+        language_code,
+      });      
       setHeading("");
       setDescription("");
-      setErrors({ heading: "", description: "" });
+      setLanguageCode("");      
+      setErrors({ heading: "", description: "", language_code: ""});
       navigate("/rts");
     } catch (error) {
       console.error("Error adding Right to Service:", error);
@@ -67,6 +70,30 @@ const AddRts = () => {
                     </div>
                   </div>
                   <form onSubmit={handleSubmit}>
+                  <div className="form-group row">
+                  <label className="col-form-label col-md-3">
+                    Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">
+                  <select
+                  className={`form-control form-control-md ${
+                    errors.language_code ? "is-invalid" : ""
+                  }`}
+                  value={language_code}
+                  onChange={(e) => {
+                    setLanguageCode(e.target.value);
+                    setErrors((prev) => ({ ...prev, language_code: "" }));
+                  }}
+                >
+                  <option value="" disabled>Select Language</option>
+                  <option value="en">English</option>
+                  <option value="mr">Marathi</option>
+                </select>
+
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div></div>
                     <div className="form-group row">
                       <label className="col-form-label col-md-2">
                         Heading <span className="text-danger">*</span>

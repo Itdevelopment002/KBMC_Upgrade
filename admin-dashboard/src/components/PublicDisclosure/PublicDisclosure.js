@@ -5,7 +5,10 @@ import { toast, ToastContainer } from "react-toastify";
 
 const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
   const [departments, setDepartments] = useState([]);
-  const [newDepartment, setNewDepartment] = useState("");
+  const [newDepartment, setNewDepartment] = useState({
+    department_name: "",
+    language_code: ""
+  });  
   const [selectedDepartment, setSelectedDepartment] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -13,17 +16,16 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
   const [errors, setErrors] = useState({});
   const departmentsPerPage = 10;
 
-  const fetchDeptDatas = async () => {
+  const fetchDeptDatas = async (lang = "") => {
     try {
-      const response = await api.get("/public_disclosure");
+      const response = await api.get(`/public_disclosure${lang ? `?language_code=${lang}` : ""}`);
       setDepartments(response.data);
-      // eslint-disable-next-line
-      const ids = response.data.map((department) => department.id);
     } catch (error) {
       console.error("Error fetching departments:", error);
       toast.error("Failed to fetch departments.");
     }
   };
+  
 
   useEffect(() => {
     fetchDeptDatas();
@@ -59,23 +61,13 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
 
     if (validateForm()) {
       try {
-        // eslint-disable-next-line
-        const response = await api.post(
-          "/public_disclosure",
-          {
-            department_name: newDepartment,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
+        const response = await api.post("/public_disclosure", newDepartment);
         const updatedDepartments = await api.get("/public_disclosure");
         const newDepartmentEntry = updatedDepartments.data.find(
-          (dept) => dept.department_name === newDepartment
-        );
+          (dept) =>
+            dept.department_name === newDepartment.department_name &&
+            dept.language_code === newDepartment.language_code
+        );        
 
         if (!newDepartmentEntry) {
           throw new Error("Unable to find the added department.");
@@ -88,7 +80,7 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
         const time = currentDate.toTimeString().split(" ")[0];
 
         const notificationData = {
-          description: `New Department: ${newDepartment}`,
+          description: `New Department: ${newDepartment.department_name}`,
           role: "Admin",
           name: "public_disclosure",
           new_id: newId,
@@ -112,10 +104,11 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
 
         setDepartments([
           ...departments,
-          { id: newId, department_name: newDepartment },
+          { id: newId, ...newDepartment },
         ]);
+        
 
-        setNewDepartment("");
+        setNewDepartment({ department_name: "", language_code: "" });
         setErrors({});
         await fetchDepartmentData();
         await fetchDepartments();
@@ -135,14 +128,18 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
       console.error("Selected department or department ID is missing.");
       return;
     }
-
+  
     try {
       const response = await api.put(
         `/public_disclosure/${selectedDepartment.id}`,
-        { department_name: selectedDepartment.department_name },
-        { headers: { "Content-Type": "application/json" } }
-      );
-
+        {
+          department_name: selectedDepartment.department_name,
+          language_code: selectedDepartment.language_code, // <== Add this if needed
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );      
       if (response.status === 200) {
         setDepartments((prevDepartments) =>
           prevDepartments.map((dept) =>
@@ -181,14 +178,19 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
       toast.error("Error deleting department! Please try again.");
     }
   };
+  
   const validateForm = () => {
     const newErrors = {};
-    if (!newDepartment.trim()) {
+    if (!newDepartment.department_name.trim()) {
       newErrors.newDepartment = "Department name is required.";
+    }
+    if (!newDepartment.language_code) {
+      newErrors.language_code = "Language is required.";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
 
   return (
     <div>
@@ -216,12 +218,50 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
                   <hr />
                   <div className="card-block">
                     <form onSubmit={handleAddDepartment}>
+                    <div className="form-group row">
+                  <label className="col-form-label col-md-2">
+                    Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">
+                  <select
+                    className={`form-control form-control-md ${
+                      errors.language_code ? "is-invalid" : ""
+                    }`}
+                    value={newDepartment.language_code}
+                    onChange={(e) => {
+                      setNewDepartment((prev) => ({ ...prev, language_code: e.target.value }));
+                      setErrors((prev) => ({ ...prev, language_code: "" }));
+                    }}
+                  >
+                      <option value="" disabled>Select Language</option>
+                      <option value="en">English</option>
+                      <option value="mr">Marathi</option>
+                    </select>
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div></div>
                       <div className="form-group row">
                         <label className="col-form-label col-md-2">
                           Department Name <span className="text-danger">*</span>
                         </label>
                         <div className="col-md-4 mt-1">
-                          <input
+                        <input
+                        type="text"
+                        className={`form-control form-control-md ${
+                          errors.newDepartment ? "is-invalid" : ""
+                        }`}
+                        value={newDepartment.department_name}
+                        onChange={(e) => {
+                          setNewDepartment((prev) => ({
+                            ...prev,
+                            department_name: e.target.value,
+                          }));
+                          setErrors((prev) => ({ ...prev, newDepartment: "" }));
+                        }}
+                      />
+
+                          {/* <input
                             type="text"
                             className={`form-control form-control-md ${
                               errors.newDepartment ? "is-invalid" : ""
@@ -234,7 +274,7 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
                                 newDepartment: "",
                               }));
                             }}
-                          />
+                          /> */}
                           {errors.newDepartment && (
                             <div className="invalid-feedback">
                               {errors.newDepartment}
@@ -435,6 +475,32 @@ const PublicDisclosure = ({ fetchDepartments, fetchDepartmentData }) => {
                   </div>
                   <div className="modal-body">
                     <form>
+                    <div className="form-group row">
+                  <label className="col-form-label col-md-3">
+                    Language <span className="text-danger">*</span>
+                  </label>
+                  <div className="col-md-4">                
+                    <select
+                    className={`form-control form-control-md ${
+                      errors.language_code ? "is-invalid" : ""
+                    }`}
+                    value={selectedDepartment?.language_code || ""}
+                    onChange={(e) =>
+                      setSelectedDepartment((prev) => ({
+                        ...prev,
+                        language_code: e.target.value,
+                      }))
+                    }
+                  >
+                    <option value="" disabled>Select Language</option>
+                    <option value="en">English</option>
+                    <option value="mr">Marathi</option>
+                  </select>
+
+                    {errors.language_code && (
+                      <small className="text-danger">{errors.language_code}</small>
+                    )}
+                  </div></div>
                       <div className="mb-3">
                         <label className="form-label">Department Name</label>
                         <input
